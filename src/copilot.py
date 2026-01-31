@@ -1,58 +1,64 @@
+import openai
 from typing import Dict, Any, List
+import pandas as pd
+import json
 import logging
+from .config import config
 
 logger = logging.getLogger(__name__)
 
 class ScheduleCopilot:
     """
-    The Brain 🧠
-    Interacts with the P6Parser and Analyzer to answer natural language questions.
-    Designed to work with OpenAI/Gemini Function Calling.
+    Real implementation of the AI Copilot.
+    Uses OpenAI (or compatible) API to answer schedule questions.
     """
     
     def __init__(self, parser, analyzer):
         self.parser = parser
         self.analyzer = analyzer
-        self.context = {}
+        self.client = None
+        self._setup_client()
 
-    def build_system_prompt(self) -> str:
-        """
-        Creates the 'Soul' of the P6 Copilot.
-        Injects the current schedule health metrics into the prompt
-        so the AI is immediately aware of the project state.
-        """
-        # Grab live data
-        metrics = self.parser.get_llm_context()['project_metrics']
+    def _setup_client(self):
+        """Initialize OpenAI client with config settings."""
+        api_key = config.get("api_key") or os.getenv("OPENAI_API_KEY")
+        base_url = config.get("api_base_url")
         
-        prompt = f"""You are the SixTerminal AI Copilot, an expert Construction Scheduler.
-You have access to the live P6 schedule data for this project.
+        if api_key:
+            self.client = openai.OpenAI(api_key=api_key, base_url=base_url)
+        else:
+            logger.warning("No API Key found for AI Copilot.")
 
-CURRENT PROJECT STATUS:
-- Total Activities: {metrics['total_activities']}
-- Completion: {metrics['completed']} completed, {metrics['in_progress']} in progress.
-- Project Dates: {metrics['project_start']} to {metrics['project_finish']}
-
-YOUR GOAL:
-Help the user analyze delays, find critical path issues, and understand the stairway chart.
-Answer concisely. If a user asks about a specific activity, use the 'lookup_activity' tool.
-"""
-        return prompt
-
-    def query(self, user_input: str):
+    def query(self, user_input: str, chat_history: List[Dict] = []) -> str:
         """
-        This is where we would hook into the actual LLM API.
-        For the prototype, this will simulate the routing.
+        Send user query + context to LLM and get a response.
         """
-        # TODO: Implement actual LLM call with tool definitions
-        pass
+        if not self.client:
+            return "⚠️ AI Config Error: Please set your API Key in Settings."
 
-    # --- TOOLS FOR THE AI ---
-    
-    def tool_lookup_activity(self, activity_id: str):
-        """AI Tool: Get details for a specific Activity ID"""
-        # Logic to search df_activities
-        pass
+        # 1. Build Context (The "Health Stats")
+        context_data = self.parser.get_llm_context()
+        critical_path = self.analyzer.get_critical_path().head(5)[['task_code', 'task_name', 'total_float_hr_cnt']].to_dict('records')
+        
+        system_prompt = f"""
+        You are an expert Construction Scheduler assistant named SixTerminal.
+        
+        CURRENT PROJECT DATA:
+        - Activities: {context_data['project_metrics']['total_activities']}
+        - Progress: {context_data['project_metrics']['completed']} completed / {context_data['project_metrics']['in_progress']} active.
+        - Critical Path Top 5: {json.dumps(critical_path)}
+        
+        Your goal is to explain schedule risks concisely.
+        """
 
-    def tool_get_critical_path(self):
-        """AI Tool: List top 10 critical path activities"""
-        pass
+        messages = [{"role": "system", "content": system_prompt}] + chat_history + [{"role": "user", "content": user_input}]
+
+        try:
+            response = self.client.chat.completions.create(
+                model=config.get("ai_model", "gpt-4-turbo"),
+                messages=messages,
+                temperature=0.3
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"❌ AI Error: {str(e)}"
