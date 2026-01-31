@@ -1,0 +1,17 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data Files
+*.xer
+*.xlsx
+*.csv
+
+# OS
+.DS_Store

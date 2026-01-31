@@ -2,6 +2,7 @@ import pandas as pd
 from xerparser.reader import Reader
 from typing import Dict, Any, List, Optional
 import logging
+import io
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -9,23 +10,17 @@ logger = logging.getLogger(__name__)
 
 class P6Parser:
     """
-    Robust wrapper around PyP6XER to extract and normalize P6 schedule data.
+    Robust wrapper around xerparser (0.9.4) to extract and normalize P6 schedule data.
     Designed to feed both the Excel Dashboard engine and the AI Copilot.
     """
     
     def __init__(self, xer_path: str):
         self.xer_path = xer_path
-        self.reader = Reader(xer_path)
-        self.tables = {}
-        self.project_data = {}
-        
-        # Core dataframes
+        self.reader = None
         self.df_activities = None
         self.df_relationships = None
         self.df_wbs = None
-        self.df_codes = None
         
-        # Load immediately
         self._load_data()
 
     def _load_data(self):
@@ -33,37 +28,55 @@ class P6Parser:
         logger.info(f"Parsing XER file: {self.xer_path}")
         
         try:
-            # parsing is done by Reader init, just accessing parser items
-            parser = self.reader.parser
+            # Attempt to read with standard encoding
+            try:
+                self.reader = Reader(self.xer_path)
+            except UnicodeDecodeError:
+                logger.warning("UTF-8 parsing failed. Retrying with 'cp1252' (Windows)...")
+                # xerparser Reader takes a file path, we can't easily inject encoding into __init__
+                # without patching the library or reading bytes first.
+                # Workaround: Read bytes, decode manually, pass as file-like object if supported
+                # OR handle the encoding at the file read level if the library supports it.
+                # Since xerparser 0.9.4 Reader expects a path, we might need a workaround.
+                # Re-opening with specific encoding:
+                with open(self.xer_path, 'r', encoding='cp1252', errors='replace') as f:
+                    self.reader = Reader(f)
+
+            # parsing is done by Reader init
+            parser = self.reader
             
             # 1. Activities (TASK)
-            # We map P6 internal names to human friendly names for our downstream apps
             if hasattr(parser, 'task'):
-                self.df_activities = pd.DataFrame(parser.task)
+                # Convert list of objects to dicts for DataFrame
+                tasks = [vars(t) for t in parser.task] if parser.task else []
+                self.df_activities = pd.DataFrame(tasks)
                 self._normalize_activities()
             else:
                 logger.error("No TASK table found in XER!")
+                self.df_activities = pd.DataFrame()
 
             # 2. Relationships (TASKPRED)
             if hasattr(parser, 'taskpred'):
-                self.df_relationships = pd.DataFrame(parser.taskpred)
+                preds = [vars(p) for p in parser.taskpred] if parser.taskpred else []
+                self.df_relationships = pd.DataFrame(preds)
             
-            # 3. WBS (PROJWBS) - Essential for hierarchy
+            # 3. WBS (PROJWBS)
             if hasattr(parser, 'projwbs'):
-                self.df_wbs = pd.DataFrame(parser.projwbs)
+                wbs = [vars(w) for w in parser.projwbs] if parser.projwbs else []
+                self.df_wbs = pd.DataFrame(wbs)
                 
-            # 4. Activity Codes (ACTVCODE + ACTVTYPE) - Essential for filtering
-            # Note: This usually requires joining ACTVCODE assignment with ACTVTYPE definitions
-            # Implementing robust join logic later in analyzer
-            
             logger.info("XER Parsing Complete. Data loaded into memory.")
             
         except Exception as e:
             logger.error(f"Failed to parse XER: {str(e)}")
+            # Fallback for Streamlit to not crash completely
+            self.df_activities = pd.DataFrame()
             raise e
 
     def _normalize_activities(self):
         """Clean up date formats and handle nulls."""
+        if self.df_activities.empty: return
+
         date_cols = ['target_start_date', 'target_end_date', 'act_start_date', 'act_end_date', 'early_start_date', 'early_end_date']
         
         for col in date_cols:
@@ -74,45 +87,33 @@ class P6Parser:
         """Return the raw activities dataframe."""
         return self.df_activities
 
-    def get_relationships(self) -> pd.DataFrame:
-        """Return the relationships dataframe."""
-        return self.df_relationships
-
     def get_llm_context(self, summary_only=True) -> Dict[str, Any]:
         """
         Generates a token-efficient summary for the AI Copilot.
-        The AI doesn't need every row, it needs the 'Health Stats'.
         """
-        if self.df_activities is None:
+        if self.df_activities is None or self.df_activities.empty:
             return {"error": "No data loaded"}
             
         total_tasks = len(self.df_activities)
-        completed = len(self.df_activities[self.df_activities['status_code'] == 'TK_Complete'])
-        in_progress = len(self.df_activities[self.df_activities['status_code'] == 'TK_Active'])
-        not_started = total_tasks - completed - in_progress
+        # Check column names carefully as xerparser might lowercase them
+        status_col = 'status_code' if 'status_code' in self.df_activities.columns else 'status_code'
         
-        # Calculate simplistic start/finish bounds
-        start_date = self.df_activities['target_start_date'].min()
-        finish_date = self.df_activities['target_end_date'].max()
+        completed = len(self.df_activities[self.df_activities[status_col] == 'TK_Complete']) if status_col in self.df_activities else 0
+        in_progress = len(self.df_activities[self.df_activities[status_col] == 'TK_Active']) if status_col in self.df_activities else 0
         
         context = {
             "project_metrics": {
                 "total_activities": total_tasks,
                 "completed": completed,
                 "in_progress": in_progress,
-                "not_started": not_started,
-                "project_start": str(start_date),
-                "project_finish": str(finish_date)
-            },
-            # We will populate 'critical_path_count' and 'high_variance_count' 
-            # once the Analyzer module is built.
-            "analysis_ready": False 
+                "project_data_date": str(datetime.now().date()) # Placeholder
+            }
         }
         return context
 
 if __name__ == "__main__":
-    # Test block
     import sys
+    from datetime import datetime
     if len(sys.argv) > 1:
         parser = P6Parser(sys.argv[1])
-        print(parser.get_llm_context())
+        print(parser.get_activities().head())
