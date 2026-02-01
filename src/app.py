@@ -51,25 +51,26 @@ st.markdown("""
     
     h2 {
         font-size: 1.8rem !important;
-        color: #1e293b;
-        margin-top: 2rem !important;
-        margin-bottom: 1rem !important;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #e2e8f0;
+        color: #e2e8f0 !important;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
+        padding-bottom: 0.3rem;
+        border-bottom: 2px solid #475569;
     }
     
     h3 {
-        font-size: 1.3rem !important;
-        color: #334155;
-        margin-top: 1.5rem !important;
+        font-size: 1.2rem !important;
+        color: #cbd5e1 !important;
+        margin-top: 0.8rem !important;
+        margin-bottom: 0.5rem !important;
     }
     
     /* Section dividers */
     hr {
-        margin: 2.5rem 0 !important;
+        margin: 1rem 0 !important;
         border: none !important;
-        height: 2px !important;
-        background: linear-gradient(90deg, transparent, #cbd5e1, transparent) !important;
+        height: 1px !important;
+        background: linear-gradient(90deg, transparent, #475569, transparent) !important;
     }
     
     /* Metric cards */
@@ -331,12 +332,12 @@ def render_dashboard(uploaded_file):
 def render_executive_summary(analyzer, stats):
     # Header with icon
     st.markdown("## 📊 Project Health Dashboard")
-    st.markdown("---")
+    st.divider()
     
     # Get project duration metrics
     duration_info = analyzer.get_project_duration()
     
-    # KPI Metrics with enhanced spacing
+    # KPI Metrics
     st.markdown("### Key Performance Indicators")
     
     # First row - Core metrics
@@ -348,7 +349,6 @@ def render_executive_summary(analyzer, stats):
     col4.metric("Data Date", stats['data_date'])
     
     # Second row - Duration metrics
-    st.markdown("<br>", unsafe_allow_html=True)
     col5, col6, col7, col8 = st.columns(4)
     col5.metric("📅 Project Duration", f"{duration_info['duration_days']:,} days")
     col6.metric("✅ Duration % Complete", f"{duration_info['percent_complete']}%", 
@@ -356,12 +356,10 @@ def render_executive_summary(analyzer, stats):
     col7.metric("🚀 Project Start", duration_info['project_start'] if duration_info['project_start'] else "N/A")
     col8.metric("🏁 Project Finish", duration_info['project_finish'] if duration_info['project_finish'] else "N/A")
     
-    st.markdown("<br>", unsafe_allow_html=True)
     st.divider()
     
     # Critical Path Timeline
     st.markdown("### 🎯 Top 10 Critical Path Drivers")
-    st.markdown("<br>", unsafe_allow_html=True)
     crit_df = analyzer.get_critical_path().head(10)
     
     if not crit_df.empty:
@@ -400,12 +398,10 @@ def render_executive_summary(analyzer, stats):
     else:
         st.info("✅ No critical path activities found - project has positive float!")
     
-    st.markdown("<br>", unsafe_allow_html=True)
     st.divider()
     
     # Health Indicators
     st.markdown("### 🏥 Schedule Health Indicators")
-    st.markdown("<br>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     
     with col1:
@@ -424,12 +420,10 @@ def render_executive_summary(analyzer, stats):
         else:
             st.success("✅ **ON TRACK**: No significant slippage detected")
     
-    st.markdown("<br>", unsafe_allow_html=True)
     st.divider()
     
     # Schedule Log Metrics (P6 Schedule Health)
     st.markdown("### 📊 P6 Schedule Log Metrics")
-    st.markdown("<br>", unsafe_allow_html=True)
     
     health_metrics = analyzer.get_schedule_health_metrics()
     
