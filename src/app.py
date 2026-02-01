@@ -290,6 +290,62 @@ def render_executive_summary(analyzer, stats):
             st.warning(f"⚠️ **MODERATE SLIPPAGE**: {stats['slipping_activities']} activities slipping")
         else:
             st.success("✅ **ON TRACK**: No significant slippage detected")
+    
+    st.divider()
+    
+    # Schedule Log Metrics (P6 Schedule Health)
+    st.subheader("📊 P6 Schedule Log Metrics")
+    
+    health_metrics = analyzer.get_schedule_health_metrics()
+    
+    if health_metrics:
+        col1, col2, col3, col4 = st.columns(4)
+        
+        col1.metric("🔗 Relationships", health_metrics.get('total_relationships', 0))
+        col2.metric("⛓️ Constraints", health_metrics.get('total_constraints', 0))
+        col3.metric("🔓 Open Starts", health_metrics.get('no_predecessors', 0), 
+                   help="Activities with no predecessors")
+        col4.metric("🔓 Open Ends", health_metrics.get('no_successors', 0),
+                   help="Activities with no successors")
+        
+        # Detailed breakdown in expander
+        with st.expander("📝 View Detailed Schedule Metrics"):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**Constraint Types:**")
+                constraint_breakdown = health_metrics.get('constraint_breakdown', {})
+                if constraint_breakdown:
+                    for cstr, count in sorted(constraint_breakdown.items(), key=lambda x: x[1], reverse=True):
+                        st.write(f"- {cstr}: {count}")
+                else:
+                    st.write("No constraints")
+            
+            with col2:
+                st.markdown("**Relationship Types:**")
+                rel_breakdown = health_metrics.get('relationship_breakdown', {})
+                if rel_breakdown:
+                    for rel, count in sorted(rel_breakdown.items(), key=lambda x: x[1], reverse=True):
+                        rel_label = {
+                            'PR_FS': 'Finish-to-Start',
+                            'PR_SS': 'Start-to-Start',
+                            'PR_FF': 'Finish-to-Finish',
+                            'PR_SF': 'Start-to-Finish'
+                        }.get(rel, rel)
+                        st.write(f"- {rel_label}: {count}")
+                else:
+                    st.write("No relationships")
+            
+            # Warnings for schedule quality issues
+            st.markdown("**Schedule Quality Checks:**")
+            if health_metrics.get('no_predecessors', 0) > 1:
+                st.warning(f"⚠️ {health_metrics['no_predecessors']} activities have no predecessors (may indicate logic gaps)")
+            if health_metrics.get('no_successors', 0) > 1:
+                st.warning(f"⚠️ {health_metrics['no_successors']} activities have no successors (may indicate logic gaps)")
+            if health_metrics.get('total_constraints', 0) > stats['total_activities'] * 0.05:
+                st.warning(f"⚠️ {health_metrics['total_constraints']} constraints (>{5}% of activities - may over-constrain schedule)")
+            if not health_metrics.get('no_predecessors', 0) > 1 and not health_metrics.get('no_successors', 0) > 1:
+                st.success("✅ Schedule logic appears well-connected")
 
 def render_stairway_visuals(analyzer):
     st.header("Milestone Stairway Tracker")

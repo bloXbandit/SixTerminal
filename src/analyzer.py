@@ -19,7 +19,14 @@ class ScheduleAnalyzer:
     def __init__(self, parser):
         self.parser = parser
         self.df_main = None
-        self.analysis_date = datetime.now() # Default, should ideally come from XER 'last_update_date'
+        
+        # Use actual data date from P6 XER, fallback to today
+        if hasattr(parser, 'project_metadata') and parser.project_metadata.get('data_date'):
+            self.analysis_date = parser.project_metadata['data_date']
+            logger.info(f"Using P6 data date: {self.analysis_date}")
+        else:
+            self.analysis_date = datetime.now()
+            logger.warning("P6 data date not found, using current date")
         
         self._prepare_analysis_dataset()
 
@@ -420,4 +427,59 @@ class ScheduleAnalyzer:
             'completion_rate': round(completion_rate, 1),
             'critical_this_month': critical_this_month,
             'behind_schedule': behind_count
+        }
+
+    def get_schedule_health_metrics(self) -> Dict[str, Any]:
+        """
+        Extract P6 schedule log metrics - constraints, relationships, open-ended activities.
+        Returns dict with schedule quality indicators.
+        """
+        if not hasattr(self.parser, 'reader') or not self.parser.reader:
+            return {}
+        
+        xer = self.parser.reader
+        
+        # 1. Constraint Analysis
+        constraint_types = {}
+        for task_id, task in xer.tasks.items():
+            if hasattr(task, 'cstr_type') and task.cstr_type:
+                cstr_name = task.cstr_type.name if hasattr(task.cstr_type, 'name') else str(task.cstr_type)
+                constraint_types[cstr_name] = constraint_types.get(cstr_name, 0) + 1
+        
+        total_constraints = sum(constraint_types.values())
+        
+        # 2. Relationship Analysis
+        total_relationships = len(xer.relationships) if hasattr(xer, 'relationships') else 0
+        
+        rel_types = {}
+        if hasattr(xer, 'relationships'):
+            for rel_id, rel in xer.relationships.items():
+                if hasattr(rel, 'pred_type'):
+                    rel_name = rel.pred_type.name if hasattr(rel.pred_type, 'name') else str(rel.pred_type)
+                    rel_types[rel_name] = rel_types.get(rel_name, 0) + 1
+        
+        # 3. Open-Ended Activities
+        tasks_with_pred = set()
+        tasks_with_succ = set()
+        
+        if hasattr(xer, 'relationships'):
+            for rel_id, rel in xer.relationships.items():
+                if hasattr(rel, 'task_id'):
+                    tasks_with_pred.add(rel.task_id)
+                if hasattr(rel, 'pred_task_id'):
+                    tasks_with_succ.add(rel.pred_task_id)
+        
+        no_predecessors = len(xer.tasks) - len(tasks_with_pred)
+        no_successors = len(xer.tasks) - len(tasks_with_succ)
+        
+        logger.info(f"Schedule Health: {total_constraints} constraints, {total_relationships} relationships, {no_predecessors} open starts, {no_successors} open ends")
+        
+        return {
+            'total_constraints': total_constraints,
+            'constraint_breakdown': constraint_types,
+            'total_relationships': total_relationships,
+            'relationship_breakdown': rel_types,
+            'no_predecessors': no_predecessors,
+            'no_successors': no_successors,
+            'circular_relationships': 0  # Would require graph analysis - placeholder
         }

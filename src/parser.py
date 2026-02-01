@@ -20,6 +20,7 @@ class P6Parser:
         self.df_activities = None
         self.df_relationships = None
         self.df_wbs = None
+        self.project_metadata = {}  # Store project-level data
         
         self._load_data()
 
@@ -109,6 +110,19 @@ class P6Parser:
                 self.df_wbs = pd.DataFrame(wbs)
             else:
                 self.df_wbs = pd.DataFrame()
+            
+            # Extract project-level metadata
+            if hasattr(parser, 'projects') and parser.projects:
+                proj = list(parser.projects.values())[0]
+                self.project_metadata = {
+                    'project_name': getattr(proj, 'name', 'Unknown'),
+                    'data_date': getattr(proj, 'data_date', None),
+                    'plan_start_date': getattr(proj, 'plan_start_date', None),
+                    'must_fin_by_date': getattr(proj, 'must_fin_by_date', None),
+                    'last_recalc_date': getattr(proj, 'last_recalc_date', None),
+                }
+                logger.info(f"Project: {self.project_metadata['project_name']}")
+                logger.info(f"Data Date: {self.project_metadata['data_date']}")
                 
             logger.info("XER Parsing Complete. Data loaded into memory.")
             
