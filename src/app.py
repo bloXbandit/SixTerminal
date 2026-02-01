@@ -248,26 +248,38 @@ def render_executive_summary(analyzer, stats):
     crit_df = analyzer.get_critical_path().head(10)
     
     if not crit_df.empty:
-        # Add Activity ID to hover data for identification
+        # Add task_code to display labels
+        if 'task_code' in crit_df.columns:
+            crit_df['display_name'] = crit_df['task_name'] + ' (' + crit_df['task_code'].astype(str) + ')'
+        else:
+            crit_df['display_name'] = crit_df['task_name']
+        
         fig = px.timeline(
             crit_df, 
             x_start="current_start", 
             x_end="current_finish", 
-            y="task_name",
+            y="display_name",
             color="total_float_hr_cnt",
             title="Critical Path Activities",
-            labels={"total_float_hr_cnt": "Total Float (Hrs)"},
-            hover_data=['task_id', 'task_code'] if 'task_id' in crit_df.columns else ['task_code']
+            labels={"total_float_hr_cnt": "Total Float (Hrs)", "display_name": "Activity"},
+            hover_data=['task_code'] if 'task_code' in crit_df.columns else None
         )
         fig.update_yaxes(autorange="reversed")
         fig.update_layout(height=500)
         st.plotly_chart(fig, use_container_width=True)
         
-        # Show table with Activity IDs
+        # Show table with Activity Details
         st.subheader("Critical Path Details")
-        display_cols = ['task_id', 'task_code', 'task_name', 'total_float_hr_cnt', 'current_start', 'current_finish']
+        display_cols = ['task_code', 'task_name', 'current_start', 'current_finish']
         available_cols = [col for col in display_cols if col in crit_df.columns]
-        st.dataframe(crit_df[available_cols], use_container_width=True, height=300)
+        
+        # Format dates as MM/DD/YYYY
+        display_df = crit_df[available_cols].copy()
+        for col in ['current_start', 'current_finish']:
+            if col in display_df.columns:
+                display_df[col] = pd.to_datetime(display_df[col]).dt.strftime('%m/%d/%Y')
+        
+        st.dataframe(display_df, use_container_width=True, height=300)
     else:
         st.info("✅ No critical path activities found - project has positive float!")
     
@@ -353,13 +365,19 @@ def render_stairway_visuals(analyzer):
     milestones = analyzer.get_milestones()
     
     if not milestones.empty:
+        # Add task_code to milestone display names
+        if 'task_code' in milestones.columns:
+            milestones['display_name'] = milestones['task_name'] + ' (' + milestones['task_code'].astype(str) + ')'
+        else:
+            milestones['display_name'] = milestones['task_name']
+        
         # Enhanced Stairway Chart
         fig = go.Figure()
         
         # Forecast line (the actual stairway)
         fig.add_trace(go.Scatter(
             x=milestones['current_finish'],
-            y=milestones['task_name'],
+            y=milestones['display_name'],
             mode='markers+lines',
             name='Forecast',
             marker=dict(size=12, color='blue', symbol='circle'),
@@ -369,7 +387,7 @@ def render_stairway_visuals(analyzer):
         # Baseline markers
         fig.add_trace(go.Scatter(
             x=milestones['target_end_date'],
-            y=milestones['task_name'],
+            y=milestones['display_name'],
             mode='markers',
             name='Baseline',
             marker=dict(size=10, color='gray', symbol='diamond-open')
@@ -380,7 +398,7 @@ def render_stairway_visuals(analyzer):
             if pd.notnull(row['target_end_date']) and pd.notnull(row['current_finish']):
                 fig.add_trace(go.Scatter(
                     x=[row['target_end_date'], row['current_finish']],
-                    y=[row['task_name'], row['task_name']],
+                    y=[row['display_name'], row['display_name']],
                     mode='lines',
                     line=dict(color='red' if row['variance_days'] > 0 else 'green', 
                              width=1, dash='dot'),
@@ -413,11 +431,17 @@ def render_stairway_visuals(analyzer):
             else:
                 return 'background-color: #ccffcc'
         
-        # Include Activity ID for easier identification
-        display_cols = ['task_id', 'task_code', 'task_name', 'target_end_date', 'current_finish', 'variance_days']
+        # Include Activity Code for easier identification
+        display_cols = ['task_code', 'task_name', 'target_end_date', 'current_finish', 'variance_days']
         available_cols = [col for col in display_cols if col in milestones.columns]
         
-        styled_df = milestones[available_cols].style.applymap(
+        # Format dates as MM/DD/YYYY
+        display_milestones = milestones[available_cols].copy()
+        for col in ['target_end_date', 'current_finish']:
+            if col in display_milestones.columns:
+                display_milestones[col] = pd.to_datetime(display_milestones[col]).dt.strftime('%m/%d/%Y')
+        
+        styled_df = display_milestones.style.applymap(
             highlight_variance, subset=['variance_days'] if 'variance_days' in available_cols else []
         )
         
@@ -521,29 +545,35 @@ def render_procurement_tracker(analyzer):
     
     # Select columns to display
     display_cols = [
-        'task_id', 'task_code', 'task_name', 'status_code',
+        'task_code', 'task_name', 'status_code',
         'current_start', 'current_finish', 'complete_pct'
     ]
     available_cols = [col for col in display_cols if col in filtered_df.columns]
     
-    # Color code by status
+    # Format dates as MM/DD/YYYY
+    display_procurement = filtered_df[available_cols].copy()
+    for col in ['current_start', 'current_finish']:
+        if col in display_procurement.columns:
+            display_procurement[col] = pd.to_datetime(display_procurement[col]).dt.strftime('%m/%d/%Y')
+    
+    # Color code by status with better text contrast
     def highlight_status(row):
         if 'status_code' not in row:
             return [''] * len(row)
         
         status = row['status_code']
         if status == 'TK_Complete':
-            color = 'background-color: #d4edda'  # Green
+            color = 'background-color: #28a745; color: white'  # Dark green with white text
         elif status == 'TK_Active':
-            color = 'background-color: #d1ecf1'  # Blue
+            color = 'background-color: #17a2b8; color: white'  # Dark blue with white text
         elif status == 'TK_NotStart':
-            color = 'background-color: #fff3cd'  # Yellow
+            color = 'background-color: #6c757d; color: white'  # Gray with white text
         else:
             color = ''
         
         return [color] * len(row)
     
-    styled_df = filtered_df[available_cols].style.apply(highlight_status, axis=1)
+    styled_df = display_procurement.style.apply(highlight_status, axis=1)
     
     st.dataframe(styled_df, use_container_width=True, height=500)
     
@@ -981,7 +1011,7 @@ def render_data_tables(analyzer):
     
     # Column selector
     available_cols = ['task_code', 'task_name', 'current_start', 'current_finish', 
-                     'variance_days', 'total_float_hr_cnt', 'status_readable']
+                     'variance_days', 'status_readable']
     selected_cols = st.multiselect(
         "Select columns to display",
         [col for col in available_cols if col in df.columns],
@@ -989,7 +1019,13 @@ def render_data_tables(analyzer):
     )
     
     if selected_cols:
-        st.dataframe(df[selected_cols], use_container_width=True, height=600)
+        # Format dates as MM/DD/YYYY
+        display_df = df[selected_cols].copy()
+        for col in ['current_start', 'current_finish']:
+            if col in display_df.columns:
+                display_df[col] = pd.to_datetime(display_df[col]).dt.strftime('%m/%d/%Y')
+        
+        st.dataframe(display_df, use_container_width=True, height=600)
     
     # Export option
     if st.button("📥 Export to CSV"):
@@ -1043,12 +1079,16 @@ def render_ai_copilot(parser, analyzer):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
     
-    # Chat input (using text_input + button since chat_input doesn't work in tabs)
-    col1, col2 = st.columns([5, 1])
-    with col1:
-        prompt = st.text_input("Ask about your schedule...", key="ai_prompt", label_visibility="collapsed", placeholder="Ask about your schedule...")
-    with col2:
-        send_button = st.button("Send", use_container_width=True)
+    # Chat input with form (Enter to submit, Shift+Enter for new line)
+    with st.form(key="chat_form", clear_on_submit=True):
+        prompt = st.text_area(
+            "Ask about your schedule...", 
+            key="ai_prompt", 
+            height=80, 
+            label_visibility="collapsed", 
+            placeholder="Ask about your schedule... (Enter to send, Shift+Enter for new line)"
+        )
+        send_button = st.form_submit_button("Send ➤", use_container_width=True)
     
     if send_button and prompt:
         # Add user message

@@ -39,17 +39,43 @@ class ScheduleCopilot:
 
         # 1. Build Context (The "Health Stats")
         context_data = self.parser.get_llm_context()
-        critical_path = self.analyzer.get_critical_path().head(5)[['task_code', 'task_name', 'total_float_hr_cnt']].to_dict('records')
+        
+        # Get critical path data with available columns
+        crit_path_df = self.analyzer.get_critical_path().head(5)
+        if not crit_path_df.empty:
+            # Only include columns that exist
+            available_cols = []
+            for col in ['task_code', 'task_name', 'total_float_hr_cnt']:
+                if col in crit_path_df.columns:
+                    available_cols.append(col)
+            
+            if available_cols:
+                critical_path = crit_path_df[available_cols].to_dict('records')
+            else:
+                critical_path = []
+        else:
+            critical_path = []
         
         system_prompt = f"""
-        You are an expert Construction Scheduler assistant named SixTerminal.
+        You are SixTerminal, an expert Construction Scheduler AI assistant with a friendly, conversational personality.
         
-        CURRENT PROJECT DATA:
-        - Activities: {context_data['project_metrics']['total_activities']}
-        - Progress: {context_data['project_metrics']['completed']} completed / {context_data['project_metrics']['in_progress']} active.
-        - Critical Path Top 5: {json.dumps(critical_path)}
+        CAPABILITIES:
+        - Engage in natural conversation and answer general questions
+        - Analyze P6 schedules and provide insights when asked
+        - Explain schedule risks, delays, and critical path issues
+        - Help with project planning and scheduling questions
         
-        Your goal is to explain schedule risks concisely.
+        CURRENT PROJECT DATA (use this when user asks schedule-specific questions):
+        - Total Activities: {context_data.get('project_metrics', {}).get('total_activities', 'N/A')}
+        - Completed: {context_data.get('project_metrics', {}).get('completed', 0)} | In Progress: {context_data.get('project_metrics', {}).get('in_progress', 0)}
+        - Critical Path Top 5: {json.dumps(critical_path) if critical_path else 'No critical path data available'}
+        
+        INSTRUCTIONS:
+        - For greetings or general chat (like "hello", "hi", "how are you"), respond naturally and warmly
+        - For schedule questions, use the project data above to provide specific insights
+        - If asked about tasks/activities but no data is available, politely explain that a schedule needs to be uploaded
+        - Be concise but friendly - aim for helpful, conversational responses
+        - When discussing schedule issues, be clear about risks and recommendations
         """
 
         messages = [{"role": "system", "content": system_prompt}] + chat_history + [{"role": "user", "content": user_input}]

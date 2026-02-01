@@ -3,6 +3,7 @@ from xerparser import Xer
 from typing import Dict, Any, List, Optional
 import logging
 import io
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -44,9 +45,14 @@ class P6Parser:
             # parsing is done by Xer init
             parser = self.reader
             
+            # Debug: Log all available attributes on the parser object
+            available_attrs = [attr for attr in dir(parser) if not attr.startswith('_')]
+            logger.info(f"Parser attributes: {available_attrs}")
+            
             # 1. Activities (TASK)
-            # xerparser uses 'tasks' (plural) as a dictionary, not 'task'
+            # Check for both 'tasks' (dict) and 'task' (list) to be robust
             if hasattr(parser, 'tasks') and parser.tasks:
+                logger.info(f"Found 'tasks' dictionary with {len(parser.tasks)} items")
                 # Convert dict of task objects to list of dicts for DataFrame
                 tasks = []
                 for task_id, task in parser.tasks.items():
@@ -74,10 +80,19 @@ class P6Parser:
                     tasks.append(task_dict)
                 
                 self.df_activities = pd.DataFrame(tasks)
-                logger.info(f"Loaded {len(tasks)} activities from XER")
+                logger.info(f"Loaded {len(tasks)} activities from XER (via tasks dict)")
                 self._normalize_activities()
+            
+            elif hasattr(parser, 'task') and parser.task:
+                logger.info(f"Found 'task' list with {len(parser.task)} items")
+                # Fallback for list-based parser
+                tasks = [vars(t) for t in parser.task]
+                self.df_activities = pd.DataFrame(tasks)
+                logger.info(f"Loaded {len(tasks)} activities from XER (via task list)")
+                self._normalize_activities()
+                
             else:
-                logger.error("No tasks found in XER!")
+                logger.error("No tasks found in XER! Checked 'tasks' and 'task'.")
                 self.df_activities = pd.DataFrame()
 
             # 2. Relationships (TASKPRED)
