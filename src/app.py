@@ -90,7 +90,7 @@ st.markdown("""
     /* Tabs styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 12px;
-        background-color: #f8fafc;
+        background-color: #1e293b;
         padding: 8px;
         border-radius: 12px;
     }
@@ -100,10 +100,16 @@ st.markdown("""
         font-weight: 600;
         border-radius: 8px;
         transition: all 0.3s ease;
+        color: #cbd5e1;
     }
     
     .stTabs [data-baseweb="tab"]:hover {
-        background-color: #e2e8f0;
+        background-color: #334155;
+    }
+    
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background-color: #475569;
+        color: #f1f5f9;
     }
     
     /* Cards and containers */
