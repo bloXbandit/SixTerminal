@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,13 +30,34 @@ class ScheduleAnalyzer:
         """
         raw_tasks = self.parser.get_activities().copy()
         
+        if raw_tasks.empty:
+            logger.warning("No activities found in XER file")
+            self.df_main = pd.DataFrame()
+            return
+        
+        # Debug: log available columns
+        logger.info(f"Available columns: {raw_tasks.columns.tolist()}")
+        
+        # Find the status column (could be status_code or status)
+        status_col = None
+        for col in ['status_code', 'status', 'task_status_code']:
+            if col in raw_tasks.columns:
+                status_col = col
+                break
+        
         # 1. Map P6 Status Codes to Human Readable
         status_map = {
             'TK_NotStart': 'Not Started',
             'TK_Active': 'In Progress',
             'TK_Complete': 'Completed'
         }
-        raw_tasks['status_readable'] = raw_tasks['status_code'].map(status_map).fillna('Unknown')
+        
+        if status_col:
+            raw_tasks['status_readable'] = raw_tasks[status_col].map(status_map).fillna('Unknown')
+        else:
+            logger.warning("No status column found, defaulting to 'Unknown'")
+            raw_tasks['status_readable'] = 'Unknown'
+            status_col = 'status_readable'
 
         # 2. Define "Current Start" and "Current Finish" based on Status
         # P6 Logic:
@@ -44,17 +65,27 @@ class ScheduleAnalyzer:
         # - If In Progress: Use Actual Start / Early Finish (Forecast)
         # - If Not Started: Use Early Start / Early Finish
         
-        raw_tasks['current_start'] = np.where(
-            raw_tasks['status_code'] == 'TK_NotStart', 
-            raw_tasks['early_start_date'], 
-            raw_tasks['act_start_date']
-        )
+        # Handle different possible column names
+        early_start = 'early_start_date' if 'early_start_date' in raw_tasks.columns else 'target_start_date'
+        early_end = 'early_end_date' if 'early_end_date' in raw_tasks.columns else 'target_end_date'
+        act_start = 'act_start_date' if 'act_start_date' in raw_tasks.columns else early_start
+        act_end = 'act_end_date' if 'act_end_date' in raw_tasks.columns else early_end
         
-        raw_tasks['current_finish'] = np.where(
-            raw_tasks['status_code'] == 'TK_Complete', 
-            raw_tasks['act_end_date'], 
-            raw_tasks['early_end_date']
-        )
+        if status_col and status_col in raw_tasks.columns:
+            raw_tasks['current_start'] = np.where(
+                raw_tasks[status_col] == 'TK_NotStart', 
+                raw_tasks.get(early_start), 
+                raw_tasks.get(act_start)
+            )
+            
+            raw_tasks['current_finish'] = np.where(
+                raw_tasks[status_col] == 'TK_Complete', 
+                raw_tasks.get(act_end), 
+                raw_tasks.get(early_end)
+            )
+        else:
+            raw_tasks['current_start'] = raw_tasks.get(early_start)
+            raw_tasks['current_finish'] = raw_tasks.get(early_end)
 
         # 3. Calculate Variance (vs Target/Baseline)
         # Note: 'target_end_date' in TASK table usually maps to Project Baseline if assigned.
@@ -86,10 +117,18 @@ class ScheduleAnalyzer:
 
     def get_critical_path(self) -> pd.DataFrame:
         """Returns only critical path activities, sorted by date."""
-        if self.df_main is None: return pd.DataFrame()
+        if self.df_main is None or self.df_main.empty:
+            return pd.DataFrame()
+        
+        if 'is_critical' not in self.df_main.columns:
+            logger.warning("No is_critical column found, returning empty critical path")
+            return pd.DataFrame()
         
         crit = self.df_main[self.df_main['is_critical']].copy()
-        return crit.sort_values(by='current_start')
+        
+        if not crit.empty and 'current_start' in crit.columns:
+            return crit.sort_values(by='current_start')
+        return crit
 
     def get_milestones(self) -> pd.DataFrame:
         """
@@ -98,11 +137,19 @@ class ScheduleAnalyzer:
         - TT_MileStart (Start Milestone)
         - TT_Mile (Finish Milestone)
         """
-        if self.df_main is None: return pd.DataFrame()
+        if self.df_main is None or self.df_main.empty:
+            return pd.DataFrame()
+        
+        if 'task_type' not in self.df_main.columns:
+            logger.warning("No task_type column found, returning empty milestones")
+            return pd.DataFrame()
         
         mask = self.df_main['task_type'].isin(['TT_Mile', 'TT_MileStart'])
         milestones = self.df_main[mask].copy()
-        return milestones.sort_values(by='current_finish')
+        
+        if not milestones.empty and 'current_finish' in milestones.columns:
+            return milestones.sort_values(by='current_finish')
+        return milestones
 
     def get_procurement_log(self) -> pd.DataFrame:
         """
@@ -110,7 +157,12 @@ class ScheduleAnalyzer:
         Logic: Looks for 'Submittal', 'Procurement', 'Order', 'Deliver' in name,
         OR checks WBS hierarchy (if mapped).
         """
-        if self.df_main is None: return pd.DataFrame()
+        if self.df_main is None or self.df_main.empty:
+            return pd.DataFrame()
+        
+        if 'task_name' not in self.df_main.columns:
+            logger.warning("No task_name column found, returning empty procurement log")
+            return pd.DataFrame()
         
         # Simple keyword filter for Phase 1. 
         # Phase 2: Use Activity Codes or WBS.
@@ -119,19 +171,38 @@ class ScheduleAnalyzer:
         
         # Case insensitive regex search
         mask = self.df_main['task_name'].str.contains(pattern, case=False, na=False)
-        return self.df_main[mask].sort_values(by='current_finish')
+        result = self.df_main[mask].copy()
+        
+        if not result.empty and 'current_finish' in result.columns:
+            return result.sort_values(by='current_finish')
+        return result
 
     def get_dashboard_summary(self) -> Dict[str, Any]:
         """
         Returns high-level metrics for the Executive Dashboard sheet.
         """
-        if self.df_main is None: return {}
+        if self.df_main is None or self.df_main.empty:
+            return {
+                "data_date": self.analysis_date.strftime('%Y-%m-%d'),
+                "total_activities": 0,
+                "critical_activities": 0,
+                "slipping_activities": 0,
+                "percent_critical": 0
+            }
         
         total = len(self.df_main)
-        critical_count = len(self.df_main[self.df_main['is_critical']])
         
-        # "Slipping" defined as Variance > 5 days (customizable)
-        slipping_count = len(self.df_main[self.df_main['variance_days'] > 5])
+        # Handle missing is_critical column
+        if 'is_critical' in self.df_main.columns:
+            critical_count = len(self.df_main[self.df_main['is_critical']])
+        else:
+            critical_count = 0
+        
+        # Handle missing variance_days column
+        if 'variance_days' in self.df_main.columns:
+            slipping_count = len(self.df_main[self.df_main['variance_days'] > 5])
+        else:
+            slipping_count = 0
         
         return {
             "data_date": self.analysis_date.strftime('%Y-%m-%d'),

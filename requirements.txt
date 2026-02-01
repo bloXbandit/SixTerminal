@@ -1,6 +1,8 @@
 xerparser==0.9.4
-pandas
-openpyxl
-plotly
-streamlit
+pandas==2.2.0
+openpyxl==3.1.5
+plotly==5.18.0
+streamlit==1.30.0
+openai>=1.0.0
+watchdog==4.0.0
 python-dateutil

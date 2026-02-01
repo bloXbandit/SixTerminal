@@ -1,5 +1,5 @@
 import pandas as pd
-from xerparser.reader import Reader
+from xerparser import Xer
 from typing import Dict, Any, List, Optional
 import logging
 import io
@@ -28,21 +28,19 @@ class P6Parser:
         logger.info(f"Parsing XER file: {self.xer_path}")
         
         try:
+            # Xer expects file content as string, not file path
             # Attempt to read with standard encoding
             try:
-                self.reader = Reader(self.xer_path)
+                with open(self.xer_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                self.reader = Xer(content)
             except UnicodeDecodeError:
                 logger.warning("UTF-8 parsing failed. Retrying with 'cp1252' (Windows)...")
-                # xerparser Reader takes a file path, we can't easily inject encoding into __init__
-                # without patching the library or reading bytes first.
-                # Workaround: Read bytes, decode manually, pass as file-like object if supported
-                # OR handle the encoding at the file read level if the library supports it.
-                # Since xerparser 0.9.4 Reader expects a path, we might need a workaround.
-                # Re-opening with specific encoding:
                 with open(self.xer_path, 'r', encoding='cp1252', errors='replace') as f:
-                    self.reader = Reader(f)
+                    content = f.read()
+                self.reader = Xer(content)
 
-            # parsing is done by Reader init
+            # parsing is done by Xer init
             parser = self.reader
             
             # 1. Activities (TASK)

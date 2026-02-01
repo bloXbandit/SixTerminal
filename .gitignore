@@ -13,5 +13,8 @@ __pycache__/
 *.xlsx
 *.csv
 
+# Configuration (contains API keys)
+config.json
+
 # OS
 .DS_Store

@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
 from parser import P6Parser
 from analyzer import ScheduleAnalyzer
 from dashboard import DashboardGenerator
@@ -50,7 +53,7 @@ if "parser_cache" not in st.session_state:
 if "comparison_file" not in st.session_state:
     st.session_state.comparison_file = None
 
-@st.cache_data(ttl=3600)
+@st.cache_resource(ttl=3600)
 def load_and_parse_xer(file_bytes, filename):
     """Cached XER parsing for performance"""
     tfile = tempfile.NamedTemporaryFile(delete=False, suffix=".xer")
@@ -179,7 +182,24 @@ def render_dashboard(uploaded_file):
             "🤖 AI Copilot"
         ])
         
+        # Debug: Check analyzer state
+        if analyzer.df_main is None or analyzer.df_main.empty:
+            st.warning("⚠️ No activities found in XER file. The file may be empty or have parsing issues.")
+            st.info(f"Debug: Parser has {len(parser.get_activities())} raw activities")
+            if not parser.get_activities().empty:
+                st.write("Available columns:", parser.get_activities().columns.tolist())
+        
         stats = analyzer.get_dashboard_summary()
+        
+        # Ensure stats has all required keys
+        if not stats or 'total_activities' not in stats:
+            stats = {
+                "data_date": "N/A",
+                "total_activities": 0,
+                "critical_activities": 0,
+                "slipping_activities": 0,
+                "percent_critical": 0
+            }
         
         with tab1:
             render_executive_summary(analyzer, stats)
@@ -528,40 +548,44 @@ def render_ai_copilot(parser, analyzer):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
     
-    # Chat input
-    if prompt := st.chat_input("Ask about your schedule..."):
+    # Chat input (using text_input + button since chat_input doesn't work in tabs)
+    col1, col2 = st.columns([5, 1])
+    with col1:
+        prompt = st.text_input("Ask about your schedule...", key="ai_prompt", label_visibility="collapsed", placeholder="Ask about your schedule...")
+    with col2:
+        send_button = st.button("Send", use_container_width=True)
+    
+    if send_button and prompt:
         # Add user message
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
         
         # Get AI response with retry logic
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
-                max_retries = 3
-                retry_delay = 1
+        max_retries = 3
+        retry_delay = 1
+        
+        for attempt in range(max_retries):
+            try:
+                # Build chat history for context
+                chat_history = [
+                    {"role": msg["role"], "content": msg["content"]} 
+                    for msg in st.session_state.messages[:-1]
+                ]
                 
-                for attempt in range(max_retries):
-                    try:
-                        # Build chat history for context
-                        chat_history = [
-                            {"role": msg["role"], "content": msg["content"]} 
-                            for msg in st.session_state.messages[:-1]
-                        ]
-                        
-                        response = copilot.query(prompt, chat_history)
-                        st.markdown(response)
-                        st.session_state.messages.append({"role": "assistant", "content": response})
-                        break
-                    
-                    except Exception as e:
-                        if attempt < max_retries - 1:
-                            st.warning(f"Retry {attempt + 1}/{max_retries}...")
-                            time.sleep(retry_delay * (attempt + 1))
-                        else:
-                            error_msg = f"❌ AI Error after {max_retries} attempts: {str(e)}"
-                            st.error(error_msg)
-                            st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                with st.spinner("Thinking..."):
+                    response = copilot.query(prompt, chat_history)
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                st.rerun()
+                break
+            
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    st.warning(f"Retry {attempt + 1}/{max_retries}...")
+                    time.sleep(retry_delay * (attempt + 1))
+                else:
+                    error_msg = f"❌ AI Error after {max_retries} attempts: {str(e)}"
+                    st.error(error_msg)
+                    st.session_state.messages.append({"role": "assistant", "content": error_msg})
+                    st.rerun()
 
 def render_settings_page():
     st.title("⚙️ Settings")

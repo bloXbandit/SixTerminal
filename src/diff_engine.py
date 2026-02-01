@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import Dict, List, Any
-from .parser import P6Parser
+from parser import P6Parser
 
 class DiffEngine:
     """

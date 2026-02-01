@@ -4,7 +4,7 @@ from typing import Dict, Any, List
 import pandas as pd
 import json
 import logging
-from .config import config
+from config import config
 
 logger = logging.getLogger(__name__)
 
