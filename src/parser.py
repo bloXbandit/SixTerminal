@@ -44,24 +44,71 @@ class P6Parser:
             parser = self.reader
             
             # 1. Activities (TASK)
-            if hasattr(parser, 'task'):
-                # Convert list of objects to dicts for DataFrame
-                tasks = [vars(t) for t in parser.task] if parser.task else []
+            # xerparser uses 'tasks' (plural) as a dictionary, not 'task'
+            if hasattr(parser, 'tasks') and parser.tasks:
+                # Convert dict of task objects to list of dicts for DataFrame
+                tasks = []
+                for task_id, task in parser.tasks.items():
+                    task_dict = {
+                        'task_id': task_id,
+                        'task_code': getattr(task, 'task_code', ''),
+                        'task_name': getattr(task, 'name', ''),
+                        'status_code': getattr(task, 'status', '').name if hasattr(getattr(task, 'status', ''), 'name') else str(getattr(task, 'status', '')),
+                        'target_start_date': getattr(task, 'target_start_date', None),
+                        'target_end_date': getattr(task, 'target_end_date', None),
+                        'act_start_date': getattr(task, 'act_start_date', None),
+                        'act_end_date': getattr(task, 'act_end_date', None),
+                        'early_start_date': getattr(task, 'early_start_date', None),
+                        'early_end_date': getattr(task, 'early_end_date', None),
+                        'late_start_date': getattr(task, 'late_start_date', None),
+                        'late_end_date': getattr(task, 'late_end_date', None),
+                        'total_float_hr_cnt': getattr(task, 'total_float_hr_cnt', 0),
+                        'free_float_hr_cnt': getattr(task, 'free_float_hr_cnt', 0),
+                        'target_drtn_hr_cnt': getattr(task, 'target_drtn_hr_cnt', 0),
+                        'remain_drtn_hr_cnt': getattr(task, 'remain_drtn_hr_cnt', 0),
+                        'complete_pct': getattr(task, 'phys_complete_pct', 0),
+                        'task_type': getattr(task, 'task_type', '').name if hasattr(getattr(task, 'task_type', ''), 'name') else str(getattr(task, 'task_type', '')),
+                        'wbs_id': getattr(task, 'wbs_id', None),
+                    }
+                    tasks.append(task_dict)
+                
                 self.df_activities = pd.DataFrame(tasks)
+                logger.info(f"Loaded {len(tasks)} activities from XER")
                 self._normalize_activities()
             else:
-                logger.error("No TASK table found in XER!")
+                logger.error("No tasks found in XER!")
                 self.df_activities = pd.DataFrame()
 
             # 2. Relationships (TASKPRED)
-            if hasattr(parser, 'taskpred'):
-                preds = [vars(p) for p in parser.taskpred] if parser.taskpred else []
+            if hasattr(parser, 'relationships') and parser.relationships:
+                preds = []
+                for rel_id, rel in parser.relationships.items():
+                    pred_dict = {
+                        'pred_id': rel_id,
+                        'pred_task_id': getattr(rel, 'predecessor_task_id', None),
+                        'task_id': getattr(rel, 'task_id', None),
+                        'pred_type': getattr(rel, 'pred_type', '').name if hasattr(getattr(rel, 'pred_type', ''), 'name') else str(getattr(rel, 'pred_type', '')),
+                        'lag_hr_cnt': getattr(rel, 'lag_hr_cnt', 0),
+                    }
+                    preds.append(pred_dict)
                 self.df_relationships = pd.DataFrame(preds)
+            else:
+                self.df_relationships = pd.DataFrame()
             
             # 3. WBS (PROJWBS)
-            if hasattr(parser, 'projwbs'):
-                wbs = [vars(w) for w in parser.projwbs] if parser.projwbs else []
+            if hasattr(parser, 'wbs_nodes') and parser.wbs_nodes:
+                wbs = []
+                for wbs_id, wbs_node in parser.wbs_nodes.items():
+                    wbs_dict = {
+                        'wbs_id': wbs_id,
+                        'wbs_name': getattr(wbs_node, 'name', ''),
+                        'wbs_short_name': getattr(wbs_node, 'wbs_short_name', ''),
+                        'parent_wbs_id': getattr(wbs_node, 'parent_wbs_id', None),
+                    }
+                    wbs.append(wbs_dict)
                 self.df_wbs = pd.DataFrame(wbs)
+            else:
+                self.df_wbs = pd.DataFrame()
                 
             logger.info("XER Parsing Complete. Data loaded into memory.")
             
