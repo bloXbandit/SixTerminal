@@ -277,15 +277,18 @@ def render_dashboard(uploaded_file):
         # Load with caching
         parser, analyzer = load_and_parse_xer(uploaded_file.getvalue(), uploaded_file.name)
         
-        # --- TAB STRUCTURE ---
-        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+        # Store in session state for sidebar access
+        st.session_state.parser = parser
+        st.session_state.analyzer = analyzer
+        
+        # --- TAB STRUCTURE (AI Copilot moved to sidebar) ---
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "🚀 Executive Summary", 
             "📈 Stairway Visuals",
             "📦 Material & Procurement",
             "📅 Current Month Focus",
             "🔍 Compare Schedules",
-            "📋 Data Tables", 
-            "🤖 AI Copilot"
+            "📋 Data Tables"
         ])
         
         # Debug: Check analyzer state
