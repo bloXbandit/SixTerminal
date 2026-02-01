@@ -128,10 +128,20 @@ def main():
         pass  # Already rendered in sidebar
 
 def render_landing_page():
-    st.title("Welcome to SixTerminal")
-    st.markdown("""
-    ### The Modern Interface for Primavera P6
+    # Logo and title
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        # Display logo
+        logo_path = os.path.join(os.path.dirname(__file__), "assets", "logo.png")
+        if os.path.exists(logo_path):
+            st.image(logo_path, width=120)
+        else:
+            st.markdown("🏗️", unsafe_allow_html=True)
+    with col2:
+        st.title("SixTerminal")
+        st.markdown("<p style='font-size: 14px; color: #888;'>Copilot interface for Primavera P6 files</p>", unsafe_allow_html=True)
     
+    st.markdown("""
     Upload your **.xer** file in the sidebar to begin analyzing your schedule.
     
     ## Features
