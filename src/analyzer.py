@@ -156,9 +156,11 @@ class ScheduleAnalyzer:
             mask = mask | zero_dur_mask
             logger.info(f"Found {zero_dur_mask.sum()} milestones by zero duration")
         
-        # Method 3: Task code contains milestone keywords
+        # Method 3: Task code contains milestone keywords (universal patterns)
+        # Matches: MIL-, MILE-, MS-, M-, milestone codes
         if 'task_code' in self.df_main.columns:
-            code_mask = self.df_main['task_code'].str.contains(r'MIL[E]?[-_]?\d', case=False, na=False, regex=True)
+            code_patterns = r'(^MIL[E]?[-_]|^MS[-_]|^M[-_]\d)'
+            code_mask = self.df_main['task_code'].str.contains(code_patterns, case=False, na=False, regex=True)
             mask = mask | code_mask
             logger.info(f"Found {code_mask.sum()} milestones by task_code pattern")
         
@@ -196,27 +198,28 @@ class ScheduleAnalyzer:
         # Initialize mask
         mask = pd.Series([False] * len(self.df_main), index=self.df_main.index)
         
-        # Method 1: PMU (Performance Mock-Up) - Always include
+        # Method 1: Common procurement task code prefixes (universal patterns)
+        # PMU = Performance Mock-Up, FAB = Fabrication, DEL = Delivery
+        # PROC = Procurement, MAT = Materials, ORD = Orders
+        # Note: PUR- excluded (often includes awards/bonds, not actual materials)
         if 'task_code' in self.df_main.columns:
-            pmu_mask = self.df_main['task_code'].str.startswith('PMU-', na=False)
-            mask = mask | pmu_mask
-            logger.info(f"Found {pmu_mask.sum()} PMU items")
+            code_prefixes = r'^(PMU-|FAB-|DEL-|PROC-|MAT-|ORD-)'
+            code_mask = self.df_main['task_code'].str.contains(code_prefixes, case=False, na=False, regex=True)
+            mask = mask | code_mask
+            logger.info(f"Found {code_mask.sum()} items by procurement task codes")
         
-        # Method 2: MAJOR materials only (highly selective keywords)
-        # Focus on structural, envelope, and major systems
+        # Method 2: MAJOR procurement keywords (very selective)
+        # Only include phrases that clearly indicate procurement/fabrication/delivery
         major_materials = [
-            # Structural
-            'structural steel', 'steel', 'precast', 'concrete reinforcement',
-            'rebar', 'caisson', 'stability', 'excavation',
-            # Envelope
-            'curtainwall', 'terracotta', 'glass', 'glazing', 'window', 'door',
-            'roofing', 'waterproofing', 'cladding',
-            # Major MEP
-            'chiller', 'boiler', 'cooling tower', 'air handler', 'fan coil',
-            'transformer', 'switchgear', 'generator', 'ups',
-            'elevator', 'escalator',
-            # Long-lead / Procurement
-            'material procurement', 'long lead', 'fabricate and deliver'
+            # Explicit procurement phrases
+            'material procurement', 'equipment procurement', 'long lead',
+            'fabricate and deliver', 'material order', 'equipment order',
+            # Major structural (only if not installation)
+            'structural steel', 'precast', 'curtainwall',
+            # Major equipment (only if not installation)
+            'chiller', 'boiler', 'cooling tower', 'air handler',
+            'transformer', 'switchgear', 'generator',
+            'elevator', 'escalator'
         ]
         
         for keyword in major_materials:
@@ -229,6 +232,8 @@ class ScheduleAnalyzer:
         exclude_keywords = [
             # Submittals and approvals
             'submit', 'approval', 'review', 'prepare',
+            # Awards and contracts (not actual materials)
+            'award', 'bond', 'contract',
             # Construction activities
             'equipment pad', 'hoist', 'mobilize', 'dismantle', 'pour equipment',
             'demonstration', 'training', 'install', 'erect', 'construct',
