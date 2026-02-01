@@ -333,14 +333,28 @@ def render_executive_summary(analyzer, stats):
     st.markdown("## 📊 Project Health Dashboard")
     st.markdown("---")
     
+    # Get project duration metrics
+    duration_info = analyzer.get_project_duration()
+    
     # KPI Metrics with enhanced spacing
     st.markdown("### Key Performance Indicators")
+    
+    # First row - Core metrics
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Activities", stats['total_activities'])
     col2.metric("Critical Activities", stats['critical_activities'], 
                 delta=f"{stats['percent_critical']}%", delta_color="inverse")
     col3.metric("Slipping (>5 days)", stats['slipping_activities'], delta="-Risk")
     col4.metric("Data Date", stats['data_date'])
+    
+    # Second row - Duration metrics
+    st.markdown("<br>", unsafe_allow_html=True)
+    col5, col6, col7, col8 = st.columns(4)
+    col5.metric("📅 Project Duration", f"{duration_info['duration_days']:,} days")
+    col6.metric("✅ Duration % Complete", f"{duration_info['percent_complete']}%", 
+                delta=f"{duration_info['percent_complete']}%")
+    col7.metric("🚀 Project Start", duration_info['project_start'] if duration_info['project_start'] else "N/A")
+    col8.metric("🏁 Project Finish", duration_info['project_finish'] if duration_info['project_finish'] else "N/A")
     
     st.markdown("<br>", unsafe_allow_html=True)
     st.divider()

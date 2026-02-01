@@ -265,6 +265,52 @@ class ScheduleAnalyzer:
             return result.sort_values(by='current_finish')
         return result
 
+    def get_project_duration(self) -> Dict[str, Any]:
+        """
+        Calculate project duration in days and completion percentage.
+        Returns dict with duration_days and percent_complete.
+        """
+        if self.df_main is None or self.df_main.empty:
+            return {
+                "duration_days": 0,
+                "percent_complete": 0,
+                "project_start": None,
+                "project_finish": None
+            }
+        
+        # Get project start and finish dates
+        project_start = None
+        project_finish = None
+        
+        if 'current_start' in self.df_main.columns:
+            project_start = pd.to_datetime(self.df_main['current_start']).min()
+        
+        if 'current_finish' in self.df_main.columns:
+            project_finish = pd.to_datetime(self.df_main['current_finish']).max()
+        
+        # Calculate duration
+        duration_days = 0
+        if project_start and project_finish:
+            duration_days = (project_finish - project_start).days
+        
+        # Calculate percent complete (weighted by activity count or duration)
+        percent_complete = 0
+        if 'complete_pct' in self.df_main.columns:
+            # Use average completion percentage
+            percent_complete = self.df_main['complete_pct'].mean()
+        elif 'status_code' in self.df_main.columns:
+            # Calculate based on completed activities
+            completed = len(self.df_main[self.df_main['status_code'] == 'TK_Complete'])
+            total = len(self.df_main)
+            percent_complete = (completed / total * 100) if total > 0 else 0
+        
+        return {
+            "duration_days": int(duration_days),
+            "percent_complete": round(percent_complete, 1),
+            "project_start": project_start.strftime('%Y-%m-%d') if project_start else None,
+            "project_finish": project_finish.strftime('%Y-%m-%d') if project_finish else None
+        }
+
     def get_dashboard_summary(self) -> Dict[str, Any]:
         """
         Returns high-level metrics for the Executive Dashboard sheet.
