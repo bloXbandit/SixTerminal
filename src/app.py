@@ -84,7 +84,7 @@ st.markdown("""
         font-weight: 600 !important;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: #64748b !important;
+        color: #cbd5e1 !important;
     }
     
     /* Tabs styling */
