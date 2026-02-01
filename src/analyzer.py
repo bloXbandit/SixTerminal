@@ -339,7 +339,7 @@ class ScheduleAnalyzer:
             slipping_count = 0
         
         return {
-            "data_date": self.analysis_date.strftime('%Y-%m-%d'),
+            "data_date": self.analysis_date.strftime('%m/%d/%Y'),
             "total_activities": total,
             "critical_activities": critical_count,
             "slipping_activities": slipping_count,
