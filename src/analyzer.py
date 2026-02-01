@@ -292,3 +292,132 @@ class ScheduleAnalyzer:
             "slipping_activities": slipping_count,
             "percent_critical": round((critical_count / total) * 100, 1) if total > 0 else 0
         }
+
+    def get_current_month_activities(self, days_window=30) -> Dict[str, pd.DataFrame]:
+        """
+        Get activities grouped by time period relative to data date.
+        Returns dict with 'last_month', 'this_month', 'next_month' DataFrames.
+        
+        Args:
+            days_window: Number of days to look back/forward (default 30)
+        """
+        if self.df_main is None or self.df_main.empty:
+            return {
+                'last_month': pd.DataFrame(),
+                'this_month': pd.DataFrame(),
+                'next_month': pd.DataFrame()
+            }
+        
+        from datetime import timedelta
+        
+        # Use data date or today
+        data_date = self.analysis_date
+        
+        # Define time windows
+        last_month_start = data_date - timedelta(days=days_window)
+        next_month_end = data_date + timedelta(days=days_window)
+        
+        # LAST MONTH: Activities completed in last 30 days
+        last_month_mask = (
+            (self.df_main['status_code'] == 'TK_Complete') &
+            (pd.notna(self.df_main['act_end_date'])) &
+            (self.df_main['act_end_date'] >= last_month_start) &
+            (self.df_main['act_end_date'] <= data_date)
+        )
+        last_month_df = self.df_main[last_month_mask].copy()
+        
+        # THIS MONTH: Activities that should be active now
+        # Criteria: Started before data date AND finishing after data date OR currently active
+        this_month_mask = (
+            # Option 1: Activity spans the data date
+            (
+                (pd.notna(self.df_main['current_start'])) &
+                (pd.notna(self.df_main['current_finish'])) &
+                (self.df_main['current_start'] <= data_date) &
+                (self.df_main['current_finish'] >= data_date)
+            ) |
+            # Option 2: Currently active status
+            (self.df_main['status_code'] == 'TK_Active')
+        )
+        this_month_df = self.df_main[this_month_mask].copy()
+        
+        # NEXT MONTH: Activities starting in next 30 days
+        next_month_mask = (
+            (self.df_main['status_code'] == 'TK_NotStart') &
+            (pd.notna(self.df_main['current_start'])) &
+            (self.df_main['current_start'] > data_date) &
+            (self.df_main['current_start'] <= next_month_end)
+        )
+        next_month_df = self.df_main[next_month_mask].copy()
+        
+        logger.info(f"Current Month Analysis: Last={len(last_month_df)}, This={len(this_month_df)}, Next={len(next_month_df)}")
+        
+        return {
+            'last_month': last_month_df,
+            'this_month': this_month_df,
+            'next_month': next_month_df
+        }
+    
+    def get_monthly_metrics(self, days_window=30) -> Dict[str, Any]:
+        """
+        Calculate monthly progress metrics.
+        Returns summary statistics for current month focus.
+        """
+        month_data = self.get_current_month_activities(days_window)
+        
+        last_month = month_data['last_month']
+        this_month = month_data['this_month']
+        next_month = month_data['next_month']
+        
+        # This month planned completions (activities scheduled to finish this month)
+        from datetime import timedelta
+        data_date = self.analysis_date
+        month_end = data_date + timedelta(days=days_window)
+        
+        planned_completions = 0
+        actual_completions = 0
+        
+        if not this_month.empty:
+            # Planned: activities with finish date this month
+            planned_mask = (
+                (pd.notna(this_month['current_finish'])) &
+                (this_month['current_finish'] >= data_date) &
+                (this_month['current_finish'] <= month_end)
+            )
+            planned_completions = planned_mask.sum()
+            
+            # Actual: activities already completed this month
+            actual_mask = (
+                (this_month['status_code'] == 'TK_Complete') &
+                (pd.notna(this_month['act_end_date'])) &
+                (this_month['act_end_date'] >= data_date)
+            )
+            actual_completions = actual_mask.sum()
+        
+        completion_rate = (actual_completions / planned_completions * 100) if planned_completions > 0 else 0
+        
+        # Critical activities this month
+        critical_this_month = 0
+        if not this_month.empty and 'total_float_hr_cnt' in this_month.columns:
+            critical_this_month = len(this_month[this_month['total_float_hr_cnt'] <= 0])
+        
+        # Behind schedule (started but not progressing)
+        behind_count = 0
+        if not this_month.empty and 'complete_pct' in this_month.columns:
+            behind_mask = (
+                (this_month['status_code'] == 'TK_Active') &
+                (this_month['complete_pct'] == 0)
+            )
+            behind_count = behind_mask.sum()
+        
+        return {
+            'data_date': data_date.strftime('%Y-%m-%d'),
+            'last_month_completed': len(last_month),
+            'this_month_active': len(this_month),
+            'next_month_starting': len(next_month),
+            'planned_completions': planned_completions,
+            'actual_completions': actual_completions,
+            'completion_rate': round(completion_rate, 1),
+            'critical_this_month': critical_this_month,
+            'behind_schedule': behind_count
+        }
