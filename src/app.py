@@ -1196,9 +1196,10 @@ def render_ai_copilot(parser, analyzer):
     
     st.divider()
     
-    # Chat interface
+    # Chat interface with custom avatars
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
+        avatar = "U" if message["role"] == "user" else "6"
+        with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
     
     # Chat input with form (Enter to submit, Shift+Enter for new line)
