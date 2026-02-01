@@ -43,8 +43,9 @@ st.markdown("""
     
     h1 {
         font-size: 2.5rem !important;
-        color: #f1f5f9 !important;
+        color: #60a5fa !important;
         margin-bottom: 0.5rem !important;
+        font-weight: 800 !important;
     }
     
     h2 {
@@ -215,18 +216,18 @@ def main():
         pass  # Already rendered in sidebar
 
 def render_landing_page():
-    # Logo and title
-    col1, col2 = st.columns([1, 4])
+    # Logo and title with tighter spacing
+    col1, col2 = st.columns([1, 5], gap="small")
     with col1:
         # Display logo
         logo_path = os.path.join(os.path.dirname(__file__), "assets", "logo.png")
         if os.path.exists(logo_path):
-            st.image(logo_path, width=120)
+            st.image(logo_path, width=100)
         else:
             st.markdown("🏗️", unsafe_allow_html=True)
     with col2:
-        st.title("SixTerminal")
-        st.markdown("<p style='font-size: 14px; color: #888;'>Copilot interface for Primavera P6 files</p>", unsafe_allow_html=True)
+        st.markdown("<h1 style='margin-top: 20px; margin-bottom: 5px;'>SixTerminal</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 14px; color: #888; margin-top: 0;'>Copilot interface for Primavera P6 files</p>", unsafe_allow_html=True)
     
     st.markdown("""
     Upload your **.xer** file in the sidebar to begin analyzing your schedule.
