@@ -892,7 +892,7 @@ def render_current_month_focus(analyzer):
                 )
                 
                 # Add vertical line for data date
-                data_date = datetime.strptime(metrics['data_date'], '%Y-%m-%d')
+                data_date = datetime.strptime(metrics['data_date'], '%m/%d/%Y')
                 fig_this.add_vline(
                     x=data_date.timestamp() * 1000,
                     line_dash="dash",
