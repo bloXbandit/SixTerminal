@@ -132,20 +132,44 @@ class ScheduleAnalyzer:
 
     def get_milestones(self) -> pd.DataFrame:
         """
-        Extracts Start Milestones and Finish Milestones.
-        P6 'task_type': 
-        - TT_MileStart (Start Milestone)
-        - TT_Mile (Finish Milestone)
+        Extracts milestones using multiple detection methods:
+        1. P6 task_type (TT_Mile, TT_MileStart)
+        2. Zero duration activities
+        3. Task code contains 'MIL' or 'MILE'
+        4. Task name contains 'milestone'
         """
         if self.df_main is None or self.df_main.empty:
             return pd.DataFrame()
         
-        if 'task_type' not in self.df_main.columns:
-            logger.warning("No task_type column found, returning empty milestones")
-            return pd.DataFrame()
+        # Initialize mask with all False
+        mask = pd.Series([False] * len(self.df_main), index=self.df_main.index)
         
-        mask = self.df_main['task_type'].isin(['TT_Mile', 'TT_MileStart'])
+        # Method 1: Check task_type for milestone types
+        if 'task_type' in self.df_main.columns:
+            type_mask = self.df_main['task_type'].isin(['TT_Mile', 'TT_MileStart'])
+            mask = mask | type_mask
+            logger.info(f"Found {type_mask.sum()} milestones by task_type")
+        
+        # Method 2: Zero duration activities (common milestone indicator)
+        if 'target_drtn_hr_cnt' in self.df_main.columns:
+            zero_dur_mask = self.df_main['target_drtn_hr_cnt'] == 0
+            mask = mask | zero_dur_mask
+            logger.info(f"Found {zero_dur_mask.sum()} milestones by zero duration")
+        
+        # Method 3: Task code contains milestone keywords
+        if 'task_code' in self.df_main.columns:
+            code_mask = self.df_main['task_code'].str.contains(r'MIL[E]?[-_]?\d', case=False, na=False, regex=True)
+            mask = mask | code_mask
+            logger.info(f"Found {code_mask.sum()} milestones by task_code pattern")
+        
+        # Method 4: Task name contains 'milestone'
+        if 'task_name' in self.df_main.columns:
+            name_mask = self.df_main['task_name'].str.contains('milestone', case=False, na=False)
+            mask = mask | name_mask
+            logger.info(f"Found {name_mask.sum()} milestones by task_name")
+        
         milestones = self.df_main[mask].copy()
+        logger.info(f"Total unique milestones detected: {len(milestones)}")
         
         if not milestones.empty and 'current_finish' in milestones.columns:
             return milestones.sort_values(by='current_finish')
@@ -153,9 +177,10 @@ class ScheduleAnalyzer:
 
     def get_procurement_log(self) -> pd.DataFrame:
         """
-        Filters activities related to Procurement/Submittals.
-        Logic: Looks for 'Submittal', 'Procurement', 'Order', 'Deliver' in name,
-        OR checks WBS hierarchy (if mapped).
+        Filters activities related to Material/Procurement/Deliveries.
+        Detection methods:
+        1. Keywords in task_name (submittal, procurement, deliver, order, etc.)
+        2. Keywords in task_code (SUB-, PMU-, FAB-, etc.)
         """
         if self.df_main is None or self.df_main.empty:
             return pd.DataFrame()
@@ -164,14 +189,32 @@ class ScheduleAnalyzer:
             logger.warning("No task_name column found, returning empty procurement log")
             return pd.DataFrame()
         
-        # Simple keyword filter for Phase 1. 
-        # Phase 2: Use Activity Codes or WBS.
-        keywords = ['submittal', 'procure', 'fabricat', 'deliver', 'approval']
+        # Expanded keyword list based on analysis
+        keywords = [
+            'submittal', 'submit', 'procure', 'procurement', 'fabricat', 'fabrication',
+            'deliver', 'delivery', 'order', 'purchase', 'approval', 'approve',
+            'material', 'equipment', 'vendor', 'supplier', 'long lead',
+            'rfp', 'rfi', 'shop drawing', 'sample'
+        ]
         pattern = '|'.join(keywords)
         
-        # Case insensitive regex search
-        mask = self.df_main['task_name'].str.contains(pattern, case=False, na=False)
+        # Initialize mask
+        mask = pd.Series([False] * len(self.df_main), index=self.df_main.index)
+        
+        # Method 1: Task name contains keywords
+        name_mask = self.df_main['task_name'].str.contains(pattern, case=False, na=False)
+        mask = mask | name_mask
+        logger.info(f"Found {name_mask.sum()} procurement items by task_name")
+        
+        # Method 2: Task code patterns (SUB-, PMU-, FAB-, etc.)
+        if 'task_code' in self.df_main.columns:
+            code_patterns = r'(SUB-|PMU-|FAB-|MAT-|PROC-|DEL-|ORD-)'
+            code_mask = self.df_main['task_code'].str.contains(code_patterns, case=False, na=False, regex=True)
+            mask = mask | code_mask
+            logger.info(f"Found {code_mask.sum()} procurement items by task_code pattern")
+        
         result = self.df_main[mask].copy()
+        logger.info(f"Total procurement/material items detected: {len(result)}")
         
         if not result.empty and 'current_finish' in result.columns:
             return result.sort_values(by='current_finish')
