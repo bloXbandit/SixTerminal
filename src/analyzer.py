@@ -177,10 +177,14 @@ class ScheduleAnalyzer:
 
     def get_procurement_log(self) -> pd.DataFrame:
         """
-        Filters activities related to Material/Procurement/Deliveries.
-        Detection methods:
-        1. Keywords in task_name (submittal, procurement, deliver, order, etc.)
-        2. Keywords in task_code (SUB-, PMU-, FAB-, etc.)
+        Filters MAJOR Material/Procurement/Deliveries ONLY.
+        Focus on high-value, long-lead procurement items:
+        - Structural materials (steel, precast, concrete)
+        - Building envelope (curtainwall, terracotta, glass)
+        - Major MEP equipment and systems
+        - Performance mock-ups
+        
+        Excludes: Small hardware, accessories, submittals, and minor components
         """
         if self.df_main is None or self.df_main.empty:
             return pd.DataFrame()
@@ -189,32 +193,61 @@ class ScheduleAnalyzer:
             logger.warning("No task_name column found, returning empty procurement log")
             return pd.DataFrame()
         
-        # Expanded keyword list based on analysis
-        keywords = [
-            'submittal', 'submit', 'procure', 'procurement', 'fabricat', 'fabrication',
-            'deliver', 'delivery', 'order', 'purchase', 'approval', 'approve',
-            'material', 'equipment', 'vendor', 'supplier', 'long lead',
-            'rfp', 'rfi', 'shop drawing', 'sample'
-        ]
-        pattern = '|'.join(keywords)
-        
         # Initialize mask
         mask = pd.Series([False] * len(self.df_main), index=self.df_main.index)
         
-        # Method 1: Task name contains keywords
-        name_mask = self.df_main['task_name'].str.contains(pattern, case=False, na=False)
-        mask = mask | name_mask
-        logger.info(f"Found {name_mask.sum()} procurement items by task_name")
-        
-        # Method 2: Task code patterns (SUB-, PMU-, FAB-, etc.)
+        # Method 1: PMU (Performance Mock-Up) - Always include
         if 'task_code' in self.df_main.columns:
-            code_patterns = r'(SUB-|PMU-|FAB-|MAT-|PROC-|DEL-|ORD-)'
-            code_mask = self.df_main['task_code'].str.contains(code_patterns, case=False, na=False, regex=True)
-            mask = mask | code_mask
-            logger.info(f"Found {code_mask.sum()} procurement items by task_code pattern")
+            pmu_mask = self.df_main['task_code'].str.startswith('PMU-', na=False)
+            mask = mask | pmu_mask
+            logger.info(f"Found {pmu_mask.sum()} PMU items")
+        
+        # Method 2: MAJOR materials only (highly selective keywords)
+        # Focus on structural, envelope, and major systems
+        major_materials = [
+            # Structural
+            'structural steel', 'steel', 'precast', 'concrete reinforcement',
+            'rebar', 'caisson', 'stability', 'excavation',
+            # Envelope
+            'curtainwall', 'terracotta', 'glass', 'glazing', 'window', 'door',
+            'roofing', 'waterproofing', 'cladding',
+            # Major MEP
+            'chiller', 'boiler', 'cooling tower', 'air handler', 'fan coil',
+            'transformer', 'switchgear', 'generator', 'ups',
+            'elevator', 'escalator',
+            # Long-lead / Procurement
+            'material procurement', 'long lead', 'fabricate and deliver'
+        ]
+        
+        for keyword in major_materials:
+            keyword_mask = self.df_main['task_name'].str.contains(keyword, case=False, na=False)
+            if keyword_mask.sum() > 0:
+                mask = mask | keyword_mask
+                logger.info(f"Found {keyword_mask.sum()} items with '{keyword}'")
+        
+        # Method 3: Exclude everything that's NOT major procurement
+        exclude_keywords = [
+            # Submittals and approvals
+            'submit', 'approval', 'review', 'prepare',
+            # Construction activities
+            'equipment pad', 'hoist', 'mobilize', 'dismantle', 'pour equipment',
+            'demonstration', 'training', 'install', 'erect', 'construct',
+            # Small hardware and accessories
+            'escutcheon', 'hanger', 'support', 'damper', 'flex connector',
+            'expansion loop', 'guide', 'anchor', 'flashing', 'thermostatic',
+            'barometric', 'meter', 'vfd', 'strainer', 'hydrant', 'hose bibb',
+            'grease trap', 'outlet box', 'hammer arrester', 'mixing valve',
+            'pressure reducing', 'insulation', 'cable', 'duct construction',
+            'material standard'
+        ]
+        exclude_pattern = '|'.join(exclude_keywords)
+        exclude_mask = self.df_main['task_name'].str.contains(exclude_pattern, case=False, na=False)
+        
+        # Apply exclusions
+        mask = mask & ~exclude_mask
         
         result = self.df_main[mask].copy()
-        logger.info(f"Total procurement/material items detected: {len(result)}")
+        logger.info(f"Total TRUE procurement/material items detected: {len(result)}")
         
         if not result.empty and 'current_finish' in result.columns:
             return result.sort_values(by='current_finish')
