@@ -27,20 +27,108 @@ st.set_page_config(
 # Custom CSS
 st.markdown("""
 <style>
-    .metric-card {
-        background-color: #f0f2f6;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #4CAF50;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+    
+    /* Global font styling */
+    html, body, [class*="css"] {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    .critical-card {
-        border-left: 5px solid #F44336;
+    
+    /* Headers with modern font */
+    h1, h2, h3 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.02em;
     }
+    
+    h1 {
+        font-size: 2.5rem !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    h2 {
+        font-size: 1.8rem !important;
+        color: #1e293b;
+        margin-top: 2rem !important;
+        margin-bottom: 1rem !important;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    h3 {
+        font-size: 1.3rem !important;
+        color: #334155;
+        margin-top: 1.5rem !important;
+    }
+    
+    /* Section dividers */
+    hr {
+        margin: 2.5rem 0 !important;
+        border: none !important;
+        height: 2px !important;
+        background: linear-gradient(90deg, transparent, #cbd5e1, transparent) !important;
+    }
+    
+    /* Metric cards */
+    [data-testid="stMetricValue"] {
+        font-size: 2.2rem !important;
+        font-weight: 700 !important;
+        font-family: 'JetBrains Mono', monospace !important;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b !important;
+    }
+    
+    /* Tabs styling */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
+        gap: 12px;
+        background-color: #f8fafc;
+        padding: 8px;
+        border-radius: 12px;
     }
+    
     .stTabs [data-baseweb="tab"] {
-        padding: 10px 20px;
+        padding: 12px 24px;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background-color: #e2e8f0;
+    }
+    
+    /* Cards and containers */
+    .element-container {
+        margin-bottom: 1rem;
+    }
+    
+    /* Dataframe styling */
+    [data-testid="stDataFrame"] {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    /* Section spacing */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -241,9 +329,12 @@ def render_dashboard(uploaded_file):
             st.exception(e)
 
 def render_executive_summary(analyzer, stats):
-    st.header("Project Health Dashboard")
+    # Header with icon
+    st.markdown("## 📊 Project Health Dashboard")
+    st.markdown("---")
     
-    # KPI Metrics
+    # KPI Metrics with enhanced spacing
+    st.markdown("### Key Performance Indicators")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Activities", stats['total_activities'])
     col2.metric("Critical Activities", stats['critical_activities'], 
@@ -251,10 +342,12 @@ def render_executive_summary(analyzer, stats):
     col3.metric("Slipping (>5 days)", stats['slipping_activities'], delta="-Risk")
     col4.metric("Data Date", stats['data_date'])
     
+    st.markdown("<br>", unsafe_allow_html=True)
     st.divider()
     
     # Critical Path Timeline
-    st.subheader("Top 10 Critical Path Drivers")
+    st.markdown("### 🎯 Top 10 Critical Path Drivers")
+    st.markdown("<br>", unsafe_allow_html=True)
     crit_df = analyzer.get_critical_path().head(10)
     
     if not crit_df.empty:
@@ -293,8 +386,12 @@ def render_executive_summary(analyzer, stats):
     else:
         st.info("✅ No critical path activities found - project has positive float!")
     
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.divider()
+    
     # Health Indicators
-    st.subheader("Schedule Health Indicators")
+    st.markdown("### 🏥 Schedule Health Indicators")
+    st.markdown("<br>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     
     with col1:
@@ -313,10 +410,12 @@ def render_executive_summary(analyzer, stats):
         else:
             st.success("✅ **ON TRACK**: No significant slippage detected")
     
+    st.markdown("<br>", unsafe_allow_html=True)
     st.divider()
     
     # Schedule Log Metrics (P6 Schedule Health)
-    st.subheader("📊 P6 Schedule Log Metrics")
+    st.markdown("### 📊 P6 Schedule Log Metrics")
+    st.markdown("<br>", unsafe_allow_html=True)
     
     health_metrics = analyzer.get_schedule_health_metrics()
     
