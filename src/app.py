@@ -43,9 +43,7 @@ st.markdown("""
     
     h1 {
         font-size: 2.5rem !important;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #f1f5f9 !important;
         margin-bottom: 0.5rem !important;
     }
     
