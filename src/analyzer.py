@@ -307,8 +307,8 @@ class ScheduleAnalyzer:
         return {
             "duration_days": int(duration_days),
             "percent_complete": round(percent_complete, 1),
-            "project_start": project_start.strftime('%Y-%m-%d') if project_start else None,
-            "project_finish": project_finish.strftime('%Y-%m-%d') if project_finish else None
+            "project_start": project_start.strftime('%m/%d/%Y') if project_start else None,
+            "project_finish": project_finish.strftime('%m/%d/%Y') if project_finish else None
         }
 
     def get_dashboard_summary(self) -> Dict[str, Any]:
@@ -317,7 +317,7 @@ class ScheduleAnalyzer:
         """
         if self.df_main is None or self.df_main.empty:
             return {
-                "data_date": self.analysis_date.strftime('%Y-%m-%d'),
+                "data_date": self.analysis_date.strftime('%m/%d/%Y'),
                 "total_activities": 0,
                 "critical_activities": 0,
                 "slipping_activities": 0,
@@ -464,7 +464,7 @@ class ScheduleAnalyzer:
             behind_count = behind_mask.sum()
         
         return {
-            'data_date': data_date.strftime('%Y-%m-%d'),
+            'data_date': data_date.strftime('%m/%d/%Y'),
             'last_month_completed': len(last_month),
             'this_month_active': len(this_month),
             'next_month_starting': len(next_month),
