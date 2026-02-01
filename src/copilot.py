@@ -1,4 +1,5 @@
 import openai
+import os
 from typing import Dict, Any, List
 import pandas as pd
 import json

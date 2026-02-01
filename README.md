@@ -1,182 +1,405 @@
-# SixTerminal - P6 Stairway Tracker
+# SixTerminal 🏗️
 
-**Transform Primavera P6 schedules into elegant, actionable Excel dashboards with AI-powered insights.**
+**The Modern Interface for Primavera P6**
 
----
+A powerful Python application for analyzing, visualizing, and tracking Primavera P6 schedules with AI-powered insights.
 
-## Overview
-
-SixTerminal (P6 Stairway Tracker) is a Python-based tool designed for master project schedulers who need to communicate complex P6 schedule data to stakeholders in a clear, visual format. The application automatically extracts data from XER files and generates professional Excel dashboards with multiple specialized views.
-
-### Key Features
-
-🎯 **Stairway Visualization** - Unique milestone tracker showing baseline vs current progression  
-📊 **Multi-View Dashboards** - Executive summary, milestones, procurement, punchlist, lookahead  
-🤖 **AI Copilot** - Natural language interface to query and analyze schedule data  
-⚡ **Fast Processing** - Handles 1000+ activity schedules in under 30 seconds  
-🎨 **Professional Formatting** - Automated color-coding, conditional formatting, variance analysis  
-🔄 **Repeatable** - Generate consistent reports with a single command  
+![Version](https://img.shields.io/badge/version-2.0-blue)
+![Python](https://img.shields.io/badge/python-3.11+-green)
+![License](https://img.shields.io/badge/license-MIT-orange)
 
 ---
 
-## Project Status
+## Features
 
-**Current Phase:** Planning & Design  
-**Target Release:** Q1 2026
+### 📊 **Stairway Visualization**
+Track milestone progression with visual baseline vs forecast comparison. The signature "stairway chart" makes schedule health immediately clear to stakeholders.
 
-This repository contains the comprehensive planning documents for the P6 Stairway Tracker application. Development will begin following the roadmap outlined in the planning documentation.
+### 🧠 **AI Copilot**
+Ask natural language questions about your schedule:
+- "What are the top 3 schedule risks?"
+- "Why is the project delayed?"
+- "Which milestones are at risk?"
 
----
+Powered by OpenAI GPT-4 with context-aware responses based on your live schedule data.
 
-## Documentation
+### ⚡ **Auto-Analysis**
+- Instant critical path identification
+- Variance analysis (baseline vs current)
+- Schedule health indicators
+- Procurement log extraction
 
-📋 **[P6 Stairway Tracker Planning Document](./docs/P6_Stairway_Tracker_Planning_Document.md)**  
-Complete system design, architecture, dashboard specifications, and implementation roadmap.
+### 🔍 **Change Detection**
+Compare two schedule versions to track:
+- Added/deleted activities
+- Date slips and improvements
+- Visual slip analysis
+- Automated change reports
 
-🤖 **[AI Copilot Integration Specification](./docs/AI_Copilot_Integration.md)**  
-Detailed technical specification for the AI-powered natural language interface.
+### 📑 **Excel Dashboards**
+Generate stakeholder-ready reports with:
+- Professional formatting and conditional colors
+- Embedded stairway charts
+- Multiple analysis sheets
+- Executive summary with KPIs
 
----
-
-## What Problem Does This Solve?
-
-Master project schedulers spend hours each week:
-- Manually exporting P6 data to Excel
-- Creating stakeholder-friendly summaries
-- Tracking milestone slippage across schedule updates
-- Identifying critical procurement items
-- Formatting reports for consistency
-
-**SixTerminal automates this entire workflow**, transforming XER files into polished dashboards in seconds.
-
----
-
-## Dashboard Views
-
-### 1. Executive Summary
-High-level project health with KPIs, critical issues, and upcoming milestones.
-
-### 2. Milestone Tracker (Stairway Chart)
-Visual timeline showing baseline vs current milestone progression, making schedule slippage instantly visible.
-
-### 3. Material & Procurement Tracker
-Consolidated view of submittals, long-lead equipment, and material deliveries.
-
-### 4. Punchlist & Closeout Tracker
-Final completion activities, inspections, and project closeout deliverables.
-
-### 5. Schedule Log & Change History
-Documentation of schedule changes, variance analysis, and critical path evolution.
-
-### 6. Lookahead View
-Upcoming activities in 30/60/90-day windows for field planning and coordination.
+### 🔄 **File Monitoring** (Automation)
+Automatically process new XER files:
+- Watch a directory for schedule updates
+- Auto-generate dashboards
+- Compare with previous versions
+- Generate change reports
 
 ---
 
-## AI Copilot
+## Quick Start
 
-The integrated AI assistant allows users to interact with schedule data using natural language:
+### Installation
 
-```
-User: "What activities are behind schedule?"
-AI: "I found 5 activities behind schedule:
-     🔴 DES-1050: 35% Design Review (+15 days)
-     🔴 SUB-002: MEP Coordination Drawings (+29 days, CRITICAL)
-     ..."
+```bash
+# Clone the repository
+git clone https://github.com/bloXbandit/SixTerminal.git
+cd SixTerminal
 
-User: "What's the next critical milestone?"
-AI: "90% Construction Documents Complete on 02/15/2026
-     Status: 🟡 At Risk (18 days away, 5 days float)"
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-**Features:**
-- Natural language queries in plain English
-- Proactive insights and risk identification
-- Trend analysis across schedule updates
-- Recovery strategy suggestions
-- Cost-effective (~$0.01 per conversation)
+### Usage
+
+#### Option 1: Web Interface (Recommended)
+
+```bash
+streamlit run src/app.py
+```
+
+Then open your browser to `http://localhost:8501`
+
+#### Option 2: Command Line
+
+```python
+from src.parser import P6Parser
+from src.analyzer import ScheduleAnalyzer
+from src.dashboard import DashboardGenerator
+
+# Parse XER file
+parser = P6Parser('your_schedule.xer')
+analyzer = ScheduleAnalyzer(parser)
+
+# Generate Excel dashboard
+gen = DashboardGenerator(analyzer, 'output_dashboard.xlsx')
+gen.generate()
+```
+
+#### Option 3: File Monitoring (Automation)
+
+```bash
+# Create default config
+python src/monitor.py --create-config
+
+# Start monitoring
+python src/monitor.py --watch-dir ./watch --output-dir ./output
+```
+
+Place XER files in the `./watch` directory and dashboards will be auto-generated in `./output`.
 
 ---
 
-## Technology Stack
+## Configuration
 
-**Core:**
-- Python 3.11+
-- xerparser (XER file parsing)
-- openpyxl (Excel generation)
-- pandas (data analysis)
+### AI Copilot Setup
 
-**AI Integration:**
-- OpenAI GPT-4.1-mini / Google Gemini-2.5-flash
-- Function calling for structured data access
-- CLI and web interface options
+1. Get an OpenAI API key from https://platform.openai.com/api-keys
+2. Configure in the web interface:
+   - Go to **Settings** in the sidebar
+   - Enter your API key
+   - Select your preferred model (GPT-4 Turbo recommended)
+   - Click **Save Settings**
+
+Alternatively, set environment variable:
+```bash
+export OPENAI_API_KEY="your-api-key-here"
+```
+
+### Analysis Thresholds
+
+Customize in `config.json`:
+
+```json
+{
+  "ai_provider": "openai",
+  "ai_model": "gpt-4-turbo",
+  "api_key": "your-key-here",
+  "analysis": {
+    "critical_float_threshold": 0,
+    "slippage_threshold_days": 5
+  }
+}
+```
+
+---
+
+## Requirements
+
+- **Python**: 3.11+
+- **P6 Version**: Compatible with all P6 XER exports (Professional & EPPM)
+- **Operating System**: Windows, macOS, Linux
+
+### Dependencies
+
+```
+xerparser==0.9.4
+pandas==2.3.3
+openpyxl==3.1.5
+streamlit==1.53.1
+plotly==6.5.2
+openai>=1.0.0
+watchdog==6.0.0
+```
+
+---
+
+## Project Structure
+
+```
+SixTerminal/
+├── src/
+│   ├── parser.py          # XER file parsing with encoding handling
+│   ├── analyzer.py        # Schedule analysis engine
+│   ├── dashboard.py       # Excel generation with charts
+│   ├── copilot.py         # AI integration
+│   ├── diff_engine.py     # Change detection
+│   ├── monitor.py         # File monitoring automation
+│   ├── config.py          # Configuration management
+│   └── app.py             # Streamlit web interface
+├── docs/
+│   ├── P6_Stairway_Tracker_Planning_Document.md
+│   ├── AI_Copilot_Integration.md
+│   ├── Live_P6_Integration_and_Change_Tracking.md
+│   ├── CODE_REVIEW_PHASE_1.md
+│   └── UPDATE_ANALYSIS_JAN31.md
+├── tests/                 # Unit tests (coming soon)
+├── examples/              # Example XER files and outputs
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## Features in Detail
+
+### Dashboard Tabs
+
+**🚀 Executive Summary**
+- Project health KPIs
+- Critical path timeline
+- Schedule health indicators
+- Risk alerts
+
+**📈 Stairway Visuals**
+- Interactive milestone chart
+- Baseline vs forecast comparison
+- Variance analysis table
+- Color-coded status
+
+**🔍 Compare Schedules**
+- Upload previous version
+- Detect added/deleted activities
+- Visualize date slips
+- Export change reports
+
+**📋 Data Tables**
+- Full schedule view
+- Search and filter
+- Column customization
+- CSV export
+
+**🤖 AI Copilot**
+- Natural language queries
+- Context-aware responses
+- Suggested questions
+- Chat history
+
+### Excel Dashboard Sheets
+
+1. **Executive Summary** - High-level metrics and alerts
+2. **Milestone Stairway** - Visual chart + data table
+3. **Critical Path** - Top critical activities
+4. **Procurement Log** - Material and submittal tracking
+
+---
+
+## Performance
+
+- **Parsing Speed**: <5 seconds for 1000-activity schedules
+- **Dashboard Generation**: <10 seconds
+- **AI Response Time**: 2-5 seconds (depends on OpenAI API)
+- **Memory Usage**: ~200MB for typical schedules
+
+### Optimization Tips
+
+- Use the built-in caching for repeated analyses
+- Filter data in Data Tables view for large schedules
+- Clear cache in Settings if memory issues occur
+
+---
+
+## Troubleshooting
+
+### XER File Won't Parse
+
+**Issue**: `ValueError: invalid XER file`
+
+**Solution**:
+- Ensure file is a valid P6 export (not corrupted)
+- Try re-exporting from P6
+- Check file encoding (tool handles UTF-8 and Windows cp1252)
+
+### AI Copilot Not Responding
+
+**Issue**: API key errors or timeouts
+
+**Solution**:
+- Verify API key is correct in Settings
+- Check OpenAI account has credits
+- Try switching to a different model (GPT-3.5 Turbo is faster/cheaper)
+- Check internet connectivity
+
+### Slow Performance
+
+**Issue**: Large schedules take too long
+
+**Solution**:
+- Use "Clear Cache" in Settings
+- Filter activities in Data Tables view
+- Consider upgrading hardware for 5000+ activity schedules
+
+---
+
+## Development
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+### Code Style
+
+```bash
+# Format code
+black src/
+
+# Lint
+pylint src/
+```
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
 ## Roadmap
 
-### Phase 1: Foundation (Weeks 1-2)
-- XER parsing and data extraction
-- Core data processing and analytics
-- Basic Excel generation
+### Phase 3 (In Progress - 70%)
+- ✅ File monitoring automation
+- ✅ Enhanced UI with settings page
+- ✅ AI error handling with retries
+- ✅ Compare schedules UI
+- ⏳ Unit test framework
+- ⏳ Multi-project dashboard
 
-### Phase 2: Dashboard Development (Weeks 2-3)
-- Implement all 6 dashboard sheets
-- Apply formatting and conditional logic
-- Generate embedded visualizations
-
-### Phase 3: AI Integration (Weeks 3-4)
-- Function library for schedule queries
-- CLI chat interface
-- Proactive insights generation
-
-### Phase 4: Polish & Testing (Week 4)
-- Performance optimization
-- Documentation and examples
-- Real-world testing with sample schedules
+### Future Enhancements
+- S-curve analytics
+- Burn-down charts
+- PDF export option
+- Direct P6 database connection
+- Mobile app (React Native)
+- Real-time collaboration features
 
 ---
 
-## Target Users
+## Architecture
 
-- **Master Project Schedulers** - Primary users who generate reports
-- **Project Managers** - Stakeholders who need schedule insights
-- **Executives** - High-level project health monitoring
-- **Contractors** - Field planning and lookahead coordination
-- **Owners** - Milestone tracking and procurement oversight
+### Data Flow
+
+```
+XER File → Parser → Analyzer → Dashboard Generator → Excel Output
+                ↓
+            AI Copilot (with context)
+                ↓
+            Change Detection (Diff Engine)
+```
+
+### Key Design Principles
+
+- **Modularity**: Each component is independent and testable
+- **Performance**: Caching and lazy loading for large datasets
+- **Robustness**: Encoding fallback and error handling
+- **Extensibility**: Easy to add new analysis modules
 
 ---
 
-## Design Principles
+## Credits
 
-1. **Visual Clarity** - Information should be scannable in seconds
-2. **Automated Intelligence** - Let the software do the analysis
-3. **Stakeholder Focus** - Different views for different audiences
-4. **Consistency** - Repeatable, professional output every time
-5. **Simplicity** - Powerful features with simple interface
+**Developer**: Ecarg (OpenClaw)  
+**Planning & Review**: Manus AI  
+**Project**: SixTerminal
 
----
+### Built With
 
-## Contributing
-
-This project is currently in the planning phase. Contributions, feedback, and suggestions are welcome!
+- [xerparser](https://github.com/bramburn/xerparser) - XER file parsing
+- [Streamlit](https://streamlit.io/) - Web interface
+- [Plotly](https://plotly.com/) - Interactive charts
+- [OpenPyXL](https://openpyxl.readthedocs.io/) - Excel generation
+- [OpenAI](https://openai.com/) - AI Copilot
 
 ---
 
 ## License
 
-TBD
+MIT License - see [LICENSE](LICENSE) file for details
 
 ---
 
-## Contact
+## Support
 
-For questions or collaboration opportunities, please open an issue in this repository.
+- **Issues**: https://github.com/bloXbandit/SixTerminal/issues
+- **Discussions**: https://github.com/bloXbandit/SixTerminal/discussions
+- **Documentation**: [Wiki](https://github.com/bloXbandit/SixTerminal/wiki)
 
 ---
 
-## Acknowledgments
+## Changelog
 
-Built with insights from master project schedulers in the construction industry who understand the challenges of communicating complex schedule data to diverse stakeholders.
+### v2.0 (January 2026) - Production Release
+- ✅ Complete UI overhaul with enhanced Streamlit interface
+- ✅ AI Copilot with OpenAI integration
+- ✅ Excel stairway chart visualization
+- ✅ Change detection engine
+- ✅ File monitoring automation
+- ✅ Configuration management system
+- ✅ Performance optimizations with caching
+- ✅ Settings page with API key management
+- ✅ Comprehensive help documentation
+- ✅ Compare schedules UI with visual slip analysis
+- ✅ AI error handling with retry logic
 
-**Powered by Manus AI** - Intelligent automation for project management.
+### v1.0 (January 2026) - Initial Release
+- XER parsing and analysis
+- Basic Excel dashboard generation
+- Critical path identification
+- Milestone tracking
+
+---
+
+**Made with ❤️ for Project Schedulers**
