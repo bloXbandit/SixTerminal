@@ -182,19 +182,48 @@ class P6Parser:
             in_progress = 0
             not_started = 0
             
-        # Extract WBS High-Level Structure (Level 1/2)
+        # Extract WBS High-Level Structure (Level 1/2 ONLY - Token Optimized!)
         wbs_summary = []
         if self.df_wbs is not None and not self.df_wbs.empty:
-            # Get top level nodes (no parent or parent not in list)
-            # Simplified: just take first 10 nodes which usually are high level in P6 exports
-            # or try to find nodes with no parent
-            top_nodes = self.df_wbs[self.df_wbs['parent_wbs_id'].isnull()]
+            # Get top level nodes (no parent)
+            top_nodes = self.df_wbs[self.df_wbs['parent_wbs_id'].isnull()].head(10)
             if top_nodes.empty:
                 # Fallback: take first 5 nodes
                 top_nodes = self.df_wbs.head(5)
             
             for _, node in top_nodes.iterrows():
                 wbs_summary.append(node.get('wbs_name', 'Unknown Phase'))
+        
+        # Get data_date early for use in DCMA calculations
+        data_date = self.project_metadata.get('data_date')
+        
+        # DCMA 14-Point Metrics (Key Indicators)
+        dcma_metrics = {}
+        
+        # Metric #5: Hard Constraints
+        if 'cstr_type' in self.df_activities.columns:
+            constrained = self.df_activities['cstr_type'].notna().sum()
+            dcma_metrics['constraints_count'] = constrained
+            dcma_metrics['constraints_percent'] = f"{(constrained / total_tasks * 100):.2f}%"
+        
+        # Metric #7: Negative Float
+        if 'total_float_hr_cnt' in self.df_activities.columns:
+            neg_float = (self.df_activities['total_float_hr_cnt'] < 0).sum()
+            dcma_metrics['negative_float_count'] = neg_float
+        
+        # Metric #11: Missed Tasks (started but 0% complete)
+        if data_date and 'act_start_date' in self.df_activities.columns and 'complete_pct' in self.df_activities.columns:
+            missed = ((self.df_activities['act_start_date'].notna()) & 
+                      (self.df_activities['act_start_date'] < data_date) & 
+                      (self.df_activities['complete_pct'] == 0)).sum()
+            dcma_metrics['missed_tasks_count'] = missed
+        
+        # Logic Health
+        if self.df_relationships is not None and not self.df_relationships.empty:
+            has_pred = self.df_activities['task_id'].isin(self.df_relationships['task_id'])
+            has_succ = self.df_activities['task_id'].isin(self.df_relationships['pred_task_id'])
+            fully_linked = (has_pred & has_succ).sum()
+            dcma_metrics['logic_percent'] = f"{(fully_linked / total_tasks * 100):.1f}%"
         
         # Format dates for narrative
         data_date = self.project_metadata.get('data_date')
@@ -217,11 +246,11 @@ class P6Parser:
                 "not_started": not_started,
                 "percent_complete": f"{(completed / total_tasks * 100):.1f}%" if total_tasks > 0 else "0%"
             },
-            "wbs_phases": wbs_summary,
+            "wbs_phases": wbs_summary,  # Now limited to top 10 nodes
             "critical_stats": {
-                # We'll calculate this if columns exist
                 "critical_count": len(self.df_activities[self.df_activities['total_float_hr_cnt'] <= 0]) if 'total_float_hr_cnt' in self.df_activities.columns else 0
-            }
+            },
+            "dcma_metrics": dcma_metrics  # NEW: DCMA 14-point indicators
         }
         return context
 
