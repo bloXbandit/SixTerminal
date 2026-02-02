@@ -289,6 +289,9 @@ def main():
         pass  # Already rendered in sidebar
     elif page == "📖 Help":
         pass  # Already rendered in sidebar
+    
+    # --- AI CHAT CONTAINER (Bottom of page, persistent) ---
+    render_bottom_chat()
 
 def render_bottom_chat():
     """Persistent AI chat container at bottom of page"""
