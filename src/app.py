@@ -180,6 +180,14 @@ def main():
             uploaded_file = st.file_uploader("Upload Schedule (.xer)", type="xer", key="main_file")
             
             if uploaded_file:
+                # Load parser and analyzer into session state for AI Copilot
+                if 'current_file' not in st.session_state or st.session_state.current_file != uploaded_file.name:
+                    with st.spinner("Loading schedule..."):
+                        st.session_state.parser, st.session_state.analyzer = load_and_parse_xer(
+                            uploaded_file.getvalue(), uploaded_file.name
+                        )
+                        st.session_state.current_file = uploaded_file.name
+                
                 st.success("✅ File Loaded")
                 
                 # Quick Actions
