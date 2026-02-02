@@ -171,6 +171,11 @@ def main():
         
         st.divider()
         
+        # Render AI Copilot at top of sidebar (persistent)
+        render_sidebar_ai_copilot()
+        
+        st.divider()
+        
         if page == "📊 Dashboard":
             uploaded_file = st.file_uploader("Upload Schedule (.xer)", type="xer", key="main_file")
             
@@ -209,10 +214,6 @@ def main():
         
         elif page == "📖 Help":
             render_help_page()
-        
-        # Render AI Copilot in sidebar (persistent)
-        st.markdown("---")
-        render_sidebar_ai_copilot()
 
     # --- MAIN CONTENT ---
     if page == "📊 Dashboard":
