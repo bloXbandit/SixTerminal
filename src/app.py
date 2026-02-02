@@ -300,34 +300,140 @@ def render_bottom_chat():
     has_parser = hasattr(st.session_state, 'parser') and st.session_state.parser is not None
     has_analyzer = hasattr(st.session_state, 'analyzer') and st.session_state.analyzer is not None
     
-    # Fixed bottom chat container with custom CSS
+    # Fixed bottom chat container with modern glassmorphism
     st.markdown("""
     <style>
+    /* Chat Container - Floating Dock Style */
     .chat-container {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(to top, #1e293b 0%, #1e293b 90%, transparent 100%);
-        border-top: 2px solid #475569;
-        padding: 1rem;
-        z-index: 999;
-        box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.3);
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        max-width: 1000px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 1.5rem;
+        z-index: 9999;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 
+                    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .chat-header {
+    
+    .chat-container:hover {
+        background: rgba(15, 23, 42, 0.95);
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 
+                    0 0 0 1px rgba(96, 165, 250, 0.2) inset;
+        transform: translateX(-50%) translateY(-2px);
+    }
+
+    /* Header Styling */
+    .chat-header-container {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
+
     .chat-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #60a5fa;
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
+
     .chat-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
         font-size: 0.85rem;
-        color: #94a3b8;
+        font-weight: 500;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Chat Messages */
+    .chat-message {
+        padding: 12px 16px;
+        border-radius: 16px;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        animation: fadeIn 0.3s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-message {
+        background: rgba(96, 165, 250, 0.15);
+        border: 1px solid rgba(96, 165, 250, 0.3);
+        color: #e2e8f0;
+        margin-left: 2rem;
+        border-bottom-right-radius: 4px;
+    }
+
+    .assistant-message {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #f1f5f9;
+        margin-right: 2rem;
+        border-bottom-left-radius: 4px;
+    }
+
+    /* Input Area */
+    .stTextInput input {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        color: white !important;
+        padding: 12px 16px !important;
+    }
+    
+    .stTextInput input:focus {
+        border-color: #60a5fa !important;
+        box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important;
+    }
+    
+    /* Buttons */
+    .stButton button {
+        border-radius: 12px !important;
+        font-weight: 500 !important;
+        transition: all 0.2s !important;
+    }
+    
+    .stButton button:hover {
+        transform: translateY(-1px);
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -336,79 +442,119 @@ def render_bottom_chat():
     with st.container():
         st.markdown('<div class="chat-container">', unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([3, 1, 1])
+        # Custom Header
+        col1, col2, col3 = st.columns([6, 3, 1])
         
         with col1:
-            st.markdown('<div class="chat-title">🤖 AI Copilot</div>', unsafe_allow_html=True)
+            st.markdown("""
+                <div class="chat-title">
+                    <span style="font-size: 1.8rem;">⚡</span> 6ix Copilot
+                </div>
+            """, unsafe_allow_html=True)
         
         with col2:
             if has_parser and has_analyzer:
-                st.markdown('<div class="chat-status">✅ Ready</div>', unsafe_allow_html=True)
+                st.markdown("""
+                    <div style="text-align: right;">
+                        <span class="chat-status" style="color: #4ade80; border-color: rgba(74, 222, 128, 0.3); background: rgba(74, 222, 128, 0.1);">
+                            ● System Active
+                        </span>
+                    </div>
+                """, unsafe_allow_html=True)
             else:
-                st.markdown('<div class="chat-status">📁 Upload schedule</div>', unsafe_allow_html=True)
+                st.markdown("""
+                    <div style="text-align: right;">
+                        <span class="chat-status" style="color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.1);">
+                            ● Waiting for Schedule
+                        </span>
+                    </div>
+                """, unsafe_allow_html=True)
         
         with col3:
             # Collapse/expand toggle
             if 'chat_expanded' not in st.session_state:
                 st.session_state.chat_expanded = True
             
-            if st.button("▼" if st.session_state.chat_expanded else "▲", key="toggle_chat"):
+            # Using a cleaner icon button
+            if st.button("✕" if st.session_state.chat_expanded else "⚡", key="toggle_chat", help="Toggle 6ix Copilot"):
                 st.session_state.chat_expanded = not st.session_state.chat_expanded
         
-        # Only show chat interface if expanded and schedule is loaded
+        # Only show chat interface if expanded
         if st.session_state.chat_expanded:
+            st.markdown('<div style="margin-top: 1rem;">', unsafe_allow_html=True)
+            
             if not has_parser or not has_analyzer:
-                st.info("Upload a .xer schedule file to start chatting with the AI Copilot")
+                st.info("📂 Upload a .xer schedule file to activate 6ix Copilot")
             else:
                 # Check API key
                 api_key = config.get("api_key") or os.getenv("OPENAI_API_KEY")
                 if not api_key:
-                    st.warning("⚠️ Configure your OpenAI API key in Settings to use AI Copilot")
+                    st.warning("⚠️ Configure your OpenAI API key in Settings")
                 else:
                     # Initialize copilot
                     try:
                         copilot = ScheduleCopilot(st.session_state.parser, st.session_state.analyzer)
                         
-                        # Chat interface
-                        col_chat, col_quick = st.columns([3, 1])
+                        # Main layout: Chat History (Left) | Quick Actions (Right)
+                        col_history, col_actions = st.columns([3, 1])
                         
-                        with col_quick:
-                            st.caption("Quick questions:")
-                            if st.button("Top risks?", key="q1", use_container_width=True):
-                                st.session_state.messages.append({"role": "user", "content": "What are the top risks?"})
-                                try:
-                                    history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
-                                    response = copilot.query("What are the top risks?", history)
-                                    st.session_state.messages.append({"role": "assistant", "content": response})
-                                    st.rerun()
-                                except Exception as e:
-                                    st.error(f"Error: {str(e)[:50]}...")
+                        with col_actions:
+                            st.caption("🚀 Quick Actions")
                             
-                            if st.button("Project status?", key="q2", use_container_width=True):
-                                st.session_state.messages.append({"role": "user", "content": "What's the project status?"})
-                                try:
-                                    history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
-                                    response = copilot.query("What's the project status?", history)
-                                    st.session_state.messages.append({"role": "assistant", "content": response})
-                                    st.rerun()
-                                except Exception as e:
-                                    st.error(f"Error: {str(e)[:50]}...")
+                            actions = {
+                                "🔥 Risks": "What are the critical risks in this schedule?",
+                                "📊 Status": "Give me a high-level project status summary.",
+                                "📅 Critical": "Show me the critical path activities.",
+                                "📉 Delays": "Are there any major delays or slippages?"
+                            }
+                            
+                            for label, prompt_text in actions.items():
+                                if st.button(label, key=f"act_{label}", use_container_width=True):
+                                    st.session_state.messages.append({"role": "user", "content": prompt_text})
+                                    try:
+                                        history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
+                                        with st.spinner("Analyzing..."):
+                                            response = copilot.query(prompt_text, history)
+                                        st.session_state.messages.append({"role": "assistant", "content": response})
+                                        st.rerun()
+                                    except Exception as e:
+                                        st.error(f"Error: {str(e)[:50]}...")
                         
-                        with col_chat:
-                            # Show last 3 messages
-                            if len(st.session_state.messages) > 0:
-                                with st.expander("💬 Recent chat", expanded=True):
+                        with col_history:
+                            # Scrollable chat history area
+                            chat_container = st.container()
+                            with chat_container:
+                                if len(st.session_state.messages) == 0:
+                                    st.markdown("""
+                                        <div style="text-align: center; color: #94a3b8; padding: 2rem;">
+                                            <div style="font-size: 3rem; margin-bottom: 1rem;">👋</div>
+                                            <p>Hi! I'm 6ix Copilot.</p>
+                                            <p style="font-size: 0.9rem;">Ask me anything about your schedule.</p>
+                                        </div>
+                                    """, unsafe_allow_html=True)
+                                else:
+                                    # Show last 3 messages with bubble styling
                                     for msg in st.session_state.messages[-3:]:
-                                        icon = "U" if msg["role"] == "user" else "6"
-                                        st.markdown(f"**{icon}:** {msg['content'][:150]}{'...' if len(msg['content']) > 150 else ''}")
+                                        is_user = msg["role"] == "user"
+                                        css_class = "user-message" if is_user else "assistant-message"
+                                        icon = "👤" if is_user else "⚡"
+                                        
+                                        st.markdown(f"""
+                                            <div class="chat-message {css_class}">
+                                                <div style="font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; opacity: 0.8;">
+                                                    {icon} {"You" if is_user else "6ix Copilot"}
+                                                </div>
+                                                {msg['content']}
+                                            </div>
+                                        """, unsafe_allow_html=True)
                             
-                            # Input form
-                            with st.form(key="bottom_chat_form", clear_on_submit=True):
-                                col_input, col_send = st.columns([4, 1])
+                            # Input area
+                            with st.form(key="six_chat_form", clear_on_submit=True):
+                                col_input, col_send = st.columns([5, 1])
                                 with col_input:
-                                    prompt = st.text_input("Ask about your schedule...", key="bottom_chat_input", label_visibility="collapsed")
+                                    prompt = st.text_input("Ask about your schedule...", key="six_chat_input", label_visibility="collapsed", placeholder="Type your question here...")
                                 with col_send:
-                                    send = st.form_submit_button("Send ➤", use_container_width=True)
+                                    send = st.form_submit_button("Send", use_container_width=True)
                             
                             if send and prompt:
                                 st.session_state.messages.append({"role": "user", "content": prompt})
@@ -423,9 +569,12 @@ def render_bottom_chat():
                                     st.rerun()
                     
                     except Exception as e:
-                        st.error(f"❌ Failed to initialize AI Copilot: {str(e)[:100]}...")
+                        st.error(f"❌ Failed to initialize 6ix Copilot: {str(e)[:100]}...")
+            
+            st.markdown('</div>', unsafe_allow_html=True)
         
         st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 def render_landing_page():
