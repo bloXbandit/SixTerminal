@@ -270,7 +270,7 @@ def render_landing_page():
     with col2:
         st.metric("Analysis Speed", "<30s")
     with col3:
-        st.metric("AI Models", "GPT-4+")
+        st.metric("AI Models", "GPT-5.2")
 
 def render_dashboard(uploaded_file):
     try:
