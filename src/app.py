@@ -328,8 +328,6 @@ def render_dashboard(uploaded_file):
         with tab6:
             render_data_tables(analyzer)
         
-        with tab7:
-            render_ai_copilot(parser, analyzer)
     
     except Exception as e:
         st.error(f"❌ Error processing XER: {str(e)}")
