@@ -281,8 +281,29 @@ def main():
 
     # --- MAIN CONTENT ---
     if page == "📊 Dashboard":
-        if 'uploaded_file' in locals() and uploaded_file:
-            render_dashboard(uploaded_file)
+        # Check if we have parser/analyzer in session state (from upload or auto-load)
+        has_data = (hasattr(st.session_state, 'parser') and st.session_state.parser is not None and
+                    hasattr(st.session_state, 'analyzer') and st.session_state.analyzer is not None)
+        
+        if has_data:
+            # Create a mock uploaded file object for render_dashboard if needed
+            if 'uploaded_file' in locals() and uploaded_file:
+                render_dashboard(uploaded_file)
+            else:
+                # Dashboard exists from auto-loaded file
+                class MockUploadedFile:
+                    def __init__(self, name):
+                        self.name = name
+                    def getvalue(self):
+                        # Return cached file bytes if available
+                        last_file = load_last_uploaded_file()
+                        if last_file and os.path.exists(last_file['path']):
+                            with open(last_file['path'], 'rb') as f:
+                                return f.read()
+                        return b''
+                
+                mock_file = MockUploadedFile(st.session_state.get('current_file', 'schedule.xer'))
+                render_dashboard(mock_file)
         else:
             render_landing_page()
     elif page == "⚙️ Settings":
