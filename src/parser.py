@@ -22,6 +22,7 @@ class P6Parser:
         self.df_relationships = None
         self.df_wbs = None
         self.project_metadata = {}  # Store project-level data
+        self._llm_context_cache = None  # Cache for expensive context building
         
         self._load_data()
 
@@ -161,10 +162,15 @@ class P6Parser:
         """Return the raw activities dataframe."""
         return self.df_activities
 
-    def get_llm_context(self, summary_only=True) -> Dict[str, Any]:
+    def get_llm_context(self, summary_only=True, force_refresh=False) -> Dict[str, Any]:
         """
         Generates a rich, token-efficient summary for the AI Copilot to construct narratives.
+        Cached to avoid recalculation on every query.
         """
+        # Return cached context if available and not forcing refresh
+        if self._llm_context_cache is not None and not force_refresh:
+            return self._llm_context_cache
+            
         if self.df_activities is None or self.df_activities.empty:
             return {"error": "No data loaded"}
             
@@ -252,6 +258,9 @@ class P6Parser:
             },
             "dcma_metrics": dcma_metrics  # NEW: DCMA 14-point indicators
         }
+        
+        # Cache the context for future queries
+        self._llm_context_cache = context
         return context
 
 if __name__ == "__main__":

@@ -37,58 +37,79 @@ class ScheduleCopilot:
         if not self.client:
             return "⚠️ AI Config Error: Please set your API Key in Settings."
 
-        # 1. Build Context (The "Health Stats")
+        # Determine query type for conditional context loading
+        user_lower = user_input.lower()
+        needs_detailed_context = any(keyword in user_lower for keyword in [
+            'dcma', 'health', 'quality', 'assessment', 'metrics', 'constraints',
+            'float', 'logic', 'relationships', 'critical path', 'status', 'summary',
+            'narrative', 'story', 'overview', 'risks', 'issues'
+        ])
+        
+        # 1. Build Context (cached for performance)
         context_data = self.parser.get_llm_context()
         project_info = context_data.get('project_info', {})
         metrics = context_data.get('project_metrics', {})
-        wbs_phases = context_data.get('wbs_phases', [])
-        critical_stats = context_data.get('critical_stats', {})
         
-        # Get critical path data with available columns
-        crit_path_df = self.analyzer.get_critical_path().head(5)
-        if not crit_path_df.empty:
-            # Only include columns that exist
-            available_cols = []
-            for col in ['task_code', 'task_name', 'total_float_hr_cnt']:
-                if col in crit_path_df.columns:
-                    available_cols.append(col)
+        # Only load heavy context when needed
+        if needs_detailed_context:
+            wbs_phases = context_data.get('wbs_phases', [])
+            critical_stats = context_data.get('critical_stats', {})
+            dcma = context_data.get('dcma_metrics', {})
             
-            if available_cols:
-                critical_path = crit_path_df[available_cols].to_dict('records')
+            # Get critical path data with available columns
+            crit_path_df = self.analyzer.get_critical_path().head(5)
+            if not crit_path_df.empty:
+                available_cols = []
+                for col in ['task_code', 'task_name', 'total_float_hr_cnt']:
+                    if col in crit_path_df.columns:
+                        available_cols.append(col)
+                
+                if available_cols:
+                    critical_path = crit_path_df[available_cols].to_dict('records')
+                else:
+                    critical_path = []
             else:
                 critical_path = []
+            
+            phases_str = ", ".join(wbs_phases[:5]) + ("..." if len(wbs_phases) > 5 else "")
         else:
+            # Lightweight context for simple queries
+            wbs_phases = []
+            critical_stats = {}
+            dcma = {}
             critical_path = []
+            phases_str = "N/A
         
-        # Format phases for prompt (limit to 5)
-        phases_str = ", ".join(wbs_phases[:5]) + ("..." if len(wbs_phases) > 5 else "")
+        # Build system prompt conditionally
+        base_prompt = f"""You are '6ix Copilot', a Senior Construction Scheduler with 20+ years experience in project controls.
+
+PROJECT: "{project_info.get('name', 'Unknown')}"
+DATA DATE: {project_info.get('data_date', 'Unknown')} (This is "today" - speak relative to this)
+
+CURRENT STATUS:
+- Total Activities: {metrics.get('total_activities', 0)}
+- Completed: {metrics.get('completed', 0)} | Active: {metrics.get('in_progress', 0)} | Pending: {metrics.get('not_started', 0)}
+- Progress: {metrics.get('percent_complete', '0%')}"""
         
-        # Get DCMA metrics
-        dcma = context_data.get('dcma_metrics', {})
+        # Add detailed context only when needed
+        if needs_detailed_context:
+            detailed_context = f"""
+- Critical Path: {critical_stats.get('critical_count', 0)} activities
+
+SCHEDULE HEALTH (DCMA Indicators):
+- Logic: {dcma.get('logic_percent', 'N/A')} of activities properly linked
+- Constraints: {dcma.get('constraints_count', 0)} hard constraints ({dcma.get('constraints_percent', '0%')})
+- Negative Float: {dcma.get('negative_float_count', 0)} activities
+- Missed Tasks: {dcma.get('missed_tasks_count', 0)} started but 0% complete (RED FLAG if >0)
+
+MAJOR PHASES: {phases_str}
+
+CRITICAL PATH (Top 5):
+{json.dumps(critical_path, indent=2) if critical_path else 'No critical path data'}"""
+            base_prompt += detailed_context
         
-        system_prompt = f"""
-        You are '6ix Copilot', a Senior Construction Scheduler with 20+ years experience in project controls.
-        You understand DCMA 14-point assessment, construction sequencing, and can tell compelling project stories.
+        system_prompt = base_prompt + f"""
         
-        PROJECT: "{project_info.get('name', 'Unknown')}"
-        DATA DATE: {project_info.get('data_date', 'Unknown')} (This is "today" - speak relative to this)
-        
-        CURRENT STATUS:
-        - Total Activities: {metrics.get('total_activities', 0)}
-        - Completed: {metrics.get('completed', 0)} | Active: {metrics.get('in_progress', 0)} | Pending: {metrics.get('not_started', 0)}
-        - Progress: {metrics.get('percent_complete', '0%')}
-        - Critical Path: {critical_stats.get('critical_count', 0)} activities
-        
-        SCHEDULE HEALTH (DCMA Indicators):
-        - Logic: {dcma.get('logic_percent', 'N/A')} of activities properly linked
-        - Constraints: {dcma.get('constraints_count', 0)} hard constraints ({dcma.get('constraints_percent', '0%')})
-        - Negative Float: {dcma.get('negative_float_count', 0)} activities
-        - Missed Tasks: {dcma.get('missed_tasks_count', 0)} started but 0% complete (RED FLAG if >0)
-        
-        MAJOR PHASES: {phases_str}
-        
-        CRITICAL PATH (Top 5):
-        {json.dumps(critical_path, indent=2) if critical_path else 'No critical path data'}
         
         RESPONSE MODES:
         
@@ -125,7 +146,10 @@ class ScheduleCopilot:
         - Data Date is {project_info.get('data_date', 'Unknown')} - not today's calendar date
         """
 
-        messages = [{"role": "system", "content": system_prompt}] + chat_history + [{"role": "user", "content": user_input}]
+        # Trim chat history to last 10 messages to reduce token overhead
+        trimmed_history = chat_history[-10:] if len(chat_history) > 10 else chat_history
+        
+        messages = [{"role": "system", "content": system_prompt}] + trimmed_history + [{"role": "user", "content": user_input}]
 
         try:
             response = self.client.chat.completions.create(
