@@ -163,7 +163,7 @@ class P6Parser:
 
     def get_llm_context(self, summary_only=True) -> Dict[str, Any]:
         """
-        Generates a token-efficient summary for the AI Copilot.
+        Generates a rich, token-efficient summary for the AI Copilot to construct narratives.
         """
         if self.df_activities is None or self.df_activities.empty:
             return {"error": "No data loaded"}
@@ -172,15 +172,55 @@ class P6Parser:
         # Check column names carefully as xerparser might lowercase them
         status_col = 'status_code' if 'status_code' in self.df_activities.columns else 'status_code'
         
-        completed = len(self.df_activities[self.df_activities[status_col] == 'TK_Complete']) if status_col in self.df_activities else 0
-        in_progress = len(self.df_activities[self.df_activities[status_col] == 'TK_Active']) if status_col in self.df_activities else 0
+        # Calculate status counts
+        if status_col in self.df_activities.columns:
+            completed = len(self.df_activities[self.df_activities[status_col] == 'TK_Complete'])
+            in_progress = len(self.df_activities[self.df_activities[status_col] == 'TK_Active'])
+            not_started = len(self.df_activities[self.df_activities[status_col] == 'TK_NotStart'])
+        else:
+            completed = 0
+            in_progress = 0
+            not_started = 0
+            
+        # Extract WBS High-Level Structure (Level 1/2)
+        wbs_summary = []
+        if self.df_wbs is not None and not self.df_wbs.empty:
+            # Get top level nodes (no parent or parent not in list)
+            # Simplified: just take first 10 nodes which usually are high level in P6 exports
+            # or try to find nodes with no parent
+            top_nodes = self.df_wbs[self.df_wbs['parent_wbs_id'].isnull()]
+            if top_nodes.empty:
+                # Fallback: take first 5 nodes
+                top_nodes = self.df_wbs.head(5)
+            
+            for _, node in top_nodes.iterrows():
+                wbs_summary.append(node.get('wbs_name', 'Unknown Phase'))
         
+        # Format dates for narrative
+        data_date = self.project_metadata.get('data_date')
+        if data_date:
+            data_date_str = data_date.strftime('%B %d, %Y')
+        else:
+            data_date_str = "Unknown"
+
         context = {
+            "project_info": {
+                "name": self.project_metadata.get('project_name', 'Unnamed Project'),
+                "data_date": data_date_str,
+                "plan_start": self.project_metadata.get('plan_start_date', 'N/A'),
+                "must_finish": self.project_metadata.get('must_fin_by_date', 'N/A')
+            },
             "project_metrics": {
                 "total_activities": total_tasks,
                 "completed": completed,
                 "in_progress": in_progress,
-                "project_data_date": str(datetime.now().date()) # Placeholder
+                "not_started": not_started,
+                "percent_complete": f"{(completed / total_tasks * 100):.1f}%" if total_tasks > 0 else "0%"
+            },
+            "wbs_phases": wbs_summary,
+            "critical_stats": {
+                # We'll calculate this if columns exist
+                "critical_count": len(self.df_activities[self.df_activities['total_float_hr_cnt'] <= 0]) if 'total_float_hr_cnt' in self.df_activities.columns else 0
             }
         }
         return context
