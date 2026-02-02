@@ -1178,8 +1178,15 @@ def render_sidebar_ai_copilot():
     st.subheader("🤖 AI Copilot")
     
     # Check if schedule is loaded
-    if not hasattr(st.session_state, 'parser') or st.session_state.parser is None:
+    has_parser = hasattr(st.session_state, 'parser') and st.session_state.parser is not None
+    has_analyzer = hasattr(st.session_state, 'analyzer') and st.session_state.analyzer is not None
+    
+    if not has_parser or not has_analyzer:
         st.info("📁 Upload a schedule to enable AI Copilot")
+        # Debug info
+        if st.checkbox("Show debug", key="debug_copilot"):
+            st.write(f"Parser: {has_parser}, Analyzer: {has_analyzer}")
+            st.write(f"Session state keys: {list(st.session_state.keys())}")
         return
     
     # Check API key
