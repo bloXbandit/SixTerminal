@@ -337,18 +337,21 @@ def render_bottom_chat():
     st.markdown("""
     <style>
     .chat-container {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 85%;
+        width: 100%;
         max-width: 1200px;
-        background: #0f172a; /* Solid dark color for better contrast */
+        background: #0f172a;
         border: 1px solid #334155;
         border-radius: 12px;
         padding: 1rem;
-        z-index: 9999;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        margin: 1rem auto;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    
+    .chat-history-scroll {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
     }
     
     .chat-title {
@@ -392,7 +395,7 @@ def render_bottom_chat():
     </style>
     """, unsafe_allow_html=True)
     
-    # Create fixed container
+    # Create container (no longer fixed to bottom)
     with st.container():
         st.markdown('<div class="chat-container">', unsafe_allow_html=True)
         
@@ -464,8 +467,9 @@ def render_bottom_chat():
                             </div>
                         """, unsafe_allow_html=True)
                     else:
-                        # Show recent messages
-                        for msg in st.session_state.messages[-3:]:
+                        # Scrollable chat history - show ALL messages
+                        st.markdown('<div class="chat-history-scroll">', unsafe_allow_html=True)
+                        for msg in st.session_state.messages:
                             role_class = "user-message" if msg["role"] == "user" else "assistant-message"
                             icon = "👤" if msg["role"] == "user" else "⚡"
                             st.markdown(f"""
@@ -473,6 +477,7 @@ def render_bottom_chat():
                                     <strong>{icon}</strong> {msg['content']}
                                 </div>
                             """, unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
                     
                     # Main Input
                     def on_main_submit():
