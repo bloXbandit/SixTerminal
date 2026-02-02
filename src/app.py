@@ -342,7 +342,7 @@ def render_bottom_chat():
         left: 50%;
         transform: translateX(-50%);
         width: 85%;
-        max-width: 900px;
+        max-width: 1200px;
         background: #0f172a; /* Solid dark color for better contrast */
         border: 1px solid #334155;
         border-radius: 12px;
@@ -398,7 +398,7 @@ def render_bottom_chat():
         
         # --- COLLAPSED STATE ---
         if not st.session_state.chat_expanded:
-            c1, c2, c3 = st.columns([1.5, 6, 1], gap="small")
+            c1, c2, c3 = st.columns([1.2, 7.8, 1], gap="small")
             with c1:
                 st.markdown('<div class="chat-title" style="white-space: nowrap;">⚡ 6ix Copilot</div>', unsafe_allow_html=True)
             with c2:
