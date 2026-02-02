@@ -341,25 +341,21 @@ def render_bottom_chat():
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        width: 80%;
-        max-width: 1000px;
-        background: rgba(15, 23, 42, 0.9);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
+        width: 85%;
+        max-width: 900px;
+        background: #0f172a; /* Solid dark color for better contrast */
+        border: 1px solid #334155;
+        border-radius: 12px;
         padding: 1rem;
         z-index: 9999;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
     
     .chat-title {
-        font-family: 'Inter', sans-serif;
-        font-size: 1.2rem;
+        font-family: sans-serif;
+        font-size: 1.1rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #60a5fa;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -367,27 +363,31 @@ def render_bottom_chat():
     
     .chat-message {
         padding: 10px 14px;
-        border-radius: 12px;
+        border-radius: 8px;
         margin-bottom: 8px;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
     }
     
     .user-message {
-        background: rgba(59, 130, 246, 0.2);
-        color: white;
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #e2e8f0;
         margin-left: 2rem;
     }
     
     .assistant-message {
-        background: rgba(255, 255, 255, 0.1);
-        color: #e2e8f0;
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        color: #94a3b8;
         margin-right: 2rem;
     }
     
-    /* Input field styling */
-    div[data-testid="stForm"] {
-        border: none;
-        padding: 0;
+    /* Ensure inputs are visible */
+    input[type="text"] {
+        color: #ffffff !important;
+        background-color: #1e293b !important; 
+        border: 1px solid #475569 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -398,27 +398,24 @@ def render_bottom_chat():
         
         # --- COLLAPSED STATE ---
         if not st.session_state.chat_expanded:
-            col1, col2, col3 = st.columns([2, 5, 1])
-            
-            with col1:
+            c1, c2, c3 = st.columns([2, 5, 1])
+            with c1:
                 st.markdown('<div class="chat-title">⚡ 6ix Copilot</div>', unsafe_allow_html=True)
-            
-            with col2:
-                # Simple form for quick input
-                with st.form(key="mini_chat_form", clear_on_submit=True):
-                    c_in, c_btn = st.columns([5, 1])
-                    with c_in:
-                        mini_prompt = st.text_input("Ask 6ix...", key="mini_input", label_visibility="collapsed", placeholder="Type to chat...")
-                    with c_btn:
-                        submitted = st.form_submit_button("➤", use_container_width=True)
-                    
-                    if submitted and mini_prompt:
-                        st.session_state.pending_prompt = mini_prompt
-                        st.session_state.chat_expanded = True
-                        st.rerun()
-            
-            with col3:
-                if st.button("▲", key="expand_chat", use_container_width=True):
+            with c2:
+                # Direct text input without form to avoid layout issues in collapsed state
+                # Using key-based callback implicitly via reruns if needed, 
+                # but simple text_input works best here.
+                def on_submit():
+                    st.session_state.pending_prompt = st.session_state.mini_input
+                    st.session_state.chat_expanded = True
+                    st.session_state.mini_input = "" # Clear input
+
+                st.text_input("Ask 6ix...", key="mini_input", 
+                             placeholder="Type your question here...", 
+                             label_visibility="collapsed",
+                             on_change=on_submit)
+            with c3:
+                if st.button("▲", key="expand_btn", use_container_width=True):
                     st.session_state.chat_expanded = True
                     st.rerun()
 
@@ -429,11 +426,10 @@ def render_bottom_chat():
             with h1:
                 st.markdown('<div class="chat-title">⚡ 6ix Copilot</div>', unsafe_allow_html=True)
             with h2:
-                status_color = "#4ade80" if has_parser and has_analyzer else "#fbbf24"
                 status_text = "System Active" if has_parser and has_analyzer else "Waiting for Schedule"
-                st.markdown(f'<div style="text-align:right; color:{status_color}; font-size:0.8rem; padding-top:5px;">● {status_text}</div>', unsafe_allow_html=True)
+                st.caption(f"● {status_text}")
             with h3:
-                if st.button("▼", key="collapse_chat", use_container_width=True):
+                if st.button("▼", key="collapse_btn", use_container_width=True):
                     st.session_state.chat_expanded = False
                     st.rerun()
             
@@ -443,28 +439,32 @@ def render_bottom_chat():
             if not has_parser or not has_analyzer:
                 st.info("📂 Upload a .xer schedule file to activate 6ix Copilot")
             else:
-                # Chat History
-                chat_hist_col, quick_act_col = st.columns([3, 1])
+                chat_col, action_col = st.columns([3, 1])
                 
-                with quick_act_col:
-                    st.caption("🚀 Quick Actions")
+                with action_col:
+                    st.caption("Quick Actions")
                     if st.button("🔥 Risks", use_container_width=True):
                         st.session_state.pending_prompt = "What are the critical risks?"
                         st.rerun()
                     if st.button("📊 Status", use_container_width=True):
                         st.session_state.pending_prompt = "Project status summary?"
                         st.rerun()
+                    if st.button("🔄 Reset", use_container_width=True):
+                        st.session_state.messages = []
+                        st.rerun()
                 
-                with chat_hist_col:
-                    if len(st.session_state.messages) == 0:
+                with chat_col:
+                    # Welcome Message Logic
+                    if not st.session_state.messages:
                         st.markdown("""
-                            <div style="text-align: center; color: #94a3b8; padding: 2rem;">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">👷</div>
-                                <p>Hi! I'm 6ix Copilot.</p>
-                                <p style="font-size: 0.9rem;">Ask me anything about your schedule.</p>
+                            <div style="text-align: center; padding: 20px; color: #94a3b8;">
+                                <div style="font-size: 40px;">👷</div>
+                                <h3>Hi! I'm 6ix Copilot.</h3>
+                                <p>Ask me anything about your schedule.</p>
                             </div>
                         """, unsafe_allow_html=True)
                     else:
+                        # Show recent messages
                         for msg in st.session_state.messages[-3:]:
                             role_class = "user-message" if msg["role"] == "user" else "assistant-message"
                             icon = "👤" if msg["role"] == "user" else "⚡"
@@ -475,16 +475,14 @@ def render_bottom_chat():
                             """, unsafe_allow_html=True)
                     
                     # Main Input
-                    with st.form(key="main_chat_form", clear_on_submit=True):
-                        c_in, c_btn = st.columns([5, 1])
-                        with c_in:
-                            prompt = st.text_input("Message...", key="main_input", label_visibility="collapsed")
-                        with c_btn:
-                            sent = st.form_submit_button("Send", use_container_width=True)
-                        
-                        if sent and prompt:
-                            st.session_state.pending_prompt = prompt
-                            st.rerun()
+                    def on_main_submit():
+                        st.session_state.pending_prompt = st.session_state.main_input
+                        st.session_state.main_input = ""
+
+                    st.text_input("Message...", key="main_input", 
+                                 placeholder="Ask a question...", 
+                                 label_visibility="collapsed",
+                                 on_change=on_main_submit)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
