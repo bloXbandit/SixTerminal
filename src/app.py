@@ -1164,6 +1164,71 @@ def render_data_tables(analyzer):
             mime="text/csv"
         )
 
+def render_sidebar_ai_copilot():
+    """Compact AI Copilot in sidebar"""
+    st.subheader("🤖 AI Copilot")
+    
+    # Check if schedule is loaded
+    if not hasattr(st.session_state, 'parser') or st.session_state.parser is None:
+        st.info("📁 Upload a schedule to enable AI Copilot")
+        return
+    
+    # Check API key
+    api_key = config.get("api_key") or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        st.warning("⚠️ Configure API key in Settings")
+        return
+    
+    # Initialize copilot
+    try:
+        copilot = ScheduleCopilot(st.session_state.parser, st.session_state.analyzer)
+    except Exception as e:
+        st.error(f"❌ {str(e)[:50]}...")
+        return
+    
+    # Current context
+    current_view = st.session_state.get('current_tab', 'Dashboard')
+    st.caption(f"📍 {current_view}")
+    
+    # Recent chat
+    if len(st.session_state.messages) > 0:
+        with st.expander("💬 Chat", expanded=False):
+            for msg in st.session_state.messages[-2:]:
+                icon = "U" if msg["role"] == "user" else "6"
+                st.markdown(f"**{icon}** {msg['content'][:80]}...")
+    
+    # Quick questions
+    st.caption("Quick questions:")
+    for q in ["Top risks?", "Project status?"]:
+        if st.button(q, key=f"q_{q}", use_container_width=True):
+            st.session_state.messages.append({"role": "user", "content": q})
+            try:
+                history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
+                response = copilot.query(q, history)
+                st.session_state.messages.append({"role": "assistant", "content": response})
+                st.rerun()
+            except Exception as e:
+                st.error(f"Error: {str(e)[:50]}...")
+    
+    # Input
+    with st.form(key="sb_chat", clear_on_submit=True):
+        prompt = st.text_area("Ask...", key="sb_ai", height=60, placeholder="Ask about schedule...")
+        send = st.form_submit_button("Send ➤", use_container_width=True)
+    
+    if send and prompt:
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        try:
+            history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
+            with st.spinner("Thinking..."):
+                response = copilot.query(f"[{current_view}] {prompt}", history)
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.rerun()
+        except Exception as e:
+            st.session_state.messages.append({"role": "assistant", "content": f"❌ {str(e)}"})
+            st.rerun()
+
+
+
 def render_ai_copilot(parser, analyzer):
     st.header("AI Schedule Copilot 🤖")
     
