@@ -769,13 +769,24 @@ def render_stairway_visuals(analyzer):
         # Enhanced Stairway Chart
         fig = go.Figure()
         
+        # Determine marker colors based on completion status
+        marker_colors = []
+        for idx, row in milestones.iterrows():
+            # Check if milestone is completed (has actual end date or 100% complete)
+            is_complete = False
+            if 'act_end_date' in milestones.columns and pd.notnull(row.get('act_end_date')):
+                is_complete = True
+            elif 'complete_pct' in milestones.columns and row.get('complete_pct', 0) >= 100:
+                is_complete = True
+            marker_colors.append('green' if is_complete else 'blue')
+        
         # Forecast line (the actual stairway)
         fig.add_trace(go.Scatter(
             x=milestones['current_finish'],
             y=milestones['display_name'],
             mode='markers+lines',
             name='Forecast',
-            marker=dict(size=12, color='blue', symbol='circle'),
+            marker=dict(size=12, color=marker_colors, symbol='diamond'),
             line=dict(color='blue', width=2)
         ))
         
@@ -807,7 +818,12 @@ def render_stairway_visuals(analyzer):
             yaxis_title="Milestone",
             height=max(400, len(milestones) * 40),
             hovermode='closest',
-            yaxis=dict(autorange="reversed")
+            yaxis=dict(autorange="reversed"),
+            margin=dict(b=80, t=80),  # Reduce bottom margin to bring dates closer
+            xaxis=dict(
+                tickangle=-45,  # Angle dates for better readability
+                tickfont=dict(size=11)
+            )
         )
         
         st.plotly_chart(fig, use_container_width=True)
