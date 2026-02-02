@@ -78,7 +78,7 @@ class ScheduleCopilot:
             critical_stats = {}
             dcma = {}
             critical_path = []
-            phases_str = "N/A
+            phases_str = "N/A"
         
         # Build system prompt conditionally
         base_prompt = f"""You are '6ix Copilot', a Senior Construction Scheduler with 20+ years experience in project controls.
