@@ -15,6 +15,8 @@ import os
 import tempfile
 import time
 from functools import lru_cache
+import hashlib
+import pickle
 
 # Page Config
 st.set_page_config(
@@ -147,6 +149,42 @@ if "parser_cache" not in st.session_state:
 if "comparison_file" not in st.session_state:
     st.session_state.comparison_file = None
 
+
+# Create persistent storage directory
+PERSISTENT_DIR = os.path.join(os.path.dirname(__file__), ".persistent_data")
+if not os.path.exists(PERSISTENT_DIR):
+    os.makedirs(PERSISTENT_DIR)
+
+def save_uploaded_file(file_bytes, filename):
+    """Save uploaded file to persistent storage"""
+    file_hash = hashlib.md5(file_bytes).hexdigest()
+    file_path = os.path.join(PERSISTENT_DIR, f"{file_hash}.xer")
+    
+    # Save file if not already saved
+    if not os.path.exists(file_path):
+        with open(file_path, 'wb') as f:
+            f.write(file_bytes)
+    
+    # Save metadata
+    meta_path = os.path.join(PERSISTENT_DIR, "last_upload.pkl")
+    with open(meta_path, 'wb') as f:
+        pickle.dump({'filename': filename, 'hash': file_hash, 'path': file_path}, f)
+    
+    return file_path
+
+def load_last_uploaded_file():
+    """Load the last uploaded file from persistent storage"""
+    meta_path = os.path.join(PERSISTENT_DIR, "last_upload.pkl")
+    if os.path.exists(meta_path):
+        try:
+            with open(meta_path, 'rb') as f:
+                meta = pickle.load(f)
+            if os.path.exists(meta['path']):
+                return meta
+        except:
+            pass
+    return None
+
 @st.cache_resource(ttl=3600)
 def load_and_parse_xer(file_bytes, filename):
     """Cached XER parsing for performance"""
@@ -177,18 +215,41 @@ def main():
         st.divider()
         
         if page == "📊 Dashboard":
+            # Try to load last uploaded file on startup
+            if 'initialized' not in st.session_state:
+                st.session_state.initialized = True
+                last_file = load_last_uploaded_file()
+                if last_file:
+                    try:
+                        with open(last_file['path'], 'rb') as f:
+                            file_bytes = f.read()
+                        st.session_state.parser, st.session_state.analyzer = load_and_parse_xer(
+                            file_bytes, last_file['filename']
+                        )
+                        st.session_state.current_file = last_file['filename']
+                    except:
+                        pass
+            
             uploaded_file = st.file_uploader("Upload Schedule (.xer)", type="xer", key="main_file")
             
+            # Show currently loaded file if exists
+            if 'current_file' in st.session_state and st.session_state.current_file:
+                st.info(f"📂 Current: {st.session_state.current_file}")
+            
             if uploaded_file:
+                # Save file to persistent storage
+                file_bytes = uploaded_file.getvalue()
+                save_uploaded_file(file_bytes, uploaded_file.name)
+                
                 # Load parser and analyzer into session state for AI Copilot
                 if 'current_file' not in st.session_state or st.session_state.current_file != uploaded_file.name:
                     with st.spinner("Loading schedule..."):
                         st.session_state.parser, st.session_state.analyzer = load_and_parse_xer(
-                            uploaded_file.getvalue(), uploaded_file.name
+                            file_bytes, uploaded_file.name
                         )
                         st.session_state.current_file = uploaded_file.name
                 
-                st.success("✅ File Loaded")
+                st.success("✅ File Loaded & Saved")
                 
                 # Quick Actions
                 st.subheader("Quick Actions")
