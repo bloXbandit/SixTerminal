@@ -234,6 +234,141 @@ def main():
     elif page == "📖 Help":
         pass  # Already rendered in sidebar
 
+def render_bottom_chat():
+    """Persistent AI chat container at bottom of page"""
+    
+    # Check if schedule is loaded
+    has_parser = hasattr(st.session_state, 'parser') and st.session_state.parser is not None
+    has_analyzer = hasattr(st.session_state, 'analyzer') and st.session_state.analyzer is not None
+    
+    # Fixed bottom chat container with custom CSS
+    st.markdown("""
+    <style>
+    .chat-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, #1e293b 0%, #1e293b 90%, transparent 100%);
+        border-top: 2px solid #475569;
+        padding: 1rem;
+        z-index: 999;
+        box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.3);
+    }
+    .chat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    .chat-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #60a5fa;
+    }
+    .chat-status {
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Create container
+    with st.container():
+        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([3, 1, 1])
+        
+        with col1:
+            st.markdown('<div class="chat-title">🤖 AI Copilot</div>', unsafe_allow_html=True)
+        
+        with col2:
+            if has_parser and has_analyzer:
+                st.markdown('<div class="chat-status">✅ Ready</div>', unsafe_allow_html=True)
+            else:
+                st.markdown('<div class="chat-status">📁 Upload schedule</div>', unsafe_allow_html=True)
+        
+        with col3:
+            # Collapse/expand toggle
+            if 'chat_expanded' not in st.session_state:
+                st.session_state.chat_expanded = True
+            
+            if st.button("▼" if st.session_state.chat_expanded else "▲", key="toggle_chat"):
+                st.session_state.chat_expanded = not st.session_state.chat_expanded
+        
+        # Only show chat interface if expanded and schedule is loaded
+        if st.session_state.chat_expanded:
+            if not has_parser or not has_analyzer:
+                st.info("Upload a .xer schedule file to start chatting with the AI Copilot")
+            else:
+                # Check API key
+                api_key = config.get("api_key") or os.getenv("OPENAI_API_KEY")
+                if not api_key:
+                    st.warning("⚠️ Configure your OpenAI API key in Settings to use AI Copilot")
+                else:
+                    # Initialize copilot
+                    try:
+                        copilot = ScheduleCopilot(st.session_state.parser, st.session_state.analyzer)
+                        
+                        # Chat interface
+                        col_chat, col_quick = st.columns([3, 1])
+                        
+                        with col_quick:
+                            st.caption("Quick questions:")
+                            if st.button("Top risks?", key="q1", use_container_width=True):
+                                st.session_state.messages.append({"role": "user", "content": "What are the top risks?"})
+                                try:
+                                    history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
+                                    response = copilot.query("What are the top risks?", history)
+                                    st.session_state.messages.append({"role": "assistant", "content": response})
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"Error: {str(e)[:50]}...")
+                            
+                            if st.button("Project status?", key="q2", use_container_width=True):
+                                st.session_state.messages.append({"role": "user", "content": "What's the project status?"})
+                                try:
+                                    history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
+                                    response = copilot.query("What's the project status?", history)
+                                    st.session_state.messages.append({"role": "assistant", "content": response})
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"Error: {str(e)[:50]}...")
+                        
+                        with col_chat:
+                            # Show last 3 messages
+                            if len(st.session_state.messages) > 0:
+                                with st.expander("💬 Recent chat", expanded=True):
+                                    for msg in st.session_state.messages[-3:]:
+                                        icon = "U" if msg["role"] == "user" else "6"
+                                        st.markdown(f"**{icon}:** {msg['content'][:150]}{'...' if len(msg['content']) > 150 else ''}")
+                            
+                            # Input form
+                            with st.form(key="bottom_chat_form", clear_on_submit=True):
+                                col_input, col_send = st.columns([4, 1])
+                                with col_input:
+                                    prompt = st.text_input("Ask about your schedule...", key="bottom_chat_input", label_visibility="collapsed")
+                                with col_send:
+                                    send = st.form_submit_button("Send ➤", use_container_width=True)
+                            
+                            if send and prompt:
+                                st.session_state.messages.append({"role": "user", "content": prompt})
+                                try:
+                                    history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[:-1]]
+                                    with st.spinner("Thinking..."):
+                                        response = copilot.query(prompt, history)
+                                    st.session_state.messages.append({"role": "assistant", "content": response})
+                                    st.rerun()
+                                except Exception as e:
+                                    st.session_state.messages.append({"role": "assistant", "content": f"❌ Error: {str(e)}"})
+                                    st.rerun()
+                    
+                    except Exception as e:
+                        st.error(f"❌ Failed to initialize AI Copilot: {str(e)[:100]}...")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
 def render_landing_page():
     # Logo and title with tighter spacing
     col1, col2 = st.columns([1, 5], gap="small")
