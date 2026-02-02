@@ -398,9 +398,9 @@ def render_bottom_chat():
         
         # --- COLLAPSED STATE ---
         if not st.session_state.chat_expanded:
-            c1, c2, c3 = st.columns([2, 5, 1])
+            c1, c2, c3 = st.columns([1.5, 6, 1], gap="small")
             with c1:
-                st.markdown('<div class="chat-title">⚡ 6ix Copilot</div>', unsafe_allow_html=True)
+                st.markdown('<div class="chat-title" style="white-space: nowrap;">⚡ 6ix Copilot</div>', unsafe_allow_html=True)
             with c2:
                 # Direct text input without form to avoid layout issues in collapsed state
                 # Using key-based callback implicitly via reruns if needed, 
