@@ -209,11 +209,6 @@ def main():
         
         st.divider()
         
-        # Render AI Copilot at top of sidebar (persistent)
-        render_sidebar_ai_copilot()
-        
-        st.divider()
-        
         if page == "📊 Dashboard":
             # Try to load last uploaded file on startup
             if 'initialized' not in st.session_state:
