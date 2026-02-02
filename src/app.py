@@ -209,6 +209,10 @@ def main():
         
         elif page == "📖 Help":
             render_help_page()
+        
+        # Render AI Copilot in sidebar (persistent)
+        st.markdown("---")
+        render_sidebar_ai_copilot()
 
     # --- MAIN CONTENT ---
     if page == "📊 Dashboard":
@@ -1320,6 +1324,10 @@ def render_settings_page():
         st.success("✅ Cache cleared!")
 
 def render_help_page():
+        
+        # Render AI Copilot in sidebar (persistent)
+        st.markdown("---")
+        render_sidebar_ai_copilot()
     st.title("📖 Help & Documentation")
     
     st.markdown("""
