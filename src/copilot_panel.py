@@ -11,7 +11,7 @@ from config import config
 st.set_page_config(
     page_title="Stelic Copilot",
     page_icon="🤖",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="collapsed"
 )
 
@@ -25,24 +25,14 @@ st.markdown("""
         background-color: #ffffff !important;
     }
 
-    #MainMenu, header, footer, .stDeployButton { display: none !important; }
-    .stAppViewBlockContainer { padding-top: 0 !important; }
+    #MainMenu, header, footer, .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
 
     .block-container {
         padding: 0rem 0.5rem 0.5rem 0.5rem !important;
         max-width: 100% !important;
-        min-height: unset !important;
     }
-
-    /* Remove Streamlit's default vertical centering / gap */
+    .stAppViewBlockContainer { padding-top: 0 !important; }
     .main .block-container { padding-top: 0 !important; }
-    section[data-testid="stMain"] > div { height: auto !important; }
-    .stChatFloatingInputContainer {
-        position: relative !important;
-        bottom: unset !important;
-        padding: 0 !important;
-        margin-top: 6px !important;
-    }
 
     /* Header bar matching Power BI navy */
     .copilot-header {
@@ -83,16 +73,18 @@ st.markdown("""
         background-color: #e8f2fc !important;
     }
 
-    /* Input box */
-    [data-testid="stChatInputContainer"] {
+    /* Form input */
+    textarea {
+        font-size: 13px !important;
+        font-family: 'Segoe UI', sans-serif !important;
         border: 1.5px solid #0078D4 !important;
         border-radius: 4px !important;
         background: #f9fbfe !important;
+        resize: none !important;
     }
-
-    textarea[data-testid="stChatInputTextArea"] {
-        font-size: 13px !important;
-        font-family: 'Segoe UI', sans-serif !important;
+    [data-testid="stForm"] {
+        border: none !important;
+        padding: 0 !important;
     }
 
     /* Upload expander */
@@ -263,13 +255,6 @@ for col, q in zip([col1, col2, col3], quick_questions.values()):
 
 st.divider()
 
-# --- Chat history ---
-chat_container = st.container()
-with chat_container:
-    for msg in st.session_state.panel_messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-
 # --- Send message ---
 def build_system_prompt(context: str) -> str:
     base = (
@@ -281,6 +266,13 @@ def build_system_prompt(context: str) -> str:
     if context:
         base += f"\n\nCONTEXT PROVIDED BY USER:\n{context}"
     return base
+
+# --- Chat history ---
+for msg in st.session_state.panel_messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+st.divider()
 
 def query_copilot(user_input: str, history: list, context: str, image_payload: dict = None) -> str:
     client = get_client()
@@ -317,25 +309,32 @@ def query_copilot(user_input: str, history: list, context: str, image_payload: d
     except Exception as e:
         return f"❌ AI Error: {str(e)}"
 
-if prompt := st.chat_input("Ask about your project, schedule, or paste data..."):
-    st.session_state.panel_messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+# --- Inline form input (avoids Streamlit floating bottom bar) ---
+with st.form(key="chat_form", clear_on_submit=True):
+    input_col, btn_col = st.columns([9, 1])
+    with input_col:
+        prompt = st.text_area(
+            "msg",
+            placeholder="Ask about your project, schedule, or paste data...",
+            label_visibility="collapsed",
+            height=68,
+            key="chat_input"
+        )
+    with btn_col:
+        submitted = st.form_submit_button("➤", use_container_width=True)
 
-    with st.chat_message("assistant"):
-        with st.spinner(""):
-            history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.panel_messages[:-1]]
-            response = query_copilot(
-                prompt,
-                history,
-                st.session_state.panel_context,
-                st.session_state.panel_image_payload
-            )
-            # Clear image after use (one-shot)
-            if st.session_state.panel_image_payload:
-                st.session_state.panel_image_payload = None
-            st.markdown(response)
-
+if submitted and prompt and prompt.strip():
+    st.session_state.panel_messages.append({"role": "user", "content": prompt.strip()})
+    with st.spinner("Thinking..."):
+        history = [{"role": m["role"], "content": m["content"]} for m in st.session_state.panel_messages[:-1]]
+        response = query_copilot(
+            prompt.strip(),
+            history,
+            st.session_state.panel_context,
+            st.session_state.panel_image_payload
+        )
+        if st.session_state.panel_image_payload:
+            st.session_state.panel_image_payload = None
     st.session_state.panel_messages.append({"role": "assistant", "content": response})
     st.rerun()
 
