@@ -1,0 +1,21 @@
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data Files
+*.xer
+*.xlsx
+*.csv
+
+# Configuration (contains API keys)
+config.json
+
+# OS
+.DS_Store
+.persistent_data/

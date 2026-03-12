@@ -1,0 +1,27 @@
+╔════════════════════════════════════════════════════════════════╗
+║                      SIXTERMINAL                               ║
+║              P6 Schedule Analysis & AI Copilot                 ║
+╚════════════════════════════════════════════════════════════════╝
+
+🚀 WINDOWS QUICK START (3 Steps):
+
+1. Install Python 3.11+
+   → https://www.python.org/downloads/
+   → ✅ CHECK "Add Python to PATH" during install!
+
+2. Double-click: RUN_SIXTERMINAL.bat
+   → First run: installs dependencies (2-3 min)
+   → Creates config.json template
+
+3. Edit config.json with your OpenAI API key
+   → Get key: https://platform.openai.com/api-keys
+   → Run RUN_SIXTERMINAL.bat again
+
+📂 SHARING WITH COWORKERS:
+   → Copy entire SixTerminal folder to USB/network drive
+   → Each person runs RUN_SIXTERMINAL.bat on their machine
+   → Each person needs their own API key
+
+📖 FULL INSTRUCTIONS: See WINDOWS_SETUP.md
+
+🆘 HELP: https://github.com/bloXbandit/SixTerminal/issues
