@@ -26,10 +26,22 @@ st.markdown("""
     }
 
     #MainMenu, header, footer, .stDeployButton { display: none !important; }
+    .stAppViewBlockContainer { padding-top: 0 !important; }
 
     .block-container {
-        padding: 0rem 0.75rem 0.5rem 0.75rem !important;
+        padding: 0rem 0.5rem 0.5rem 0.5rem !important;
         max-width: 100% !important;
+        min-height: unset !important;
+    }
+
+    /* Remove Streamlit's default vertical centering / gap */
+    .main .block-container { padding-top: 0 !important; }
+    section[data-testid="stMain"] > div { height: auto !important; }
+    .stChatFloatingInputContainer {
+        position: relative !important;
+        bottom: unset !important;
+        padding: 0 !important;
+        margin-top: 6px !important;
     }
 
     /* Header bar matching Power BI navy */
