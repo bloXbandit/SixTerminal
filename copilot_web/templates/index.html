@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stelic Copilot</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    font-size: 13px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(90deg, #1a3a5c 0%, #0078D4 100%);
+    color: white;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .header span { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+
+  .subheader {
+    background: #f0f6ff;
+    border-bottom: 1px solid #cce0f5;
+    padding: 4px 14px;
+    font-size: 11px;
+    color: #0078D4;
+    flex-shrink: 0;
+  }
+
+  /* Quick buttons */
+  .quick-bar {
+    padding: 6px 10px;
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid #e0eaf4;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .quick-btn {
+    background: #f0f6ff;
+    color: #0078D4;
+    border: 1px solid #cce0f5;
+    border-radius: 3px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .quick-btn:hover { background: #0078D4; color: white; }
+
+  /* Upload bar */
+  .upload-bar {
+    padding: 5px 10px;
+    border-bottom: 1px solid #e0eaf4;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .upload-bar label {
+    font-size: 11px;
+    color: #0078D4;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .upload-bar input[type="file"] { display: none; }
+  .ctx-badge {
+    font-size: 10px;
+    background: #e8f2fc;
+    color: #0078D4;
+    border-radius: 3px;
+    padding: 2px 6px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .clear-ctx {
+    font-size: 10px;
+    color: #dc3545;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  /* Chat area */
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .msg {
+    max-width: 92%;
+    padding: 7px 10px;
+    border-radius: 6px;
+    line-height: 1.45;
+    font-size: 12.5px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg.user {
+    background: #e8f2fc;
+    color: #1a3a5c;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+  .msg.assistant {
+    background: #f8f9fa;
+    color: #212529;
+    align-self: flex-start;
+    border: 1px solid #e0eaf4;
+    border-bottom-left-radius: 2px;
+  }
+  .msg.typing {
+    background: #f8f9fa;
+    border: 1px solid #e0eaf4;
+    align-self: flex-start;
+    color: #6c757d;
+    font-style: italic;
+  }
+
+  /* Input area */
+  .input-area {
+    padding: 8px 10px;
+    border-top: 1px solid #e0eaf4;
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  textarea {
+    flex: 1;
+    border: 1.5px solid #0078D4;
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-family: inherit;
+    font-size: 12.5px;
+    resize: none;
+    height: 60px;
+    background: #f9fbfe;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: #1a3a5c; }
+  .send-btn {
+    background: #0078D4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0 14px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.15s;
+    align-self: stretch;
+  }
+  .send-btn:hover { background: #1a3a5c; }
+  .send-btn:disabled { background: #b0c4de; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span>🤖 Stelic Copilot</span>
+</div>
+<div class="subheader">AI assistant · Project schedules, documents &amp; data</div>
+
+<div class="quick-bar">
+  <button class="quick-btn" onclick="sendQuick('Project status?')">Project status?</button>
+  <button class="quick-btn" onclick="sendQuick('Top risks?')">Top risks?</button>
+  <button class="quick-btn" onclick="sendQuick('Critical path?')">Critical path?</button>
+  <button class="quick-btn" onclick="sendQuick('Schedule health?')">Schedule health?</button>
+</div>
+
+<div class="upload-bar">
+  <label>
+    <input type="file" id="fileInput" accept=".xer,.xml,.txt,.md,.csv,.pdf" onchange="handleFile(this)">
+    📎 Attach file
+  </label>
+  <span id="ctxBadge" class="ctx-badge" style="display:none"></span>
+  <button id="clearCtx" class="clear-ctx" style="display:none" onclick="clearContext()">✕ clear</button>
+</div>
+
+<div class="chat-area" id="chatArea">
+  <div class="msg assistant">👋 Hi — I'm Stelic Copilot. Ask me about your project schedule, milestones, risks, or upload a file for context.</div>
+</div>
+
+<div class="input-area">
+  <textarea id="msgInput" placeholder="Ask about your project, schedule, or paste data..." onkeydown="handleKey(event)"></textarea>
+  <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+</div>
+
+<script>
+  let messages = [];
+  let context = "";
+
+  function handleKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function sendQuick(q) {
+    document.getElementById("msgInput").value = q;
+    sendMessage();
+  }
+
+  function clearContext() {
+    context = "";
+    document.getElementById("ctxBadge").style.display = "none";
+    document.getElementById("clearCtx").style.display = "none";
+    document.getElementById("fileInput").value = "";
+  }
+
+  function handleFile(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      context = `[File: ${file.name}]\n${e.target.result.substring(0, 3000)}`;
+      document.getElementById("ctxBadge").textContent = "📌 " + file.name;
+      document.getElementById("ctxBadge").style.display = "inline-block";
+      document.getElementById("clearCtx").style.display = "inline";
+    };
+    reader.readAsText(file);
+  }
+
+  function appendMsg(role, text) {
+    const area = document.getElementById("chatArea");
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = text;
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("msgInput");
+    const btn = document.getElementById("sendBtn");
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = "";
+    btn.disabled = true;
+
+    appendMsg("user", text);
+    messages.push({ role: "user", content: text });
+
+    const typing = appendMsg("typing", "Thinking...");
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: messages.slice(-10), context: context })
+      });
+      const data = await res.json();
+      typing.remove();
+
+      if (data.error) {
+        appendMsg("assistant", "⚠️ " + data.error);
+      } else {
+        appendMsg("assistant", data.reply);
+        messages.push({ role: "assistant", content: data.reply });
+      }
+    } catch (err) {
+      typing.remove();
+      appendMsg("assistant", "❌ Connection error. Please try again.");
+    }
+
+    btn.disabled = false;
+    input.focus();
+  }
+</script>
+</body>
+</html>
