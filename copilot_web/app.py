@@ -4,6 +4,12 @@ import os
 
 app = Flask(__name__)
 
+@app.after_request
+def allow_iframe(response):
+    response.headers["X-Frame-Options"] = "ALLOWALL"
+    response.headers["Content-Security-Policy"] = "frame-ancestors *"
+    return response
+
 def get_client():
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
