@@ -26,6 +26,10 @@ Never make up data. If you don't have the data, say so and suggest what the user
 def index():
     return render_template("index.html")
 
+@app.route("/health")
+def health():
+    return "ok", 200
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
