@@ -1,6 +1,12 @@
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify
 import openai
 import os
+import threading
+import time
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -16,11 +22,36 @@ def get_client():
         return None
     return openai.OpenAI(api_key=api_key)
 
-SYSTEM_PROMPT = """You are Stelic Copilot, an expert AI assistant embedded in a Power BI construction project controls dashboard.
+SYSTEM_BASE = """You are Stelic Copilot, an expert AI assistant embedded in a Power BI construction project controls dashboard.
 You specialize in Primavera P6 schedules, milestone tracking, schedule variance, critical path analysis, DCMA metrics, and project risk.
 Be concise, professional, and dashboard-appropriate. Use bullet points for lists. Keep responses tight — this is a side panel, not a report.
-If no schedule context is provided, answer general construction project controls questions helpfully.
-Never make up data. If you don't have the data, say so and suggest what the user should upload."""
+Never make up data beyond what is provided. If you don't have specific data, say so clearly."""
+
+SCRAPER_AVAILABLE = False
+try:
+    from scraper import load_context, scrape_and_extract
+    SCRAPER_AVAILABLE = True
+    logger.info("Scraper module loaded successfully.")
+except ImportError:
+    logger.warning("Scraper module not available — running without auto-context.")
+    def load_context(): return ""
+    def scrape_and_extract(): return {}
+
+def background_scraper(interval_seconds=1800):
+    """Runs scraper every interval_seconds (default 30 min) in a background thread."""
+    if not SCRAPER_AVAILABLE:
+        return
+    while True:
+        try:
+            logger.info("Background scraper: starting scrape cycle...")
+            scrape_and_extract()
+            logger.info("Background scraper: cycle complete.")
+        except Exception as e:
+            logger.error(f"Background scraper error: {e}")
+        time.sleep(interval_seconds)
+
+scraper_thread = threading.Thread(target=background_scraper, daemon=True)
+scraper_thread.start()
 
 @app.route("/")
 def index():
@@ -29,6 +60,17 @@ def index():
 @app.route("/health")
 def health():
     return "ok", 200
+
+@app.route("/scrape", methods=["POST"])
+def trigger_scrape():
+    """Manual trigger to force a fresh scrape."""
+    if not SCRAPER_AVAILABLE:
+        return jsonify({"error": "Scraper not available"}), 503
+    try:
+        threading.Thread(target=scrape_and_extract, daemon=True).start()
+        return jsonify({"status": "Scrape triggered in background."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -40,15 +82,19 @@ def chat():
     if not client:
         return jsonify({"error": "No API key configured."}), 500
 
-    system = SYSTEM_PROMPT
+    dashboard_context = load_context()
+
+    system = SYSTEM_BASE
+    if dashboard_context:
+        system += f"\n\n{dashboard_context}"
     if context:
-        system += f"\n\nCONTEXT PROVIDED:\n{context}"
+        system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
 
     full_messages = [{"role": "system", "content": system}] + messages[-10:]
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4-turbo",
+            model="gpt-4o",
             messages=full_messages,
             temperature=0.3
         )
