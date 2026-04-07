@@ -94,6 +94,7 @@ def chat():
     data = request.get_json()
     messages = data.get("messages", [])
     context = data.get("context", "")
+    image_b64 = data.get("image", None)
 
     client = get_client()
     if not client:
@@ -108,6 +109,20 @@ def chat():
         system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
 
     full_messages = [{"role": "system", "content": system}] + messages[-10:]
+
+    if image_b64:
+        last_user_text = next(
+            (m["content"] for m in reversed(full_messages) if m["role"] == "user"),
+            "What do you see in this image?"
+        )
+        full_messages = [m for m in full_messages if not (m["role"] == "user" and m["content"] == last_user_text)]
+        full_messages.append({
+            "role": "user",
+            "content": [
+                {"type": "text", "text": last_user_text},
+                {"type": "image_url", "image_url": {"url": image_b64, "detail": "high"}}
+            ]
+        })
 
     try:
         response = client.chat.completions.create(

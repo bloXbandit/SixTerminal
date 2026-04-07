@@ -134,6 +134,22 @@
     gap: 4px;
   }
   .upload-bar input[type="file"] { display: none; }
+  .paste-preview {
+    padding: 4px 10px;
+    border-bottom: 1px solid #e0eaf4;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    background: #f0f6ff;
+  }
+  .paste-preview img {
+    height: 48px;
+    border-radius: 3px;
+    border: 1px solid #cce0f5;
+  }
+  .paste-preview .paste-label { font-size: 10px; color: #0078D4; flex: 1; }
+  .paste-preview .clear-paste { font-size: 10px; color: #dc3545; cursor: pointer; border: none; background: none; }
   .ctx-badge {
     font-size: 10px;
     background: #e8f2fc;
@@ -292,8 +308,13 @@
       <div class="msg assistant">👋 Hi — I'm Stelic Copilot. Ask me about the dashboard, your schedule, or upload a file for context.</div>
     </div>
 
+    <div class="paste-preview" id="pastePreview">
+      <img id="pasteThumb" src="" alt="pasted image">
+      <span class="paste-label" id="pasteLabel">📷 Screenshot attached</span>
+      <button class="clear-paste" onclick="clearPaste()">✕</button>
+    </div>
     <div class="input-area">
-      <textarea id="msgInput" placeholder="Ask about the project..." onkeydown="handleKey(event)"></textarea>
+      <textarea id="msgInput" placeholder="Ask about the project... or paste a screenshot (Ctrl+V)" onkeydown="handleKey(event)"></textarea>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
   </div>
@@ -303,6 +324,7 @@
 <script>
   let messages = [];
   let context = "";
+  let pastedImageBase64 = null;
 
   // ── Drag resize ──
   const handle = document.getElementById("resizeHandle");
@@ -342,6 +364,32 @@
     document.getElementById("fileInput").value = "";
   }
 
+  function clearPaste() {
+    pastedImageBase64 = null;
+    document.getElementById("pastePreview").style.display = "none";
+    document.getElementById("pasteThumb").src = "";
+  }
+
+  // Clipboard paste handler — captures screenshots pasted with Ctrl+V
+  document.getElementById("msgInput").addEventListener("paste", function(e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        e.preventDefault();
+        const blob = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          pastedImageBase64 = evt.target.result;
+          document.getElementById("pasteThumb").src = pastedImageBase64;
+          document.getElementById("pasteLabel").textContent = "📷 Screenshot attached — ask a question below";
+          document.getElementById("pastePreview").style.display = "flex";
+        };
+        reader.readAsDataURL(blob);
+        return;
+      }
+    }
+  });
+
   function handleFile(input) {
     const file = input.files[0];
     if (!file) return;
@@ -374,7 +422,7 @@
     input.value = "";
     btn.disabled = true;
 
-    appendMsg("user", text);
+    appendMsg("user", text + (pastedImageBase64 ? " [+ screenshot]" : ""));
     messages.push({ role: "user", content: text });
 
     const typing = appendMsg("typing", "Thinking...");
@@ -383,7 +431,11 @@
       const res = await fetch("/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: messages.slice(-10), context: context })
+        body: JSON.stringify({
+          messages: messages.slice(-10),
+          context: context,
+          image: pastedImageBase64 || null
+        })
       });
       const data = await res.json();
       typing.remove();
@@ -397,6 +449,7 @@
       typing.remove();
       appendMsg("assistant", "❌ Connection error. Please try again.");
     }
+    clearPaste();
 
     btn.disabled = false;
     input.focus();

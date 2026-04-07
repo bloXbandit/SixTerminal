@@ -55,7 +55,12 @@ class MPPParser:
 
         try:
             reader = UniversalProjectReader()
-            self.project = reader.read(self.file_path)
+            try:
+                self.project = reader.read(self.file_path)
+            except Exception as e:
+                if "password" in str(e).lower() or "encrypted" in str(e).lower():
+                    raise ValueError(f"MPP file is password protected and cannot be read: {self.file_path}")
+                raise
             self._extract_metadata()
             self._extract_tasks()
             self._extract_resources()
@@ -83,6 +88,8 @@ class MPPParser:
         self.tasks = []
         for task in self.project.tasks:
             if task is None or task.id is None:
+                continue
+            if str(task.name or "").strip() == "" and int(task.id) == 0:
                 continue
 
             t = {
@@ -220,15 +227,6 @@ class MPPParser:
         writer.write(self.project, output_path)
         logger.info(f"Written to XML: {output_path}")
 
-    def write_mpp(self, output_path: str):
-        """Write the project to MS Project .mpp binary format."""
-        mpxj = _get_mpxj()
-        from mpxj.writer import MSProjectWriter
-
-        writer = MSProjectWriter()
-        writer.write(self.project, output_path)
-        logger.info(f"Written to MPP: {output_path}")
-
     def to_dict(self) -> Dict[str, Any]:
         """Return full project data as a serializable dict."""
         return {
@@ -248,15 +246,20 @@ def read_project(file_path: str) -> MPPParser:
 def convert(input_path: str, output_path: str):
     """
     Convert between any supported formats.
+    Supported outputs: .xml (MS Project XML), .xer (Primavera)
+    Note: Writing .mpp is NOT supported by mpxj.
     e.g. convert('schedule.mpp', 'schedule.xml')
-         convert('schedule.xer', 'schedule.mpp')
+         convert('schedule.xer', 'schedule.xml')
     """
     parser = MPPParser(input_path)
     ext = os.path.splitext(output_path)[1].lower()
     if ext == ".xml":
         parser.write_xml(output_path)
     elif ext == ".mpp":
-        parser.write_mpp(output_path)
+        raise ValueError(
+            "Writing .mpp files is not supported by mpxj. "
+            "Export to .xml instead: convert(input, 'output.xml')"
+        )
     else:
         raise ValueError(f"Unsupported output format: {ext}")
     logger.info(f"Converted {input_path} → {output_path}")
