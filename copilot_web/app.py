@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import openai
 import os
 import threading
@@ -69,6 +69,14 @@ def view_context():
     if not ctx:
         return jsonify({"status": "empty", "context": None})
     return jsonify({"status": "loaded", "context": ctx[:3000]})
+
+@app.route("/screenshot/<int:page_num>", methods=["GET"])
+def view_screenshot(page_num):
+    """Debug endpoint to view the screenshot Playwright captured for a given page."""
+    path = f"/tmp/screenshot_page_{page_num}.png"
+    if not os.path.exists(path):
+        return f"No screenshot found for page {page_num}. Run /scrape first.", 404
+    return send_file(path, mimetype="image/png")
 
 @app.route("/scrape", methods=["POST"])
 def trigger_scrape():

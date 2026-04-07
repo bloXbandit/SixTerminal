@@ -24,26 +24,20 @@ PAGE_LABELS = {
     5: "Schedule Detail",
 }
 
-VISION_PROMPT = """This is a screenshot of a Power BI construction project dashboard page.
-Extract ALL visible data as precisely as possible including:
-- Page title or type (e.g. Landing Page, Risk Report, Schedule, Calendar)
-- Project name, type, region, responsible person, data date
-- All KPI cards (baseline date, current date, variance days, work compression %)
-- Full milestone/activity tables with ALL columns and ALL rows visible
-- Any risk items, schedule metrics, or other visible data
-- Any filter selections currently active (e.g. selected project name)
+VISION_PROMPT = """Please read all the text and numbers visible in this image and return them as a JSON object.
 
-Return ONLY a JSON object with this structure:
-{
-  "page_title": "...",
-  "project": "...",
-  "filters_active": {...},
-  "kpis": {...},
-  "milestones": [...],
-  "risks": [...],
-  "other_data": {...}
-}
-No markdown, no explanation, just the JSON."""
+I need the following fields if visible:
+- page_title: the title or name of the page/report shown
+- project: the project name shown
+- filters_active: any filter or dropdown selections visible
+- kpis: key metrics shown as cards (dates, percentages, day counts)
+- milestones: any table rows showing milestone names, dates, and variance values
+- risks: any risk items listed
+- other_data: anything else visible on the page
+
+Return ONLY valid JSON. No markdown fences, no explanation.
+If a field has no data, use an empty array or object for it.
+Example: {"page_title": "Overview", "project": "Anaheim", "kpis": {}, "milestones": [], "risks": [], "filters_active": {}, "other_data": {}}"""
 
 
 def _extract_page_label(page_obj, page_num: int) -> str:
@@ -103,6 +97,10 @@ def scrape_and_extract() -> dict:
                 logger.info(f"Scraping page {page_num}: {label}")
 
                 screenshot_bytes = page.screenshot(full_page=False)
+                screenshot_path = f"/tmp/screenshot_page_{page_num}.png"
+                with open(screenshot_path, "wb") as sf:
+                    sf.write(screenshot_bytes)
+                logger.info(f"Screenshot saved → {screenshot_path} ({len(screenshot_bytes)} bytes)")
                 b64_image = base64.b64encode(screenshot_bytes).decode("utf-8")
 
                 response = client.chat.completions.create(
