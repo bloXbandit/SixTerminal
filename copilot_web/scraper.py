@@ -89,7 +89,16 @@ def scrape_and_extract() -> dict:
 
         logger.info("Opening Power BI embed URL...")
         page.goto(PBI_URL, wait_until="networkidle", timeout=90000)
-        page.wait_for_timeout(15000)
+        page.wait_for_timeout(20000)
+        try:
+            page.wait_for_selector(
+                "visual-container, .visualContainer, [class*='visual'], iframe[title]",
+                timeout=20000
+            )
+            logger.info("Power BI visuals detected in DOM.")
+        except Exception:
+            logger.warning("Visual selector not found — proceeding with screenshot anyway.")
+        page.wait_for_timeout(5000)
 
         for page_num in range(1, 6):
             try:
