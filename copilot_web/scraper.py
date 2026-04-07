@@ -13,25 +13,72 @@ PBI_URL = (
     "OWYzIiwidCI6IjNjMDI3MWIxLWNjMWQtNGRlZC05ZWFlLWQwYzVlNDViZmExNiIsImMiOjZ9"
 )
 
+CONTEXT_DIR = os.path.join(os.path.dirname(__file__), "dashboard_cache")
 CONTEXT_FILE = os.path.join(os.path.dirname(__file__), "dashboard_context.json")
+
+PAGE_LABELS = {
+    1: "Landing Page – Project Overview & Milestones",
+    2: "Risk Report",
+    3: "Schedule Performance Report",
+    4: "Calendar View",
+    5: "Schedule Detail",
+}
+
+VISION_PROMPT = """This is a screenshot of a Power BI construction project dashboard page.
+Extract ALL visible data as precisely as possible including:
+- Page title or type (e.g. Landing Page, Risk Report, Schedule, Calendar)
+- Project name, type, region, responsible person, data date
+- All KPI cards (baseline date, current date, variance days, work compression %)
+- Full milestone/activity tables with ALL columns and ALL rows visible
+- Any risk items, schedule metrics, or other visible data
+- Any filter selections currently active (e.g. selected project name)
+
+Return ONLY a JSON object with this structure:
+{
+  "page_title": "...",
+  "project": "...",
+  "filters_active": {...},
+  "kpis": {...},
+  "milestones": [...],
+  "risks": [...],
+  "other_data": {...}
+}
+No markdown, no explanation, just the JSON."""
+
+
+def _extract_page_label(page_obj, page_num: int) -> str:
+    """Try to read the active page tab label from the Power BI nav."""
+    try:
+        tabs = page_obj.query_selector_all(".reportPageName, [data-testid='page-tab'] span, .pageNavigation span")
+        for i, tab in enumerate(tabs):
+            text = tab.inner_text().strip()
+            if text:
+                return text
+    except Exception:
+        pass
+    return PAGE_LABELS.get(page_num, f"Page {page_num}")
 
 
 def scrape_and_extract() -> dict:
     """
-    Opens the Power BI public embed URL in a headless browser,
-    screenshots each report page, sends to GPT-4 Vision,
-    and returns structured dashboard context as a dict.
+    Opens the Power BI public embed URL, navigates all pages,
+    screenshots each, sends to GPT-4 Vision, saves per-page JSON buckets
+    and a combined context file.
     """
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        logger.error("No OPENAI_API_KEY set — scraper cannot run.")
+        logger.error("No OPENAI_API_KEY — scraper cannot run.")
         return {}
 
+    os.makedirs(CONTEXT_DIR, exist_ok=True)
     client = openai.OpenAI(api_key=api_key)
-    pages_data = []
+    all_pages = []
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
+        browser = p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
+        )
         page = browser.new_page(viewport={"width": 1400, "height": 900})
 
         logger.info("Opening Power BI embed URL...")
@@ -40,52 +87,60 @@ def scrape_and_extract() -> dict:
 
         for page_num in range(1, 6):
             try:
-                logger.info(f"Scraping page {page_num}...")
+                label = _extract_page_label(page, page_num)
+                logger.info(f"Scraping page {page_num}: {label}")
+
                 screenshot_bytes = page.screenshot(full_page=False)
                 b64_image = base64.b64encode(screenshot_bytes).decode("utf-8")
 
                 response = client.chat.completions.create(
                     model="gpt-4o",
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": (
-                                        "This is a screenshot of a Power BI construction project dashboard. "
-                                        "Extract ALL visible data precisely — project name, type, region, responsible person, "
-                                        "baseline completion date, current completion date, schedule variance (days), "
-                                        "work compression percentage, and the full milestone table with all columns "
-                                        "(milestone name, baseline date, previous date, current date, variance days, trend, status). "
-                                        "Return as structured JSON only, no markdown, no explanation."
-                                    ),
-                                },
-                                {
-                                    "type": "image_url",
-                                    "image_url": {"url": f"data:image/png;base64,{b64_image}", "detail": "high"},
-                                },
-                            ],
-                        }
-                    ],
-                    max_tokens=2000,
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": VISION_PROMPT},
+                            {"type": "image_url", "image_url": {
+                                "url": f"data:image/png;base64,{b64_image}",
+                                "detail": "high"
+                            }},
+                        ],
+                    }],
+                    max_tokens=2500,
                 )
 
                 raw = response.choices[0].message.content.strip()
+                if raw.startswith("```"):
+                    raw = raw.split("```")[1]
+                    if raw.startswith("json"):
+                        raw = raw[4:]
+
                 try:
                     parsed = json.loads(raw)
                 except json.JSONDecodeError:
                     parsed = {"raw_text": raw}
 
-                pages_data.append({"page": page_num, "data": parsed})
+                parsed["_page_num"] = page_num
+                parsed["_page_label"] = label
+                parsed["_scraped_at"] = datetime.utcnow().isoformat() + "Z"
 
-                next_btn = page.query_selector("button[aria-label='Next page']") or \
-                           page.query_selector(".navigation-next") or \
-                           page.query_selector("[title='Next Page']")
+                bucket_file = os.path.join(CONTEXT_DIR, f"page_{page_num}.json")
+                with open(bucket_file, "w") as f:
+                    json.dump(parsed, f, indent=2)
+
+                all_pages.append(parsed)
+                logger.info(f"Page {page_num} saved → {bucket_file}")
+
+                next_btn = (
+                    page.query_selector("button[aria-label='Next page']") or
+                    page.query_selector(".navigation-next") or
+                    page.query_selector("[title='Next Page']") or
+                    page.query_selector("button[title='Next page']")
+                )
                 if next_btn:
                     next_btn.click()
-                    page.wait_for_timeout(4000)
+                    page.wait_for_timeout(5000)
                 else:
+                    logger.info("No next page button found — stopping pagination.")
                     break
 
             except Exception as e:
@@ -94,22 +149,24 @@ def scrape_and_extract() -> dict:
 
         browser.close()
 
-    result = {
+    combined = {
         "scraped_at": datetime.utcnow().isoformat() + "Z",
-        "pages": pages_data,
+        "total_pages": len(all_pages),
+        "pages": all_pages,
     }
 
     with open(CONTEXT_FILE, "w") as f:
-        json.dump(result, f, indent=2)
+        json.dump(combined, f, indent=2)
 
-    logger.info(f"Dashboard context saved to {CONTEXT_FILE}")
-    return result
+    logger.info(f"Combined context saved → {CONTEXT_FILE} ({len(all_pages)} pages)")
+    return combined
 
 
 def load_context() -> str:
     """
-    Load the cached dashboard context as a formatted string for the system prompt.
-    Returns empty string if no context file exists.
+    Load all scraped page buckets and assemble into an organized
+    system prompt block, grouped by page/project.
+    Returns empty string if nothing scraped yet.
     """
     if not os.path.exists(CONTEXT_FILE):
         return ""
@@ -120,18 +177,48 @@ def load_context() -> str:
 
         scraped_at = data.get("scraped_at", "unknown")
         pages = data.get("pages", [])
+        if not pages:
+            return ""
 
-        lines = [f"=== LIVE DASHBOARD DATA (scraped {scraped_at}) ==="]
-        for p in pages:
-            lines.append(f"\n--- Page {p['page']} ---")
-            d = p.get("data", {})
-            if "raw_text" in d:
-                lines.append(d["raw_text"])
-            else:
-                lines.append(json.dumps(d, indent=2))
+        lines = [f"=== LIVE POWER BI DASHBOARD DATA (last scraped: {scraped_at}) ==="]
+        lines.append("The following data was automatically extracted from the Power BI report.")
+        lines.append("Use this to answer questions about projects, schedules, milestones, and risks.\n")
+
+        for pg in pages:
+            label = pg.get("_page_label", f"Page {pg.get('_page_num', '?')}")
+            project = pg.get("project", "")
+            lines.append(f"--- {label} ---")
+            if project:
+                lines.append(f"Project: {project}")
+
+            kpis = pg.get("kpis", {})
+            if kpis:
+                lines.append("KPIs: " + json.dumps(kpis))
+
+            milestones = pg.get("milestones", [])
+            if milestones:
+                lines.append(f"Milestones ({len(milestones)} total):")
+                for m in milestones:
+                    lines.append("  " + json.dumps(m))
+
+            risks = pg.get("risks", [])
+            if risks:
+                lines.append(f"Risks ({len(risks)} items):")
+                for r in risks:
+                    lines.append("  " + json.dumps(r))
+
+            other = pg.get("other_data", {})
+            if other:
+                lines.append("Other: " + json.dumps(other))
+
+            raw = pg.get("raw_text", "")
+            if raw:
+                lines.append(raw[:1000])
+
+            lines.append("")
 
         return "\n".join(lines)
 
     except Exception as e:
-        logger.warning(f"Failed to load context file: {e}")
+        logger.warning(f"Failed to load context: {e}")
         return ""
