@@ -35,8 +35,8 @@ def scrape_and_extract() -> dict:
         page = browser.new_page(viewport={"width": 1400, "height": 900})
 
         logger.info("Opening Power BI embed URL...")
-        page.goto(PBI_URL, wait_until="networkidle", timeout=60000)
-        page.wait_for_timeout(5000)
+        page.goto(PBI_URL, wait_until="networkidle", timeout=90000)
+        page.wait_for_timeout(15000)
 
         for page_num in range(1, 6):
             try:
