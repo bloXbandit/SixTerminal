@@ -13,8 +13,8 @@ PBI_URL = (
     "OWYzIiwidCI6IjNjMDI3MWIxLWNjMWQtNGRlZC05ZWFlLWQwYzVlNDViZmExNiIsImMiOjZ9"
 )
 
-CONTEXT_DIR = os.path.join(os.path.dirname(__file__), "dashboard_cache")
-CONTEXT_FILE = os.path.join(os.path.dirname(__file__), "dashboard_context.json")
+CONTEXT_DIR = "/tmp/dashboard_cache"
+CONTEXT_FILE = "/tmp/dashboard_context.json"
 
 PAGE_LABELS = {
     1: "Landing Page – Project Overview & Milestones",
@@ -47,11 +47,23 @@ No markdown, no explanation, just the JSON."""
 
 
 def _extract_page_label(page_obj, page_num: int) -> str:
-    """Try to read the active page tab label from the Power BI nav."""
+    """Try to read the ACTIVE page tab label from the Power BI nav."""
     try:
-        tabs = page_obj.query_selector_all(".reportPageName, [data-testid='page-tab'] span, .pageNavigation span")
-        for i, tab in enumerate(tabs):
-            text = tab.inner_text().strip()
+        selectors = [
+            "[aria-selected='true'] span",
+            ".navItem.active span",
+            ".reportPageName.selected",
+            "[class*='active'] .reportPageName",
+        ]
+        for sel in selectors:
+            el = page_obj.query_selector(sel)
+            if el:
+                text = el.inner_text().strip()
+                if text:
+                    return text
+        tabs = page_obj.query_selector_all(".reportPageName, [data-testid='page-tab'] span")
+        if tabs and page_num - 1 < len(tabs):
+            text = tabs[page_num - 1].inner_text().strip()
             if text:
                 return text
     except Exception:

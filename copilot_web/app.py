@@ -41,6 +41,7 @@ def background_scraper(interval_seconds=1800):
     """Runs scraper every interval_seconds (default 30 min) in a background thread."""
     if not SCRAPER_AVAILABLE:
         return
+    time.sleep(10)
     while True:
         try:
             logger.info("Background scraper: starting scrape cycle...")
