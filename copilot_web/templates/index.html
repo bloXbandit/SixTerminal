@@ -296,8 +296,8 @@
     </div>
 
     <div class="upload-bar">
-      <label>
-        <input type="file" id="fileInput" accept=".xer,.xml,.txt,.md,.csv,.pdf" onchange="handleFile(this)">
+      <label id="fileLabel">
+        <input type="file" id="fileInput" accept=".mpp,.xer,.xml,.csv,.txt,.md" onchange="handleFile(this)">
         📎 Attach file
       </label>
       <span id="ctxBadge" class="ctx-badge" style="display:none"></span>
@@ -390,17 +390,44 @@
     }
   });
 
-  function handleFile(input) {
+  async function handleFile(input) {
     const file = input.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      context = `[File: ${file.name}]\n${e.target.result.substring(0, 3000)}`;
-      document.getElementById("ctxBadge").textContent = "📌 " + file.name;
-      document.getElementById("ctxBadge").style.display = "inline-block";
-      document.getElementById("clearCtx").style.display = "inline";
-    };
-    reader.readAsText(file);
+
+    const badge = document.getElementById("ctxBadge");
+    const clearBtn = document.getElementById("clearCtx");
+    const label = document.getElementById("fileLabel");
+
+    badge.textContent = "⏳ Parsing " + file.name + "...";
+    badge.style.display = "inline-block";
+    clearBtn.style.display = "none";
+    label.style.pointerEvents = "none";
+    label.style.opacity = "0.6";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/upload", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (data.error) {
+        badge.textContent = "❌ " + data.error;
+        appendMsg("assistant", "⚠️ Could not parse file: " + data.error);
+      } else {
+        context = data.context;
+        badge.textContent = "📌 " + data.filename;
+        clearBtn.style.display = "inline";
+        appendMsg("assistant", `✅ **${data.filename}** loaded — I can now answer questions about this schedule. Try: "What are the key milestones?" or "Show critical path."`); 
+      }
+    } catch (err) {
+      badge.textContent = "❌ Upload failed";
+      appendMsg("assistant", "❌ File upload failed. Check your connection.");
+    } finally {
+      label.style.pointerEvents = "";
+      label.style.opacity = "";
+      input.value = "";
+    }
   }
 
   function appendMsg(role, text) {

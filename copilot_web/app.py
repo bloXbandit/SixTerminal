@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, jsonify, send_file
 import openai
 import os
+import sys
 import threading
 import time
 import logging
+import tempfile
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,6 +38,51 @@ except ImportError:
     logger.warning("Scraper module not available — running without auto-context.")
     def load_context(): return ""
     def scrape_and_extract(): return {}
+
+MPP_AVAILABLE = False
+try:
+    _src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+    if _src_path not in sys.path:
+        sys.path.insert(0, _src_path)
+    from mpp_parser import MPPParser
+    MPP_AVAILABLE = True
+    logger.info("MPP parser loaded successfully.")
+except Exception as _e:
+    logger.warning(f"MPP parser not available: {_e}")
+    MPPParser = None
+
+
+def _parse_uploaded_file(filepath: str, filename: str) -> str:
+    """Parse an uploaded schedule file and return a context string for the Copilot."""
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext in (".mpp", ".xml", ".xer") and MPP_AVAILABLE:
+        try:
+            parser = MPPParser(filepath)
+            return parser.get_llm_context()
+        except Exception as e:
+            return f"[Parse error for {filename}: {e}]"
+
+    elif ext == ".csv":
+        try:
+            import pandas as pd
+            df = pd.read_csv(filepath, nrows=200)
+            lines = [f"CSV file: {filename}", f"Columns: {', '.join(df.columns.tolist())}",
+                     f"Rows: {len(df)}", "", df.to_string(index=False, max_rows=50)]
+            return "\n".join(lines)
+        except Exception as e:
+            return f"[CSV parse error for {filename}: {e}]"
+
+    elif ext in (".txt", ".md"):
+        try:
+            with open(filepath, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read(4000)
+            return f"[File: {filename}]\n{content}"
+        except Exception as e:
+            return f"[Read error for {filename}: {e}]"
+
+    else:
+        return f"[Unsupported file type: {ext}. Supported: .mpp, .xml, .xer, .csv, .txt, .md]"
 
 def background_scraper(interval_seconds=1800):
     """Runs scraper every interval_seconds (default 30 min) in a background thread."""
@@ -77,6 +124,35 @@ def view_screenshot(page_num):
     if not os.path.exists(path):
         return f"No screenshot found for page {page_num}. Run /scrape first.", 404
     return send_file(path, mimetype="image/png")
+
+@app.route("/upload", methods=["POST"])
+def upload_file():
+    """Accept an uploaded schedule file, parse it, return context for the Copilot."""
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+    f = request.files["file"]
+    if not f.filename:
+        return jsonify({"error": "Empty filename"}), 400
+
+    ext = os.path.splitext(f.filename)[1].lower()
+    allowed = {".mpp", ".xml", ".xer", ".csv", ".txt", ".md"}
+    if ext not in allowed:
+        return jsonify({"error": f"Unsupported file type: {ext}"}), 400
+
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
+            f.save(tmp.name)
+            tmp_path = tmp.name
+
+        context = _parse_uploaded_file(tmp_path, f.filename)
+        return jsonify({"context": context, "filename": f.filename})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except Exception:
+            pass
 
 @app.route("/scrape", methods=["POST"])
 def trigger_scrape():
