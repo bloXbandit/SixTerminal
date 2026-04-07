@@ -81,8 +81,30 @@ def _parse_uploaded_file(filepath: str, filename: str) -> str:
         except Exception as e:
             return f"[Read error for {filename}: {e}]"
 
+    elif ext == ".docx":
+        try:
+            from docx import Document
+            doc = Document(filepath)
+            text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+            return f"[Document: {filename}]\n{text[:5000]}"
+        except Exception as e:
+            return f"[DOCX parse error for {filename}: {e}]"
+
+    elif ext == ".pdf":
+        try:
+            import pdfplumber
+            text_parts = []
+            with pdfplumber.open(filepath) as pdf:
+                for page in pdf.pages[:20]:
+                    t = page.extract_text()
+                    if t:
+                        text_parts.append(t)
+            return f"[PDF: {filename}]\n" + "\n".join(text_parts)[:5000]
+        except Exception as e:
+            return f"[PDF parse error for {filename}: {e}]"
+
     else:
-        return f"[Unsupported file type: {ext}. Supported: .mpp, .xml, .xer, .csv, .txt, .md]"
+        return f"[Unsupported file type: {ext}. Supported: .mpp, .xml, .xer, .csv, .txt, .md, .docx, .pdf]"
 
 def background_scraper(interval_seconds=1800):
     """Runs scraper every interval_seconds (default 30 min) in a background thread."""
