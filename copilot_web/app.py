@@ -22,6 +22,26 @@ def get_client():
         return None
     return openai.OpenAI(api_key=api_key)
 
+FALLBACK_CONTEXT = """
+=== DASHBOARD DATA (Public Storage – Anaheim, CA) ===
+Type: Construction | Region: West Coast | Responsible: Josh Pait | Data Date: Jan 8, 2026
+Baseline Completion: 11/6/2026 | Current Completion: 1/11/2027
+Schedule Variance: -66 days (Worsening) | Work Compression: -17.00% — NORMAL
+
+CRITICAL PATH MILESTONES:
+- Foundation Complete: Baseline 12/18/2025 → Current 2/27/2026 | Var: -71d | Delayed–Slipping
+- 1st Floor Finishes Complete: 4/14/2026 → 6/19/2026 | Var: -66d | Delayed–Slipping
+- 2nd Floor Finishes Complete: 5/15/2026 → 7/28/2026 | Var: -74d | Delayed–Slipping
+- Structure Top Out: 6/2/2026 → 8/14/2026 | Var: -73d | Delayed–Slipping
+- 3rd Floor Finishes Complete: 6/15/2026 → 8/25/2026 | Var: -71d | Delayed–Slipping
+- 4th Floor Finishes Complete: 7/8/2026 → 9/16/2026 | Var: -70d | Delayed–Slipping
+- Finish Electrical 5th Fl & Roof: 8/6/2026 → 10/15/2026 | Var: -70d | Delayed–Slipping
+- Weather Tight: 8/28/2026 → 11/10/2026 | Var: -74d | Delayed–Slipping
+- Hardscape/Landscape Complete: 10/9/2026 → 12/23/2026 | Var: -75d | Delayed–Slipping
+- Elevator Complete: 10/15/2026 → 12/31/2026 | Var: -77d | Delayed–Slipping
+- Contract Completion: 11/6/2026 → 1/11/2027 | Var: -66d | Delayed–Slipping
+"""
+
 SYSTEM_BASE = """You are Stelic Copilot, an expert AI assistant embedded in a Power BI construction project controls dashboard.
 You specialize in Primavera P6 schedules, milestone tracking, schedule variance, critical path analysis, DCMA metrics, and project risk.
 Be concise, professional, and dashboard-appropriate. Use bullet points for lists. Keep responses tight — this is a side panel, not a report.
@@ -82,11 +102,9 @@ def chat():
     if not client:
         return jsonify({"error": "No API key configured."}), 500
 
-    dashboard_context = load_context()
+    dashboard_context = load_context() or FALLBACK_CONTEXT
 
-    system = SYSTEM_BASE
-    if dashboard_context:
-        system += f"\n\n{dashboard_context}"
+    system = SYSTEM_BASE + f"\n\n{dashboard_context}"
     if context:
         system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
 
