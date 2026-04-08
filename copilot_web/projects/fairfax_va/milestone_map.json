@@ -1,0 +1,84 @@
+{
+  "project": "Fairfax, VA",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": "MIL-1000",
+      "activity_name": "Notice to Proceed (05.05.25)",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": "CON-MB-1030",
+      "activity_name": "Prep/Pour SOG 2/2",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": "CON-MB-L5-1050",
+      "activity_name": "Exterior & Interior Framing - 5th Floor",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": "MIL-1010",
+      "activity_name": "Weathertight - Main Building",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": "MIL-1020",
+      "activity_name": "Permanent Power",
+      "sort": 5
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": "CON-MB-L1-1240",
+      "activity_name": "Light Fixtures - 1st Floor",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": "CON-MB-L2-1160",
+      "activity_name": "Light Fixtures - 2nd Floor",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": "CON-MB-L3-1180",
+      "activity_name": "Light Fixtures - 3rd Floor",
+      "sort": 9
+    },
+    {
+      "standardized_name": "4th Floor Finishes Complete",
+      "activity_id": "CON-MB-L4-1130",
+      "activity_name": "Light Fixtures - 4th Floor",
+      "sort": 10
+    },
+    {
+      "standardized_name": "5th Floor Finishes Complete",
+      "activity_id": "CON-MB-L5-1160",
+      "activity_name": "Light Fixtures - 5th Floor",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": "CON-ELEV-1020",
+      "activity_name": "Elevator Install",
+      "sort": 12
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": "SITE-MB-1090",
+      "activity_name": "Landscape - Main Building",
+      "sort": 13
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": "MIL-1030",
+      "activity_name": "Substantial Completion (08.19.26)",
+      "sort": 14
+    }
+  ]
+}

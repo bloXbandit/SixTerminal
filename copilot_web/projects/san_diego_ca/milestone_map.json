@@ -1,0 +1,66 @@
+{
+  "project": "San Diego, CA",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 325,
+      "activity_name": "Notice to Proceed",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 333,
+      "activity_name": "Pour Slab on Grade 8\"",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 596,
+      "activity_name": "Office Framing",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 625,
+      "activity_name": "Set Transformer, Cabling, & Energize",
+      "sort": 5
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 1369,
+      "activity_name": "Finish Mech. & Electrical 1st Fl",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": 1373,
+      "activity_name": "Finish Mech. & Electrical 2nd Fl",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": 1376,
+      "activity_name": "Overhead M,P,E & Fire  3rd Fl",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": 194,
+      "activity_name": "State Elevator inspection scheduling and approval",
+      "sort": 10
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 585,
+      "activity_name": "Agg Base import & AC Paving",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 308,
+      "activity_name": "Substantial Completion Date",
+      "sort": 12
+    }
+  ]
+}

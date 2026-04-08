@@ -1,0 +1,66 @@
+{
+  "project": "Anna, TX",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 168,
+      "activity_name": "NTP Start Date",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 85,
+      "activity_name": "Pour Concrete Slab on Grade- Building A",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 95,
+      "activity_name": "Roof Framing and Roof Deck- Building A",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 103,
+      "activity_name": "TPO Roofing system",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Conditioned Air",
+      "activity_id": 210,
+      "activity_name": "Setup the Roof Top Condenser Unit",
+      "sort": 6
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 122,
+      "activity_name": "Hallway System | First Floor- Building A",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": 123,
+      "activity_name": "Hallway System | Second Floor- Building A",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": 273,
+      "activity_name": "Hallway System | Third Floor- Building A",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 35,
+      "activity_name": "Paving Staking",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 167,
+      "activity_name": "TCO/CO",
+      "sort": 12
+    }
+  ]
+}

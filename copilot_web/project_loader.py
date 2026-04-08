@@ -1,6 +1,9 @@
 """
 project_loader.py - Loads pre-fed MPP/XER project files from the projects/ folder.
 Parses on startup and caches context per project in memory.
+
+Run directly to rebuild milestone_map.json files from Milestone Map.xlsx:
+    python copilot_web/project_loader.py
 """
 import os
 import json
@@ -113,6 +116,32 @@ def _parse_schedule(filepath: str) -> str:
     return f"[Unsupported format: {ext}]"
 
 
+def _load_milestone_map(slug: str) -> str:
+    """Load milestone_map.json for a project and return a formatted context block."""
+    mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
+    if not os.path.exists(mm_path):
+        return ""
+    try:
+        with open(mm_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        milestones = data.get("milestones", [])
+        if not milestones:
+            return ""
+        lines = ["STANDARDIZED MILESTONES (always use these names in responses):"]
+        for m in milestones:
+            std = m["standardized_name"]
+            act = m["activity_name"]
+            act_id = m["activity_id"]
+            if act and act != std:
+                lines.append(f"  - {std}  (schedule activity: '{act}', ID: {act_id})")
+            else:
+                lines.append(f"  - {std}  (ID: {act_id})")
+        return "\n".join(lines)
+    except Exception as e:
+        logger.warning(f"[{slug}] Could not load milestone map: {e}")
+        return ""
+
+
 def get_project_context(slug: str, page: Optional[str] = None) -> str:
     """
     Returns the full context string for a project slug.
@@ -128,12 +157,17 @@ def get_project_context(slug: str, page: Optional[str] = None) -> str:
         parts.append(f"CURRENT PAGE VIEW: {page}")
         parts.append(_page_hint(page))
 
+    milestone_ctx = _load_milestone_map(slug)
+    if milestone_ctx:
+        parts.append("")
+        parts.append(milestone_ctx)
+
     schedule_ctx = _project_cache.get(slug, "")
     if schedule_ctx:
         parts.append("")
         parts.append(schedule_ctx)
     else:
-        parts.append("[No schedule file loaded for this project yet. User can attach an MPP/XER file to provide schedule data.]")
+        parts.append("\n[No schedule file loaded for this project yet. User can attach an MPP/XER file to provide schedule data.]")
 
     return "\n".join(parts)
 
@@ -161,3 +195,83 @@ def list_projects():
 def has_schedule(slug: str) -> bool:
     """Returns True if this project has a parsed schedule file."""
     return bool(_project_cache.get(slug))
+
+
+if __name__ == "__main__":
+    """
+    Run this script directly to parse Milestone Map.xlsx and write
+    milestone_map.json into each project bucket folder.
+    """
+    try:
+        import openpyxl
+    except ImportError:
+        print("Installing openpyxl...")
+        import subprocess
+        subprocess.check_call(["pip", "install", "openpyxl", "--quiet"])
+        import openpyxl
+
+    XLSX_PATH = os.path.join(os.path.dirname(__file__), "..", "Milestone Map.xlsx")
+    XLSX_PATH = os.path.abspath(XLSX_PATH)
+
+    SLUG_MAP = {
+        "Anaheim, CA": "anaheim_ca", "Anna, TX": "anna_tx",
+        "Aventura, FL": "aventura_fl", "Colorado Springs, CO": "colorado_springs_co",
+        "Davenport, FL": "davenport_fl", "Delray, FL": "delray_fl",
+        "Fairfax, VA": "fairfax_va", "Frisco, TX": "frisco_tx",
+        "Meridian, ID": "meridian_id", "Mesa, AZ": "mesa_az",
+        "Mt Juliet, TN": "mt_juliet_tn", "San Diego, CA": "san_diego_ca",
+        "Selma, NC": "selma_nc", "Willis, TX": "willis_tx",
+    }
+
+    def _is_na(v):
+        return v is None or str(v).strip().upper() == "N/A"
+
+    print(f"Reading: {XLSX_PATH}")
+    wb = openpyxl.load_workbook(XLSX_PATH, read_only=True)
+    ws = wb.active
+    by_project = {}
+
+    for i, row in enumerate(ws.iter_rows(values_only=True)):
+        if i == 0:
+            continue
+        proj_type  = str(row[0]).strip() if row[0] else ""
+        proj_name  = str(row[1]).strip() if row[1] else ""
+        std_name   = str(row[2]).strip() if row[2] else ""
+        act_id     = row[3]
+        sort_ord   = row[4]
+        act_name   = str(row[5]).strip() if row[5] else ""
+
+        if not proj_name or not std_name:
+            continue
+        if _is_na(act_id) and _is_na(act_name):
+            continue
+
+        if proj_name not in by_project:
+            by_project[proj_name] = {"type": proj_type, "milestones": []}
+
+        by_project[proj_name]["milestones"].append({
+            "standardized_name": std_name,
+            "activity_id": None if _is_na(act_id) else act_id,
+            "activity_name": None if _is_na(act_name) else act_name,
+            "sort": sort_ord,
+        })
+
+    written = 0
+    for proj_name, data in by_project.items():
+        slug = SLUG_MAP.get(proj_name)
+        if not slug:
+            print(f"  SKIPPED (no bucket): {proj_name}")
+            continue
+        out = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
+        payload = {
+            "project": proj_name,
+            "type": data["type"],
+            "milestones": sorted(data["milestones"], key=lambda x: x["sort"] or 99)
+        }
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2)
+        count = len(data["milestones"])
+        print(f"  OK  {slug}: {count} milestones")
+        written += 1
+
+    print(f"\nDone. {written} milestone_map.json files written.")

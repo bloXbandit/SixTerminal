@@ -1,0 +1,72 @@
+{
+  "project": "Mt Juliet, TN",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": "PS-CMIL-1040",
+      "activity_name": "Notice to Proceed",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": "FS-LVL1-1000",
+      "activity_name": "Footings & Foundation CIP Walls (includes elevator pit)",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": "PS-CMIL-1120",
+      "activity_name": "Structure Complete",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": "PS-CMIL-1130",
+      "activity_name": "Building Dry In",
+      "sort": 4
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": "IB-L1IN-1100",
+      "activity_name": "Install Storage Doors & Hardware",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": "IB-L2IN-1100",
+      "activity_name": "Install Storage Doors & Hardware",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": "IB-L3IN-1100",
+      "activity_name": "Install Storage Doors & Hardware",
+      "sort": 9
+    },
+    {
+      "standardized_name": "4th Floor Finishes Complete",
+      "activity_id": "IB-L4IN-1100",
+      "activity_name": "Install Storage Doors & Hardware",
+      "sort": 10
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": "EL-INST-1000",
+      "activity_name": "Evelvator Installation (incl. Equipment Room Buildout)",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": "SW-RTLN-1180",
+      "activity_name": "Final Owner Punch List",
+      "sort": 12
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": "PS-CMIL-1170",
+      "activity_name": "Project Sustainability Complete - After Weather Impacts",
+      "sort": 13
+    }
+  ]
+}

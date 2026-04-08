@@ -1,0 +1,60 @@
+{
+  "project": "Willis, TX",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 3,
+      "activity_name": "Contract Signed",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 99,
+      "activity_name": "Joint Control Saw Cutting",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 31,
+      "activity_name": "Standing Seam Metal Roofing System",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 50,
+      "activity_name": "Gutter, Coping & Downpsouts",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 103,
+      "activity_name": "Utility Approval by AHJ",
+      "sort": 5
+    },
+    {
+      "standardized_name": "Conditioned Air",
+      "activity_id": 36,
+      "activity_name": "Condensers & Final Connection",
+      "sort": 6
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 56,
+      "activity_name": "Seal Concrete in Corridors",
+      "sort": 7
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 91,
+      "activity_name": "Double Swing Gate",
+      "sort": 8
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 65,
+      "activity_name": "Substantial Completion",
+      "sort": 9
+    }
+  ]
+}

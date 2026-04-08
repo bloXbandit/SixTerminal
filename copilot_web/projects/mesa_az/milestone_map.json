@@ -1,0 +1,54 @@
+{
+  "project": "Mesa, AZ",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 3,
+      "activity_name": "Notice to Proceed",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 273,
+      "activity_name": "Pour Slab on grade South 8\"",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 250,
+      "activity_name": "Roof Structural @ platforms & Screens",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 252,
+      "activity_name": "Roof Insulation cover board & Membrane",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 38,
+      "activity_name": "City Of Mesa Work Scope Power to Building",
+      "sort": 5
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": 170,
+      "activity_name": "Elevator inspection scheduling and approval",
+      "sort": 7
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 147,
+      "activity_name": "Landscape",
+      "sort": 8
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 165,
+      "activity_name": "Building Final",
+      "sort": 9
+    }
+  ]
+}

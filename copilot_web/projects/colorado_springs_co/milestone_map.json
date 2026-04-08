@@ -1,0 +1,66 @@
+{
+  "project": "Colorado Springs, CO",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": "NTP",
+      "activity_name": "Initial Notice to Proceed - Site Not in Compliance Per Contract",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 1067,
+      "activity_name": "Foundation Dampproof and Insulation - South Wall",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 1010,
+      "activity_name": "Structure Complete",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 1016,
+      "activity_name": "Building Dry In",
+      "sort": 4
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 34902,
+      "activity_name": "Mechanical Trim",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": 34842,
+      "activity_name": "Mechanical Trim",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": 1085,
+      "activity_name": "Mechanical Trim",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": 32912,
+      "activity_name": "Elevator (By Owner)",
+      "sort": 10
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 1131,
+      "activity_name": "Striping and Signage",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": "PSC",
+      "activity_name": "Project Substantially Complete - After Weather Impacts",
+      "sort": 12
+    }
+  ]
+}

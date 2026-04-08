@@ -1,0 +1,60 @@
+{
+  "project": "Selma, NC",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 1019,
+      "activity_name": "Award Contract",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 694,
+      "activity_name": "Slab #1 Prep / Pour (North Half)",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 778,
+      "activity_name": "Metal Roofing - Building A",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 946,
+      "activity_name": "Metal Panels Completion - Building A",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 395259,
+      "activity_name": "Building Tie In",
+      "sort": 5
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 1017,
+      "activity_name": "2nd Floor MEP Trim Out Area 1 - Building A",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": 395239,
+      "activity_name": "2nd Floor MEP Trim Out Area 2  - Building A",
+      "sort": 8
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 652,
+      "activity_name": "As-Built/City Review",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 169,
+      "activity_name": "Substantial Completion",
+      "sort": 10
+    }
+  ]
+}

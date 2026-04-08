@@ -1,0 +1,78 @@
+{
+  "project": "Davenport, FL",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 345,
+      "activity_name": "Notice to Proceed",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 93,
+      "activity_name": "Backfill Around Slab on Grade",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 51,
+      "activity_name": "Install TPO Roofing",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 120,
+      "activity_name": "Roofing Complete - Building Dry-In",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 180,
+      "activity_name": "Permanent Power to Building",
+      "sort": 5
+    },
+    {
+      "standardized_name": "Conditioned Air",
+      "activity_id": 136,
+      "activity_name": "3rd Floor HVAC Trim/Line Sets",
+      "sort": 6
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 82,
+      "activity_name": "1st Floor Hallway System- by Janus",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": 83,
+      "activity_name": "2nd Floor Hallway System - by Janus",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": 84,
+      "activity_name": "3rd Floor Hallway System-by Janus",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": 140,
+      "activity_name": "Elevator Ready for State Inspection",
+      "sort": 10
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 184,
+      "activity_name": "Landscaping As-Built Drawings",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 344,
+      "activity_name": "Substantial Completion",
+      "sort": 12
+    }
+  ]
+}

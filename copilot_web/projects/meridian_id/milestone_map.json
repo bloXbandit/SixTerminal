@@ -1,0 +1,60 @@
+{
+  "project": "Meridian, ID",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 2,
+      "activity_name": "Notice to Proceed",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 383,
+      "activity_name": "BLDG A Slab On Grade Complete",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 384,
+      "activity_name": "BLDG A Roofing Complete",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 365,
+      "activity_name": "Exterior Sheathing, Weather Barrier & Rigid Insulation - Building A",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 358,
+      "activity_name": "Permanent Power On- Building A",
+      "sort": 5
+    },
+    {
+      "standardized_name": "Conditioned Air",
+      "activity_id": 352,
+      "activity_name": "HVAC Commisioning - Building A",
+      "sort": 6
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 340,
+      "activity_name": "Bathroom Accessories- Building A",
+      "sort": 7
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 378,
+      "activity_name": "Site Fencing Rod Iron and Gates",
+      "sort": 8
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 176,
+      "activity_name": "Substantial Completion",
+      "sort": 9
+    }
+  ]
+}

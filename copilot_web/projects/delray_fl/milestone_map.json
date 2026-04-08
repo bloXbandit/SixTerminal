@@ -1,0 +1,78 @@
+{
+  "project": "Delray, FL",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 53,
+      "activity_name": "Site Mobilization",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 457,
+      "activity_name": "Slab on Grade Prep and Pour with 1' of Footers",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 487,
+      "activity_name": "Top-Out",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 486,
+      "activity_name": "Roofing",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 494,
+      "activity_name": "BDA & Low Voltage",
+      "sort": 5
+    },
+    {
+      "standardized_name": "Conditioned Air",
+      "activity_id": 542,
+      "activity_name": "Duct Work Installation 2nd Floor",
+      "sort": 6
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 496,
+      "activity_name": "Elecrtical Room - Finish 1st Floor",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": 467,
+      "activity_name": "MEP Trim-Out 2nd Floor",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": 145,
+      "activity_name": "MEP Trim-Out 3rd Floor",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": 492,
+      "activity_name": "Elevator Installation",
+      "sort": 10
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 115,
+      "activity_name": "Jet Vac System",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 445,
+      "activity_name": "Estimated Certificate Of Completion",
+      "sort": 12
+    }
+  ]
+}

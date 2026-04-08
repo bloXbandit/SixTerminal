@@ -1,0 +1,78 @@
+{
+  "project": "Frisco, TX",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 16,
+      "activity_name": "Contract Execution",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Flooring Installed",
+      "activity_id": 172,
+      "activity_name": "Carpet and Tile Prep and Install",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Glass Installed",
+      "activity_id": "TBD",
+      "activity_name": "TBD",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Furniture Delivered",
+      "activity_id": 21,
+      "activity_name": "Furniture Lead Time",
+      "sort": 4
+    },
+    {
+      "standardized_name": "VAVs Installed",
+      "activity_id": 244,
+      "activity_name": "VAV Replacements - Level 2 North (Round 2)",
+      "sort": 5
+    },
+    {
+      "standardized_name": "AV Installed",
+      "activity_id": 233,
+      "activity_name": "AV Equipment Installation and Trim (By Others)",
+      "sort": 6
+    },
+    {
+      "standardized_name": "Security System Installed",
+      "activity_id": 234,
+      "activity_name": "Security Systems Equipment Installation and Trim (By Others)",
+      "sort": 7
+    },
+    {
+      "standardized_name": "Appliances Delivered",
+      "activity_id": 70,
+      "activity_name": "Appliances",
+      "sort": 8
+    },
+    {
+      "standardized_name": "Millwork Installed",
+      "activity_id": 117,
+      "activity_name": "Millwork Install",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Networking Installed",
+      "activity_id": "TBD",
+      "activity_name": "TBD",
+      "sort": 10
+    },
+    {
+      "standardized_name": "HVAC Commissioned",
+      "activity_id": "TBD",
+      "activity_name": "TBD",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 47,
+      "activity_name": "Move in",
+      "sort": 12
+    }
+  ]
+}

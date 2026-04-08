@@ -1,0 +1,72 @@
+{
+  "project": "Anaheim, CA",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 371,
+      "activity_name": "Slab on Grade Pour South",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 403,
+      "activity_name": "5th floor Shear walls South @ 15k/week",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 443,
+      "activity_name": "Exterior Sheet metal, Sealants, & Painting",
+      "sort": 4
+    },
+    {
+      "standardized_name": "1st Floor Finishes Complete",
+      "activity_id": 296,
+      "activity_name": "Finish Electrical 1st Fl",
+      "sort": 7
+    },
+    {
+      "standardized_name": "2nd Floor Finishes Complete",
+      "activity_id": 297,
+      "activity_name": "Finish Electrical 2nd Fl",
+      "sort": 8
+    },
+    {
+      "standardized_name": "3rd Floor Finishes Complete",
+      "activity_id": 298,
+      "activity_name": "Finish Electrical 3rd Fl",
+      "sort": 9
+    },
+    {
+      "standardized_name": "4th Floor Finishes Complete",
+      "activity_id": 299,
+      "activity_name": "Finish Electrical 4th Fl",
+      "sort": 10
+    },
+    {
+      "standardized_name": "Finish Electrical 5th Fl & Roof Equipment",
+      "activity_id": 300,
+      "activity_name": "Finish Electrical 5th Fl & Roof Equipment",
+      "sort": 11
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": 194,
+      "activity_name": "State Elevator inspection Lead Time & Approval",
+      "sort": 12
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 245,
+      "activity_name": "Owner Civil Punch list & Completion",
+      "sort": 13
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 235,
+      "activity_name": "Certificate Of Occupancy",
+      "sort": 14
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "project": "Aventura, FL",
+  "type": "Construction",
+  "milestones": [
+    {
+      "standardized_name": "NTP",
+      "activity_id": 254,
+      "activity_name": "Mobilization",
+      "sort": 1
+    },
+    {
+      "standardized_name": "Foundation Complete",
+      "activity_id": 321,
+      "activity_name": "PREP & POUR 2",
+      "sort": 2
+    },
+    {
+      "standardized_name": "Structure Top Out",
+      "activity_id": 412,
+      "activity_name": "Pour 4th, 5th floor slab and roof deck",
+      "sort": 3
+    },
+    {
+      "standardized_name": "Weather Tight",
+      "activity_id": 420,
+      "activity_name": "Install Roofing",
+      "sort": 4
+    },
+    {
+      "standardized_name": "Permanent Power",
+      "activity_id": 361,
+      "activity_name": "Install Electric Meter",
+      "sort": 5
+    },
+    {
+      "standardized_name": "Conditioned Air",
+      "activity_id": 365,
+      "activity_name": "MEP HookUp HVAC Units",
+      "sort": 6
+    },
+    {
+      "standardized_name": "Finishes Complete",
+      "activity_id": 392,
+      "activity_name": "Install Doors & Hardware",
+      "sort": 7
+    },
+    {
+      "standardized_name": "Elevator Complete",
+      "activity_id": 414,
+      "activity_name": "Install Elevators",
+      "sort": 8
+    },
+    {
+      "standardized_name": "Hardscape/Landscape Complete",
+      "activity_id": 473,
+      "activity_name": "Jet Vac",
+      "sort": 9
+    },
+    {
+      "standardized_name": "Contract Completion",
+      "activity_id": 460,
+      "activity_name": "Obtain Certificate of Completion",
+      "sort": 10
+    }
+  ]
+}

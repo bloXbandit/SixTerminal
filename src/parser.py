@@ -266,6 +266,79 @@ class P6Parser:
 if __name__ == "__main__":
     import sys
     from datetime import datetime
-    if len(sys.argv) > 1:
+
+    if "--build-milestones" in sys.argv:
+        import os, json
+        try:
+            import openpyxl
+        except ImportError:
+            import subprocess
+            subprocess.check_call(["pip", "install", "openpyxl", "--quiet"])
+            import openpyxl
+
+        BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        XLSX = os.path.join(BASE, "Milestone Map.xlsx")
+        PROJ_DIR = os.path.join(BASE, "copilot_web", "projects")
+
+        SLUG_MAP = {
+            "Anaheim, CA": "anaheim_ca", "Anna, TX": "anna_tx",
+            "Aventura, FL": "aventura_fl", "Colorado Springs, CO": "colorado_springs_co",
+            "Davenport, FL": "davenport_fl", "Delray, FL": "delray_fl",
+            "Fairfax, VA": "fairfax_va", "Frisco, TX": "frisco_tx",
+            "Meridian, ID": "meridian_id", "Mesa, AZ": "mesa_az",
+            "Mt Juliet, TN": "mt_juliet_tn", "San Diego, CA": "san_diego_ca",
+            "Selma, NC": "selma_nc", "Willis, TX": "willis_tx",
+        }
+
+        def _na(v):
+            return v is None or str(v).strip().upper() == "N/A"
+
+        print(f"Reading: {XLSX}")
+        wb = openpyxl.load_workbook(XLSX, read_only=True)
+        ws = wb.active
+        by_project = {}
+
+        for i, row in enumerate(ws.iter_rows(values_only=True)):
+            if i == 0:
+                continue
+            ptype  = str(row[0]).strip() if row[0] else ""
+            pname  = str(row[1]).strip() if row[1] else ""
+            std    = str(row[2]).strip() if row[2] else ""
+            aid    = row[3]
+            srt    = row[4]
+            aname  = str(row[5]).strip() if row[5] else ""
+            if not pname or not std:
+                continue
+            if _na(aid) and _na(aname):
+                continue
+            if pname not in by_project:
+                by_project[pname] = {"type": ptype, "milestones": []}
+            by_project[pname]["milestones"].append({
+                "standardized_name": std,
+                "activity_id": None if _na(aid) else aid,
+                "activity_name": None if _na(aname) else aname,
+                "sort": srt,
+            })
+
+        written = 0
+        for pname, data in by_project.items():
+            slug = SLUG_MAP.get(pname)
+            if not slug:
+                print(f"  SKIPPED (no bucket): {pname}")
+                continue
+            out = os.path.join(PROJ_DIR, slug, "milestone_map.json")
+            payload = {
+                "project": pname,
+                "type": data["type"],
+                "milestones": sorted(data["milestones"], key=lambda x: x["sort"] or 99)
+            }
+            with open(out, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2)
+            print(f"  OK  {slug}: {len(data['milestones'])} milestones")
+            written += 1
+
+        print(f"\nDone. {written} milestone_map.json files written.")
+
+    elif len(sys.argv) > 1:
         parser = P6Parser(sys.argv[1])
         print(parser.get_activities().head())
