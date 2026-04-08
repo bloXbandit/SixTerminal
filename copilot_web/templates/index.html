@@ -96,6 +96,30 @@
     flex-shrink: 0;
   }
 
+  .project-bar {
+    padding: 5px 8px;
+    display: flex;
+    gap: 5px;
+    border-bottom: 1px solid #e0eaf4;
+    flex-shrink: 0;
+    align-items: center;
+    background: #f7fbff;
+  }
+  .project-bar select {
+    flex: 1;
+    border: 1.5px solid #0078D4;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-family: inherit;
+    font-size: 11px;
+    background: #fff;
+    color: #1a3a5c;
+    outline: none;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .project-bar select:focus { border-color: #1a3a5c; }
+  .project-bar .has-data { border-color: #28a745; }
   .quick-bar {
     padding: 5px 8px;
     display: flex;
@@ -288,6 +312,15 @@
     <div class="copilot-header">🤖 Stelic Copilot</div>
     <div class="subheader">AI assistant · schedules, documents &amp; data</div>
 
+    <div class="project-bar">
+      <select id="projectSelect" onchange="onProjectChange()">
+        <option value="">— Select Project —</option>
+      </select>
+      <select id="pageSelect" style="display:none" onchange="onPageChange()">
+        <option value="">— Page View —</option>
+      </select>
+    </div>
+
     <div class="quick-bar">
       <button class="quick-btn" onclick="sendQuick('Project status?')">Status?</button>
       <button class="quick-btn" onclick="sendQuick('Top risks?')">Risks?</button>
@@ -325,6 +358,64 @@
   let messages = [];
   let context = "";
   let pastedImageBase64 = null;
+  let selectedProjectSlug = "";
+  let selectedPageView = "";
+  let projectData = [];
+
+  async function loadProjects() {
+    try {
+      const res = await fetch("/projects");
+      const data = await res.json();
+      projectData = data.projects || [];
+      const sel = document.getElementById("projectSelect");
+      projectData.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.slug;
+        opt.textContent = p.display_name + (p.has_schedule ? " ✓" : "");
+        sel.appendChild(opt);
+      });
+    } catch(e) {
+      console.warn("Could not load projects:", e);
+    }
+  }
+
+  function onProjectChange() {
+    const sel = document.getElementById("projectSelect");
+    selectedProjectSlug = sel.value;
+    selectedPageView = "";
+
+    const pageSel = document.getElementById("pageSelect");
+    pageSel.innerHTML = "<option value=\"\">— Page View —</option>";
+
+    if (selectedProjectSlug) {
+      const proj = projectData.find(p => p.slug === selectedProjectSlug);
+      if (proj && proj.pages) {
+        proj.pages.forEach(pg => {
+          const opt = document.createElement("option");
+          opt.value = pg;
+          opt.textContent = pg;
+          pageSel.appendChild(opt);
+        });
+      }
+      pageSel.style.display = "block";
+      sel.className = proj && proj.has_schedule ? "has-data" : "";
+      const projName = proj ? proj.display_name : selectedProjectSlug;
+      appendMsg("assistant", `📂 Project set to: ${projName}${proj && proj.has_schedule ? " — schedule data loaded ✓" : " — no schedule file yet, attach an MPP to add data"}`);
+    } else {
+      pageSel.style.display = "none";
+    }
+    messages = [];
+  }
+
+  function onPageChange() {
+    const pageSel = document.getElementById("pageSelect");
+    selectedPageView = pageSel.value;
+    if (selectedPageView) {
+      appendMsg("assistant", `📄 Page view set to: ${selectedPageView} — I'll tailor my answers to this context.`);
+    }
+  }
+
+  loadProjects();
 
   // ── Drag resize ──
   const handle = document.getElementById("resizeHandle");
@@ -461,7 +552,9 @@
         body: JSON.stringify({
           messages: messages.slice(-10),
           context: context,
-          image: pastedImageBase64 || null
+          image: pastedImageBase64 || null,
+          project_slug: selectedProjectSlug || null,
+          page_view: selectedPageView || null
         })
       });
       const data = await res.json();

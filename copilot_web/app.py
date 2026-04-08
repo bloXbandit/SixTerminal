@@ -51,6 +51,17 @@ except Exception as _e:
     logger.warning(f"MPP parser not available: {_e}")
     MPPParser = None
 
+try:
+    from project_loader import load_all_projects, get_project_context, list_projects, has_schedule
+    load_all_projects()
+    logger.info("Project buckets loaded.")
+except Exception as _pe:
+    logger.warning(f"Project loader not available: {_pe}")
+    def load_all_projects(): pass
+    def get_project_context(slug, page=None): return ""
+    def list_projects(): return []
+    def has_schedule(slug): return False
+
 
 def _parse_uploaded_file(filepath: str, filename: str) -> str:
     """Parse an uploaded schedule file and return a context string for the Copilot."""
@@ -139,6 +150,14 @@ def view_context():
         return jsonify({"status": "empty", "context": None})
     return jsonify({"status": "loaded", "context": ctx[:3000]})
 
+@app.route("/projects", methods=["GET"])
+def get_projects():
+    """Returns list of all projects and their pages for the dropdown."""
+    projects = list_projects()
+    for p in projects:
+        p["has_schedule"] = has_schedule(p["slug"])
+    return jsonify({"projects": projects})
+
 @app.route("/screenshot/<int:page_num>", methods=["GET"])
 def view_screenshot(page_num):
     """Debug endpoint to view the screenshot Playwright captured for a given page."""
@@ -193,6 +212,8 @@ def chat():
     messages = data.get("messages", [])
     context = data.get("context", "")
     image_b64 = data.get("image", None)
+    project_slug = data.get("project_slug", None)
+    page_view = data.get("page_view", None)
 
     client = get_client()
     if not client:
@@ -203,6 +224,12 @@ def chat():
     system = SYSTEM_BASE
     if dashboard_context:
         system += f"\n\n{dashboard_context}"
+
+    if project_slug:
+        proj_ctx = get_project_context(project_slug, page_view)
+        if proj_ctx:
+            system += f"\n\n{proj_ctx}"
+
     if context:
         system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
 
