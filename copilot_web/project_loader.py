@@ -187,12 +187,110 @@ def _extract_pdf_milestones(pdf_path: str) -> list:
                     continue
                 for line in text.splitlines():
                     line = line.strip()
-                    if len(line) > 5:  
+                    if len(line) > 5:
                         entries.append(line)
         return entries
     except Exception as e:
         logger.warning(f"PDF crosscheck failed: {e}")
         return []
+
+
+def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
+    """
+    Parse a Schedule Compression PDF (from schedule validator).
+    Extracts: compression %, schedule A/B data dates + finish dates,
+    and the monthly activity days comparison table.
+
+    Expected layout (from screenshot):
+      - "Remaining Work Compression  -5 %"
+      - Table: A = Earlier schedule (data date, finish date)
+               B = Later schedule (data date, finish date)
+      - Monthly table: Month | Activity Days (A) | Activity Days (B)
+    """
+    try:
+        import pdfplumber
+        import re
+        result = {
+            "compression_pct": None,
+            "earlier_data_date": None,
+            "later_data_date": None,
+            "earlier_finish": None,
+            "later_finish": None,
+            "monthly": [],   # [{month, earlier_days, later_days}]
+            "raw_lines": [],
+        }
+
+        with pdfplumber.open(pdf_path) as pdf:
+            full_text = ""
+            for page in pdf.pages[:5]:
+                t = page.extract_text()
+                if t:
+                    full_text += t + "\n"
+
+        lines = [l.strip() for l in full_text.splitlines() if l.strip()]
+        result["raw_lines"] = lines
+
+        for line in lines:
+            # Compression % — e.g. "Remaining Work Compression  -5 %"
+            m = re.search(r'Remaining Work Compression\s+([-+]?\d+)\s*%', line, re.IGNORECASE)
+            if m:
+                result["compression_pct"] = int(m.group(1))
+
+            # Data dates — e.g. "Data Date:  01/19/2026"
+            m = re.findall(r'Data Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
+            if m:
+                if result["earlier_data_date"] is None:
+                    result["earlier_data_date"] = m[0]
+                elif result["later_data_date"] is None and m[0] != result["earlier_data_date"]:
+                    result["later_data_date"] = m[0]
+
+            # Finish dates — e.g. "Finish Date:  07/01/2026"
+            m = re.findall(r'Finish Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
+            if m:
+                if result["earlier_finish"] is None:
+                    result["earlier_finish"] = m[0]
+                elif result["later_finish"] is None and m[0] != result["earlier_finish"]:
+                    result["later_finish"] = m[0]
+
+            # Monthly table rows — e.g. "Apr 26  177  155" or "Mar 26 25 41"
+            m = re.match(r'^([A-Za-z]{3}\s+\d{2})\s+(\d+)\s+(\d+)$', line)
+            if m:
+                result["monthly"].append({
+                    "month": m.group(1),
+                    "earlier_days": int(m.group(2)),
+                    "later_days": int(m.group(3)),
+                })
+
+        return result if result["compression_pct"] is not None else None
+
+    except Exception as e:
+        logger.warning(f"Compression PDF extraction failed ({pdf_path}): {e}")
+        return None
+
+
+def _format_compression_pdf_context(data: dict, label: str = "") -> str:
+    """Format extracted compression PDF data as an LLM context block."""
+    if not data:
+        return ""
+    lines = [f"=== COMPRESSION REPORT — VERIFIED (Schedule Validator){' — ' + label if label else ''} ==="]
+    pct = data.get("compression_pct")
+    if pct is not None:
+        direction = "compressed" if pct < 0 else "expanded" if pct > 0 else "unchanged"
+        lines.append(f"Remaining Work Compression: {pct:+d}% ({direction})")
+    if data.get("earlier_data_date") and data.get("later_data_date"):
+        lines.append(f"Compared: {data['earlier_data_date']} (earlier) → {data['later_data_date']} (later)")
+    if data.get("earlier_finish") and data.get("later_finish"):
+        finish_note = " [finish unchanged]" if data["earlier_finish"] == data["later_finish"] else " [finish changed]"
+        lines.append(f"Finish Date: {data['earlier_finish']} → {data['later_finish']}{finish_note}")
+    monthly = data.get("monthly", [])
+    if monthly:
+        lines.append("Monthly Activity Days (Earlier vs Later):")
+        for row in monthly:
+            delta = row["later_days"] - row["earlier_days"]
+            sign = "+" if delta >= 0 else ""
+            lines.append(f"  {row['month']:8s}  Earlier: {row['earlier_days']:>4}  Later: {row['later_days']:>4}  Δ {sign}{delta}")
+    lines.append("NOTE: Use this as ground truth for compression statements. Prefer these values over computed estimates.")
+    return "\n".join(lines)
 
 
 def _build_versioned_context(slug: str, project_path: str) -> str:
@@ -228,6 +326,19 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     total_updates = len(updates)
     parts.append(f"SCHEDULE VERSIONS: {'baseline' if baseline_path else 'no baseline'} + {total_updates} update(s)")
     parts.append(f"CURRENT SUBMISSION: {current_label} ({os.path.basename(current_path)})")
+
+    # --- Locate compression PDF for current update (e.g. compression_update3.pdf) ---
+    _compression_pdf_path = None
+    try:
+        import re as _re
+        m = _re.search(r'update[_\s]*(\d+)', current_label, _re.IGNORECASE)
+        if m:
+            update_num = m.group(1)
+            candidate = os.path.join(project_path, f"compression_update{update_num}.pdf")
+            if os.path.exists(candidate):
+                _compression_pdf_path = candidate
+    except Exception:
+        pass
 
     # --- Parse current ---
     current_data = _parse_schedule(current_path)
@@ -303,6 +414,20 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                     )
             except Exception as _ce:
                 logger.warning(f"[{slug}] Compression computation failed: {_ce}")
+
+            # --- Verified compression PDF (schedule validator output) ---
+            if _compression_pdf_path:
+                try:
+                    comp_pdf_data = _extract_compression_pdf(_compression_pdf_path)
+                    comp_pdf_ctx = _format_compression_pdf_context(
+                        comp_pdf_data,
+                        label=os.path.basename(_compression_pdf_path)
+                    )
+                    if comp_pdf_ctx:
+                        parts.append("")
+                        parts.append(comp_pdf_ctx)
+                except Exception as _cpdf:
+                    logger.warning(f"[{slug}] Compression PDF inject failed: {_cpdf}")
 
             # --- Critical path shift (current vs previous) ---
             try:
