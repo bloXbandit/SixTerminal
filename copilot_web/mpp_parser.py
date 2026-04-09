@@ -45,10 +45,11 @@ def _get_mpxj():
     try:
         import mpxj
         return mpxj
-    except ImportError:
+    except ImportError as _e:
         raise ImportError(
-            "mpxj is not installed. Run: pip install mpxj\n"
-            "Note: mpxj requires Java 11+ to be installed on the system."
+            f"mpxj is not installed. Run: pip install mpxj\n"
+            f"Note: mpxj requires Java 11+ to be installed on the system.\n"
+            f"Underlying error: {_e}"
         )
 
 
