@@ -74,8 +74,8 @@ class MPPParser:
 
     def _load(self):
         """Parse the file using mpxj's UniversalProjectReader."""
-        mpxj = _get_mpxj()
-        from mpxj import UniversalProjectReader
+        _get_mpxj()
+        from org.mpxj.reader import UniversalProjectReader
 
         logger.info(f"Parsing file: {self.file_path}")
 
