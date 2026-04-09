@@ -146,7 +146,7 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
                 "",
                 f"WBS PHASES: {', '.join(ctx.get('wbs_phases', []))}",
                 "",
-                f"DCMA METRICS: {json.dumps(ctx.get('dcma_metrics', {}))}",
+                f"DCMA METRICS: {json.dumps(ctx.get('dcma_metrics', {}), default=lambda x: int(x) if hasattr(x, 'item') else str(x))}",
             ]
             cp_ctx = ctx.get("cp_chain_context", "")
             if cp_ctx:
