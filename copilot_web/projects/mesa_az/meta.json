@@ -1,5 +1,6 @@
 {
   "display_name": "Mesa, AZ",
   "slug": "mesa_az",
+  "type": "Construction",
   "pages": ["Landing Page", "Risk", "Schedule Performance Report", "Calendar View", "Schedule"]
 }

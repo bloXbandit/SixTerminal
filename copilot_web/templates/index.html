@@ -368,12 +368,33 @@
       const data = await res.json();
       projectData = data.projects || [];
       const sel = document.getElementById("projectSelect");
-      projectData.forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p.slug;
-        opt.textContent = p.display_name + (p.has_schedule ? " ✓" : "");
-        sel.appendChild(opt);
-      });
+
+      const construction = projectData.filter(p => (p.type || "Construction") === "Construction");
+      const development  = projectData.filter(p => (p.type || "") === "Development");
+
+      if (construction.length) {
+        const grp = document.createElement("optgroup");
+        grp.label = "Construction";
+        construction.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.slug;
+          opt.textContent = p.display_name + (p.has_schedule ? " ✓" : "");
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      }
+
+      if (development.length) {
+        const grp = document.createElement("optgroup");
+        grp.label = "Development";
+        development.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.slug;
+          opt.textContent = p.display_name + (p.has_schedule ? " ✓" : "");
+          grp.appendChild(opt);
+        });
+        sel.appendChild(grp);
+      }
     } catch(e) {
       console.warn("Could not load projects:", e);
     }

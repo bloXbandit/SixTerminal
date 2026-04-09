@@ -323,9 +323,14 @@ def _page_hint(page: str) -> str:
 
 
 def list_projects():
-    """Returns list of all projects with slug and display name."""
+    """Returns list of all projects with slug, display name, type, and pages."""
     return [
-        {"slug": slug, "display_name": meta["display_name"], "pages": meta["pages"]}
+        {
+            "slug": slug,
+            "display_name": meta["display_name"],
+            "type": meta.get("type", "Construction"),
+            "pages": meta["pages"]
+        }
         for slug, meta in sorted(_project_meta.items(), key=lambda x: x[1]["display_name"])
     ]
 
