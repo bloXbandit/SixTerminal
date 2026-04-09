@@ -79,110 +79,97 @@ class MPPParser:
 
     def _extract_metadata(self):
         """Pull project-level properties."""
-        p = self.project.project_properties
+        p = self.project.getProjectProperties()
+        name = p.getName()
+        author = p.getAuthor()
+        company = p.getCompany()
+        currency = p.getCurrencySymbol()
         self.project_metadata = {
-            "project_name": str(p.name) if p.name else os.path.splitext(os.path.basename(self.file_path))[0],
-            "author": str(p.author) if p.author else "",
-            "company": str(p.company) if p.company else "",
-            "start_date": self._fmt_date(p.start_date),
-            "finish_date": self._fmt_date(p.finish_date),
-            "status_date": self._fmt_date(p.status_date),
-            "currency_symbol": str(p.currency_symbol) if p.currency_symbol else "$",
+            "project_name": str(name) if name else os.path.splitext(os.path.basename(self.file_path))[0],
+            "author": str(author) if author else "",
+            "company": str(company) if company else "",
+            "start_date": self._fmt_date(p.getStartDate()),
+            "finish_date": self._fmt_date(p.getFinishDate()),
+            "status_date": self._fmt_date(p.getStatusDate()),
+            "currency_symbol": str(currency) if currency else "$",
         }
         logger.info(f"Project: {self.project_metadata['project_name']}")
 
     def _extract_tasks(self):
         """Extract all tasks/milestones into a list of dicts."""
         self.tasks = []
-        for task in self.project.tasks:
-            if task is None or task.id is None:
+        for task in self.project.getTasks():
+            if task is None:
                 continue
-            if str(task.name or "").strip() == "" and int(task.id) == 0:
+            task_id = task.getID()
+            if task_id is None:
                 continue
-
+            task_name = task.getName()
+            if str(task_name or "").strip() == "" and int(task_id) == 0:
+                continue
+            pct = task.getPercentageComplete()
+            priority = task.getPriority()
             t = {
-                "id": str(task.id),
-                "name": str(task.name) if task.name else "",
-                "wbs": str(task.wbs) if task.wbs else "",
-                "outline_level": int(task.outline_level) if task.outline_level else 0,
-                "milestone": bool(task.milestone),
-                "summary": bool(task.summary),
-                "percent_complete": float(task.percent_complete) if task.percent_complete else 0.0,
-                "baseline_start": self._fmt_date(task.baseline_start),
-                "baseline_finish": self._fmt_date(task.baseline_finish),
-                "start": self._fmt_date(task.start),
-                "finish": self._fmt_date(task.finish),
-                "actual_start": self._fmt_date(task.actual_start),
-                "actual_finish": self._fmt_date(task.actual_finish),
-                "duration": str(task.duration) if task.duration else "",
-                "baseline_duration": str(task.baseline_duration) if task.baseline_duration else "",
-                "total_slack": str(task.total_slack) if task.total_slack else "",
-                "free_slack": str(task.free_slack) if task.free_slack else "",
-                "critical": bool(task.critical),
-                "notes": str(task.notes).strip() if task.notes else "",
-                "constraint_type": str(task.constraint_type) if task.constraint_type else "",
-                "constraint_date": self._fmt_date(task.constraint_date),
-                "priority": int(task.priority.value) if task.priority else 500,
+                "id": str(task_id),
+                "name": str(task_name) if task_name else "",
+                "wbs": str(task.getWBS()) if task.getWBS() else "",
+                "outline_level": int(task.getOutlineLevel()) if task.getOutlineLevel() else 0,
+                "milestone": bool(task.getMilestone()),
+                "summary": bool(task.getSummary()),
+                "percent_complete": float(str(pct)) if pct is not None else 0.0,
+                "baseline_start": self._fmt_date(task.getBaselineStart()),
+                "baseline_finish": self._fmt_date(task.getBaselineFinish()),
+                "start": self._fmt_date(task.getStart()),
+                "finish": self._fmt_date(task.getFinish()),
+                "actual_start": self._fmt_date(task.getActualStart()),
+                "actual_finish": self._fmt_date(task.getActualFinish()),
+                "duration": str(task.getDuration()) if task.getDuration() else "",
+                "baseline_duration": str(task.getBaselineDuration()) if task.getBaselineDuration() else "",
+                "total_slack": str(task.getTotalSlack()) if task.getTotalSlack() else "",
+                "free_slack": str(task.getFreeSlack()) if task.getFreeSlack() else "",
+                "critical": bool(task.getCritical()),
+                "notes": str(task.getNotes()).strip() if task.getNotes() else "",
+                "constraint_type": str(task.getConstraintType()) if task.getConstraintType() else "",
+                "constraint_date": self._fmt_date(task.getConstraintDate()),
+                "priority": int(str(priority.getValue())) if priority else 500,
             }
-
             self.tasks.append(t)
 
     def _extract_resources(self):
         """Extract resource assignments."""
         self.resources = []
-        for res in self.project.resources:
-            if res is None or res.id is None:
+        for res in self.project.getResources():
+            if res is None or res.getID() is None:
                 continue
             self.resources.append({
-                "id": str(res.id),
-                "name": str(res.name) if res.name else "",
-                "type": str(res.type) if res.type else "",
-                "email": str(res.email_address) if res.email_address else "",
+                "id": str(res.getID()),
+                "name": str(res.getName()) if res.getName() else "",
+                "type": str(res.getType()) if res.getType() else "",
+                "email": str(res.getEmailAddress()) if res.getEmailAddress() else "",
             })
 
     def _extract_relationships(self):
         """Extract task predecessor relationships for CP chain building."""
         self.relationships = []
         try:
-            # mpxj Python: relationships are on the project, not per-task
-            relations = self.project.task_predecessors
-            if relations:
-                for rel in relations:
+            for task in self.project.getTasks():
+                if task is None or task.getID() is None:
+                    continue
+                preds = task.getPredecessors()
+                if not preds:
+                    continue
+                for pred in preds:
                     try:
-                        succ_id = str(rel.source_task.id) if rel.source_task else None
-                        pred_id = str(rel.target_task.id) if rel.target_task else None
-                        if succ_id and pred_id:
+                        pred_task = pred.getTargetTask()
+                        if pred_task and pred_task.getID() is not None:
                             self.relationships.append({
-                                "task_id": succ_id,
-                                "predecessor_task_id": pred_id,
-                                "type": str(rel.type) if rel.type else "FS",
-                                "lag": str(rel.lag) if rel.lag else "0",
+                                "task_id": str(task.getID()),
+                                "predecessor_task_id": str(pred_task.getID()),
+                                "type": str(pred.getType()) if pred.getType() else "FS",
+                                "lag": str(pred.getLag()) if pred.getLag() else "0",
                             })
                     except Exception:
                         continue
-        except AttributeError:
-            # Fallback: iterate tasks and check predecessors attribute
-            try:
-                for task in self.project.tasks:
-                    if task is None or task.id is None:
-                        continue
-                    preds = getattr(task, 'predecessors', None)
-                    if not preds:
-                        continue
-                    for pred in preds:
-                        try:
-                            pred_task = getattr(pred, 'task', None) or getattr(pred, 'predecessor_task', None)
-                            if pred_task:
-                                self.relationships.append({
-                                    "task_id": str(task.id),
-                                    "predecessor_task_id": str(pred_task.id),
-                                    "type": str(getattr(pred, 'type', 'FS')),
-                                    "lag": str(getattr(pred, 'lag', '0')),
-                                })
-                        except Exception:
-                            continue
-            except Exception as e:
-                logger.warning(f"Fallback relationship extraction failed: {e}")
         except Exception as e:
             logger.warning(f"Could not extract relationships: {e}")
 
