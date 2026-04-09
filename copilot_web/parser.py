@@ -1,5 +1,4 @@
 import pandas as pd
-from xerparser import Xer
 from typing import Dict, Any, List, Optional
 import logging
 import io
@@ -29,6 +28,12 @@ class P6Parser:
 
     def _load_data(self):
         """Parse XER and load tables into Pandas DataFrames with type enforcement."""
+        try:
+            from xerparser import Xer
+        except ImportError:
+            raise ImportError(
+                "xerparser is not installed. Run: pip install xerparser"
+            )
         logger.info(f"Parsing XER file: {self.xer_path}")
         
         try:
