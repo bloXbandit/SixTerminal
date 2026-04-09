@@ -10,7 +10,20 @@ from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
 
-TRACKER_PATH = os.path.join(os.path.dirname(__file__), "..", "Project tracker1.csv")
+def _find_tracker() -> str:
+    """Locate Project tracker1.csv — works locally (../root) and on Render (/app root)."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(here, "Project tracker1.csv"),          # co-located in copilot_web/
+        os.path.join(here, "..", "Project tracker1.csv"),    # repo root (local dev)
+        os.path.join("/app", "Project tracker1.csv"),        # Render /app root
+    ]
+    for p in candidates:
+        if os.path.exists(os.path.normpath(p)):
+            return os.path.normpath(p)
+    return candidates[0]  # fallback — will warn on load
+
+TRACKER_PATH = _find_tracker()
 
 _tracker_cache: Dict[str, dict] = {}
 

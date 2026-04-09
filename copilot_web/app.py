@@ -120,9 +120,9 @@ except ImportError:
 
 MPP_AVAILABLE = False
 try:
-    _src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
-    if _src_path not in sys.path:
-        sys.path.insert(0, _src_path)
+    _here = os.path.dirname(os.path.abspath(__file__))
+    if _here not in sys.path:
+        sys.path.insert(0, _here)
     from mpp_parser import MPPParser
     MPP_AVAILABLE = True
     logger.info("MPP parser loaded successfully.")

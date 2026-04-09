@@ -20,17 +20,17 @@ _project_meta: Dict[str, dict] = {}
 
 
 def _get_mpp_parser():
-    src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
-    if src_path not in sys.path:
-        sys.path.insert(0, src_path)
+    here = os.path.dirname(os.path.abspath(__file__))
+    if here not in sys.path:
+        sys.path.insert(0, here)
     from mpp_parser import MPPParser
     return MPPParser
 
 
 def _get_xer_parser():
-    src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
-    if src_path not in sys.path:
-        sys.path.insert(0, src_path)
+    here = os.path.dirname(os.path.abspath(__file__))
+    if here not in sys.path:
+        sys.path.insert(0, here)
     from parser import P6Parser
     return P6Parser
 
@@ -249,9 +249,9 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     # --- Compute variance between current and previous ---
     if previous_data and current_data.get("tasks") and previous_data.get("tasks"):
         try:
-            src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
-            if src_path not in sys.path:
-                sys.path.insert(0, src_path)
+            here = os.path.dirname(os.path.abspath(__file__))
+            if here not in sys.path:
+                sys.path.insert(0, here)
             from variance_engine import compute_variance, format_variance_for_context
             variance = compute_variance(
                 current_tasks=current_data["tasks"],
@@ -277,9 +277,6 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             # Compute drift variance using the already-parsed baseline tasks
             if current_data.get("tasks") and baseline_data.get("tasks"):
                 try:
-                    src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
-                    if src_path not in sys.path:
-                        sys.path.insert(0, src_path)
                     from variance_engine import compute_variance, format_variance_for_context
                     drift = compute_variance(
                         current_tasks=current_data["tasks"],

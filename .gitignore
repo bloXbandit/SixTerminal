@@ -18,6 +18,9 @@ __pycache__/
 !copilot_web/projects/**/*.mpp
 !copilot_web/projects/**/*.pdf
 
+# Allow project tracker CSV in copilot_web
+!copilot_web/Project tracker1.csv
+
 # Configuration (contains API keys)
 config.json
 
