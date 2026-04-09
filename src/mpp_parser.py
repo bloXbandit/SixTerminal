@@ -41,8 +41,10 @@ class MPPParser:
         self.project = None
         self.tasks: List[Dict[str, Any]] = []
         self.resources: List[Dict[str, Any]] = []
+        self.relationships: List[Dict[str, Any]] = []
         self.project_metadata: Dict[str, Any] = {}
         self._llm_context_cache: Optional[str] = None
+        self._cp_chain: Optional[Dict] = None
 
         self._load()
 
@@ -64,6 +66,8 @@ class MPPParser:
             self._extract_metadata()
             self._extract_tasks()
             self._extract_resources()
+            self._extract_relationships()
+            self._build_cp_chain()
             logger.info(f"Parsed {len(self.tasks)} tasks from {self.file_path}")
         except Exception as e:
             logger.error(f"Failed to parse file: {e}")
@@ -132,6 +136,41 @@ class MPPParser:
                 "email": str(res.email_address) if res.email_address else "",
             })
 
+    def _extract_relationships(self):
+        """Extract task predecessor relationships for CP chain building."""
+        self.relationships = []
+        try:
+            for task in self.project.tasks:
+                if task is None or task.id is None:
+                    continue
+                preds = task.predecessors
+                if not preds:
+                    continue
+                for pred in preds:
+                    self.relationships.append({
+                        "task_id": str(task.id),
+                        "predecessor_task_id": str(pred.task.id) if pred.task else None,
+                        "type": str(pred.type) if pred.type else "FS",
+                        "lag": str(pred.lag) if pred.lag else "0",
+                    })
+        except Exception as e:
+            logger.warning(f"Could not extract relationships: {e}")
+
+    def _build_cp_chain(self):
+        """Build the critical path chain from contract completion backwards."""
+        try:
+            from critical_path import build_critical_chain
+            critical_ids = {str(t["id"]) for t in self.tasks if t.get("critical")}
+            self._cp_chain = build_critical_chain(
+                tasks=self.tasks,
+                relationships=self.relationships,
+                target_name=None,
+                critical_ids=critical_ids,
+            )
+        except Exception as e:
+            logger.warning(f"CP chain build failed: {e}")
+            self._cp_chain = None
+
     def _fmt_date(self, dt) -> str:
         """Format a Java/mpxj date object to string."""
         if dt is None:
@@ -148,6 +187,20 @@ class MPPParser:
     def get_critical_path(self) -> List[Dict[str, Any]]:
         """Return only critical path tasks."""
         return [t for t in self.tasks if t["critical"]]
+
+    def get_critical_chain(self, target_name: Optional[str] = None) -> Dict:
+        """Build and return CP chain for any target activity (or full project CP)."""
+        try:
+            from critical_path import build_critical_chain
+            critical_ids = {str(t["id"]) for t in self.tasks if t.get("critical")}
+            return build_critical_chain(
+                tasks=self.tasks,
+                relationships=self.relationships,
+                target_name=target_name,
+                critical_ids=critical_ids,
+            )
+        except Exception as e:
+            return {"error": str(e)}
 
     def get_summary_tasks(self) -> List[Dict[str, Any]]:
         """Return only WBS summary tasks."""
@@ -195,7 +248,14 @@ class MPPParser:
                 lines.append(f"    Baseline: {baseline} | Forecast: {forecast} | Status: {status}")
             lines.append("")
 
-        if critical:
+        if self._cp_chain and not self._cp_chain.get("error"):
+            try:
+                from critical_path import format_chain_for_context
+                lines.append(format_chain_for_context(self._cp_chain))
+                lines.append("")
+            except Exception:
+                pass
+        elif critical:
             lines.append(f"CRITICAL PATH ({len(critical)} tasks):")
             for t in critical[:20]:
                 if not t["summary"]:
@@ -233,8 +293,10 @@ class MPPParser:
             "metadata": self.project_metadata,
             "tasks": self.tasks,
             "resources": self.resources,
+            "relationships": self.relationships,
             "milestones": self.get_milestones(),
             "critical_path": self.get_critical_path(),
+            "cp_chain": self._cp_chain,
         }
 
 

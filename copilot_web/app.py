@@ -33,7 +33,14 @@ IMPORTANT INSTRUCTIONS FOR PROJECT DATA:
 - When asked about the current update number or submission status for a project, answer cleanly and directly using the PROJECT TRACKER context. Example: "Anaheim is currently on Update 03 (data date: 3/24/2026, received 3/20/2026)."
 - Always use the PROJECT TRACKER data dates as authoritative. Do not use data dates from MPP/XER/XML files if they conflict with the tracker.
 - Use standardized milestone names from the STANDARDIZED MILESTONES list in all responses. Correlate to schedule activity names internally but never expose raw activity IDs unless asked.
-- Do not dump raw tracker history, schedule data, or PDF content unprompted. Use it internally for accuracy and only surface specific details when the user asks."""
+- Do not dump raw tracker history, schedule data, or PDF content unprompted. Use it internally for accuracy and only surface specific details when the user asks.
+
+CRITICAL PATH NARRATION RULES:
+- When asked about the critical path, use the FULL PROJECT CRITICAL PATH chain provided in the schedule context. Narrate it as a seasoned project engineer would — describing the logical flow of work from the earliest driver through to contract completion. Be concise. Example format: "The critical path is driven by [earliest activity], progressing through [mid-chain work], advancing into [later phase], and culminating in [contract completion milestone]."
+- When asked about the critical path TO a specific activity, use the NARRATIVE BASE provided and expand it professionally. Example format: "Completion of [activity] is driven by [predecessor], which depends on [earlier work], tracing back to [root driver]."
+- Never list raw activity IDs. Use activity names only, grouped logically by phase where possible.
+- If no schedule file is loaded, say so clearly rather than guessing.
+- Keep CP narratives to 2-4 sentences. Do not over-explain."""
 
 SCRAPER_AVAILABLE = False
 try:

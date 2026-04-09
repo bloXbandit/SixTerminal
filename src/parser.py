@@ -23,6 +23,7 @@ class P6Parser:
         self.df_wbs = None
         self.project_metadata = {}  # Store project-level data
         self._llm_context_cache = None  # Cache for expensive context building
+        self._cp_chain = None  # Critical path chain built at load time
         
         self._load_data()
 
@@ -141,6 +142,7 @@ class P6Parser:
                 logger.info(f"Data Date: {self.project_metadata['data_date']}")
                 
             logger.info("XER Parsing Complete. Data loaded into memory.")
+            self._build_cp_chain()
             
         except Exception as e:
             logger.error(f"Failed to parse XER: {str(e)}")
@@ -157,6 +159,86 @@ class P6Parser:
         for col in date_cols:
             if col in self.df_activities.columns:
                 self.df_activities[col] = pd.to_datetime(self.df_activities[col], errors='coerce')
+
+    def _build_cp_chain(self):
+        """Build critical path chain from zero-float activities and relationship network."""
+        try:
+            from critical_path import build_critical_chain
+            if self.df_activities is None or self.df_activities.empty:
+                return
+
+            # Normalize tasks to standard dict format
+            tasks = []
+            for _, row in self.df_activities.iterrows():
+                tasks.append({
+                    "id": str(row.get("task_id", "")),
+                    "name": str(row.get("task_name", "")),
+                    "milestone": str(row.get("task_type", "")).upper() in ("TT_Mile", "TT_MILE", "MILESTONE"),
+                    "summary": str(row.get("task_type", "")).upper() in ("TT_WBS", "WBS_SUMMARY"),
+                    "percent_complete": float(row.get("complete_pct", 0) or 0),
+                    "critical": float(row.get("total_float_hr_cnt", 1) or 1) <= 0,
+                    "finish": str(row.get("early_end_date") or row.get("target_end_date") or "")[:10],
+                    "start": str(row.get("early_start_date") or row.get("target_start_date") or "")[:10],
+                    "total_float": float(row.get("total_float_hr_cnt", 0) or 0),
+                })
+
+            # Normalize relationships to standard format
+            rels = []
+            if self.df_relationships is not None and not self.df_relationships.empty:
+                for _, row in self.df_relationships.iterrows():
+                    rels.append({
+                        "task_id": str(row.get("task_id", "")),
+                        "predecessor_task_id": str(row.get("pred_task_id", "")),
+                    })
+
+            critical_ids = {t["id"] for t in tasks if t["critical"]}
+            self._cp_chain = build_critical_chain(
+                tasks=tasks,
+                relationships=rels,
+                target_name=None,
+                critical_ids=critical_ids,
+            )
+        except Exception as e:
+            logger.warning(f"XER CP chain build failed: {e}")
+            self._cp_chain = None
+
+    def get_critical_chain(self, target_name: Optional[str] = None) -> Dict:
+        """Build and return CP chain for any target activity (or full project CP)."""
+        try:
+            from critical_path import build_critical_chain
+            if self.df_activities is None or self.df_activities.empty:
+                return {"error": "No activities loaded"}
+
+            tasks = []
+            for _, row in self.df_activities.iterrows():
+                tasks.append({
+                    "id": str(row.get("task_id", "")),
+                    "name": str(row.get("task_name", "")),
+                    "milestone": str(row.get("task_type", "")).upper() in ("TT_Mile", "TT_MILE", "MILESTONE"),
+                    "summary": str(row.get("task_type", "")).upper() in ("TT_WBS", "WBS_SUMMARY"),
+                    "percent_complete": float(row.get("complete_pct", 0) or 0),
+                    "critical": float(row.get("total_float_hr_cnt", 1) or 1) <= 0,
+                    "finish": str(row.get("early_end_date") or row.get("target_end_date") or "")[:10],
+                    "start": str(row.get("early_start_date") or row.get("target_start_date") or "")[:10],
+                })
+
+            rels = []
+            if self.df_relationships is not None and not self.df_relationships.empty:
+                for _, row in self.df_relationships.iterrows():
+                    rels.append({
+                        "task_id": str(row.get("task_id", "")),
+                        "predecessor_task_id": str(row.get("pred_task_id", "")),
+                    })
+
+            critical_ids = {t["id"] for t in tasks if t["critical"]}
+            return build_critical_chain(
+                tasks=tasks,
+                relationships=rels,
+                target_name=target_name,
+                critical_ids=critical_ids,
+            )
+        except Exception as e:
+            return {"error": str(e)}
 
     def get_activities(self) -> pd.DataFrame:
         """Return the raw activities dataframe."""
@@ -238,6 +320,20 @@ class P6Parser:
         else:
             data_date_str = "Unknown"
 
+        critical_count = int(
+            len(self.df_activities[self.df_activities['total_float_hr_cnt'] <= 0])
+            if 'total_float_hr_cnt' in self.df_activities.columns else 0
+        )
+
+        # Build CP chain context block
+        cp_context = ""
+        if self._cp_chain and not self._cp_chain.get("error"):
+            try:
+                from critical_path import format_chain_for_context
+                cp_context = format_chain_for_context(self._cp_chain)
+            except Exception:
+                pass
+
         context = {
             "project_info": {
                 "name": self.project_metadata.get('project_name', 'Unnamed Project'),
@@ -252,11 +348,12 @@ class P6Parser:
                 "not_started": not_started,
                 "percent_complete": f"{(completed / total_tasks * 100):.1f}%" if total_tasks > 0 else "0%"
             },
-            "wbs_phases": wbs_summary,  # Now limited to top 10 nodes
+            "wbs_phases": wbs_summary,
             "critical_stats": {
-                "critical_count": len(self.df_activities[self.df_activities['total_float_hr_cnt'] <= 0]) if 'total_float_hr_cnt' in self.df_activities.columns else 0
+                "critical_count": critical_count
             },
-            "dcma_metrics": dcma_metrics  # NEW: DCMA 14-point indicators
+            "dcma_metrics": dcma_metrics,
+            "cp_chain_context": cp_context,
         }
         
         # Cache the context for future queries
