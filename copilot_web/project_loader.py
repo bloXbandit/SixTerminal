@@ -145,6 +145,9 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
             cp_ctx = ctx.get("cp_chain_context", "")
             if cp_ctx:
                 lines += ["", cp_ctx]
+            nc_ctx = ctx.get("near_critical_context", "")
+            if nc_ctx:
+                lines += ["", nc_ctx]
             return {"raw_context": "\n".join(lines), "source": os.path.basename(filepath)}
 
     except Exception as e:

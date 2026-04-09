@@ -140,19 +140,45 @@ class MPPParser:
         """Extract task predecessor relationships for CP chain building."""
         self.relationships = []
         try:
-            for task in self.project.tasks:
-                if task is None or task.id is None:
-                    continue
-                preds = task.predecessors
-                if not preds:
-                    continue
-                for pred in preds:
-                    self.relationships.append({
-                        "task_id": str(task.id),
-                        "predecessor_task_id": str(pred.task.id) if pred.task else None,
-                        "type": str(pred.type) if pred.type else "FS",
-                        "lag": str(pred.lag) if pred.lag else "0",
-                    })
+            # mpxj Python: relationships are on the project, not per-task
+            relations = self.project.task_predecessors
+            if relations:
+                for rel in relations:
+                    try:
+                        succ_id = str(rel.source_task.id) if rel.source_task else None
+                        pred_id = str(rel.target_task.id) if rel.target_task else None
+                        if succ_id and pred_id:
+                            self.relationships.append({
+                                "task_id": succ_id,
+                                "predecessor_task_id": pred_id,
+                                "type": str(rel.type) if rel.type else "FS",
+                                "lag": str(rel.lag) if rel.lag else "0",
+                            })
+                    except Exception:
+                        continue
+        except AttributeError:
+            # Fallback: iterate tasks and check predecessors attribute
+            try:
+                for task in self.project.tasks:
+                    if task is None or task.id is None:
+                        continue
+                    preds = getattr(task, 'predecessors', None)
+                    if not preds:
+                        continue
+                    for pred in preds:
+                        try:
+                            pred_task = getattr(pred, 'task', None) or getattr(pred, 'predecessor_task', None)
+                            if pred_task:
+                                self.relationships.append({
+                                    "task_id": str(task.id),
+                                    "predecessor_task_id": str(pred_task.id),
+                                    "type": str(getattr(pred, 'type', 'FS')),
+                                    "lag": str(getattr(pred, 'lag', '0')),
+                                })
+                        except Exception:
+                            continue
+            except Exception as e:
+                logger.warning(f"Fallback relationship extraction failed: {e}")
         except Exception as e:
             logger.warning(f"Could not extract relationships: {e}")
 
@@ -179,6 +205,25 @@ class MPPParser:
             return str(dt)[:10]
         except Exception:
             return ""
+
+    def _slack_days(self, slack_str: str) -> Optional[float]:
+        """Parse mpxj duration string to days. Returns None if unparseable."""
+        if not slack_str:
+            return None
+        try:
+            s = str(slack_str).lower().strip()
+            # mpxj formats: '5.0d', '40.0h', '5 days', '0.0d'
+            import re
+            m = re.match(r'([\d.]+)\s*([dh]?)', s)
+            if m:
+                val = float(m.group(1))
+                unit = m.group(2)
+                if unit == 'h':
+                    return round(val / 8.0, 1)
+                return round(val, 1)
+        except Exception:
+            pass
+        return None
 
     def get_milestones(self) -> List[Dict[str, Any]]:
         """Return only milestone tasks."""
@@ -246,6 +291,26 @@ class MPPParser:
                 forecast = m["finish"] or m["start"] or "—"
                 lines.append(f"  - {m['name']}")
                 lines.append(f"    Baseline: {baseline} | Forecast: {forecast} | Status: {status}")
+            lines.append("")
+
+        # Near-critical: total_slack > 0 but <= 10 working days, not summary, not complete
+        near_critical = [
+            t for t in self.tasks
+            if not t["critical"]
+            and not t["summary"]
+            and t["percent_complete"] < 100
+            and t["total_slack"] not in ("", None)
+            and self._slack_days(t["total_slack"]) is not None
+            and 0 < self._slack_days(t["total_slack"]) <= 10
+        ]
+        if near_critical:
+            near_critical.sort(key=lambda t: self._slack_days(t["total_slack"]) or 99)
+            lines.append(f"NEAR-CRITICAL ACTIVITIES (0 < float ≤ 10 days, {len(near_critical)} total):")
+            for t in near_critical[:15]:
+                days = self._slack_days(t["total_slack"])
+                lines.append(f"  - {t['name']} | Float: {days}d | Finish: {t['finish']}")
+            if len(near_critical) > 15:
+                lines.append(f"  ... +{len(near_critical) - 15} more near-critical")
             lines.append("")
 
         if self._cp_chain and not self._cp_chain.get("error"):

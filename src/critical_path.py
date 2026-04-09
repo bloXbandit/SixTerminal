@@ -18,9 +18,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 CONTRACT_KEYWORDS = [
-    "certificate of occupancy", "co ", " co", "substantial completion",
-    "turnover", "contract complete", "project complete", "final completion",
-    "beneficial occupancy", "punch list complete", "final inspection",
+    "certificate of occupancy",
+    "substantial completion",
+    "turnover",
+    "contract complete",
+    "project complete",
+    "final completion",
+    "beneficial occupancy",
+    "punch list complete",
+    "final inspection",
+    "owner acceptance",
+    "project closeout",
 ]
 
 
@@ -64,7 +72,7 @@ def _find_target_task(tasks: List[Dict], target_name: Optional[str] = None) -> O
     incomplete = [t for t in tasks if t.get("percent_complete", 0) < 100]
     if incomplete:
         def sort_key(t):
-            return t.get("finish") or t.get("early_end") or ""
+            return t.get("finish") or t.get("target_end_date") or ""
         return max(incomplete, key=sort_key)
     return None
 
@@ -126,7 +134,7 @@ def _walk_predecessors(
 
         def pred_sort_key(pid):
             t = task_lookup.get(pid, {})
-            return t.get("finish") or t.get("early_end") or t.get("target_end_date") or ""
+            return t.get("finish") or t.get("target_end_date") or ""
 
         current_id = max(candidates, key=pred_sort_key)
 

@@ -170,17 +170,7 @@ class P6Parser:
             # Normalize tasks to standard dict format
             tasks = []
             for _, row in self.df_activities.iterrows():
-                tasks.append({
-                    "id": str(row.get("task_id", "")),
-                    "name": str(row.get("task_name", "")),
-                    "milestone": str(row.get("task_type", "")).upper() in ("TT_Mile", "TT_MILE", "MILESTONE"),
-                    "summary": str(row.get("task_type", "")).upper() in ("TT_WBS", "WBS_SUMMARY"),
-                    "percent_complete": float(row.get("complete_pct", 0) or 0),
-                    "critical": float(row.get("total_float_hr_cnt", 1) or 1) <= 0,
-                    "finish": str(row.get("early_end_date") or row.get("target_end_date") or "")[:10],
-                    "start": str(row.get("early_start_date") or row.get("target_start_date") or "")[:10],
-                    "total_float": float(row.get("total_float_hr_cnt", 0) or 0),
-                })
+                tasks.append(self._normalize_task_row(row))
 
             # Normalize relationships to standard format
             rels = []
@@ -202,6 +192,26 @@ class P6Parser:
             logger.warning(f"XER CP chain build failed: {e}")
             self._cp_chain = None
 
+    def _normalize_task_row(self, row) -> Dict:
+        """Normalize a df_activities row to a standard task dict for CP engine."""
+        task_type_raw = str(row.get("task_type", "") or "").strip()
+        task_type_lo = task_type_raw.lower()
+        is_milestone = task_type_lo in ("tt_mile", "milestone", "tt_finishmile")
+        is_summary   = task_type_lo in ("tt_wbs", "wbs_summary", "tt_rsrc")
+        float_hrs = float(row.get("total_float_hr_cnt", 1) or 1)
+        return {
+            "id": str(row.get("task_id", "")),
+            "name": str(row.get("task_name", "") or ""),
+            "milestone": is_milestone,
+            "summary": is_summary,
+            "percent_complete": float(row.get("complete_pct", 0) or 0),
+            "critical": float_hrs <= 0,
+            "near_critical": 0 < float_hrs <= 80,  # 80h = 10 working days
+            "total_float_hrs": float_hrs,
+            "finish": str(row.get("early_end_date") or row.get("target_end_date") or "")[:10],
+            "start": str(row.get("early_start_date") or row.get("target_start_date") or "")[:10],
+        }
+
     def get_critical_chain(self, target_name: Optional[str] = None) -> Dict:
         """Build and return CP chain for any target activity (or full project CP)."""
         try:
@@ -209,18 +219,7 @@ class P6Parser:
             if self.df_activities is None or self.df_activities.empty:
                 return {"error": "No activities loaded"}
 
-            tasks = []
-            for _, row in self.df_activities.iterrows():
-                tasks.append({
-                    "id": str(row.get("task_id", "")),
-                    "name": str(row.get("task_name", "")),
-                    "milestone": str(row.get("task_type", "")).upper() in ("TT_Mile", "TT_MILE", "MILESTONE"),
-                    "summary": str(row.get("task_type", "")).upper() in ("TT_WBS", "WBS_SUMMARY"),
-                    "percent_complete": float(row.get("complete_pct", 0) or 0),
-                    "critical": float(row.get("total_float_hr_cnt", 1) or 1) <= 0,
-                    "finish": str(row.get("early_end_date") or row.get("target_end_date") or "")[:10],
-                    "start": str(row.get("early_start_date") or row.get("target_start_date") or "")[:10],
-                })
+            tasks = [self._normalize_task_row(row) for _, row in self.df_activities.iterrows()]
 
             rels = []
             if self.df_relationships is not None and not self.df_relationships.empty:
@@ -229,7 +228,6 @@ class P6Parser:
                         "task_id": str(row.get("task_id", "")),
                         "predecessor_task_id": str(row.get("pred_task_id", "")),
                     })
-
             critical_ids = {t["id"] for t in tasks if t["critical"]}
             return build_critical_chain(
                 tasks=tasks,
@@ -325,6 +323,24 @@ class P6Parser:
             if 'total_float_hr_cnt' in self.df_activities.columns else 0
         )
 
+        # Near-critical: 0 < float <= 80h (10 working days), not WBS summary
+        near_critical_list = []
+        if 'total_float_hr_cnt' in self.df_activities.columns:
+            nc_df = self.df_activities[
+                (self.df_activities['total_float_hr_cnt'] > 0) &
+                (self.df_activities['total_float_hr_cnt'] <= 80)
+            ].copy()
+            # Filter out WBS summaries
+            if 'task_type' in nc_df.columns:
+                nc_df = nc_df[~nc_df['task_type'].str.lower().isin(['tt_wbs', 'wbs_summary', 'tt_rsrc'])]
+            nc_df = nc_df.sort_values('total_float_hr_cnt')
+            for _, r in nc_df.head(15).iterrows():
+                float_days = round(float(r['total_float_hr_cnt']) / 8.0, 1)
+                finish = str(r.get('early_end_date') or r.get('target_end_date') or '')[:10]
+                near_critical_list.append(
+                    f"  - {r.get('task_name', 'Unknown')} | Float: {float_days}d | Finish: {finish}"
+                )
+
         # Build CP chain context block
         cp_context = ""
         if self._cp_chain and not self._cp_chain.get("error"):
@@ -354,6 +370,10 @@ class P6Parser:
             },
             "dcma_metrics": dcma_metrics,
             "cp_chain_context": cp_context,
+            "near_critical_context": (
+                f"NEAR-CRITICAL ACTIVITIES (0 < float \u2264 10 days, showing top {len(near_critical_list)}):\n"
+                + "\n".join(near_critical_list)
+            ) if near_critical_list else "",
         }
         
         # Cache the context for future queries
