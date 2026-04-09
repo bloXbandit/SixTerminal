@@ -308,7 +308,7 @@ class MPPParser:
             lines.append(f"NEAR-CRITICAL ACTIVITIES (0 < float ≤ 10 days, {len(near_critical)} total):")
             for t in near_critical[:15]:
                 days = self._slack_days(t["total_slack"])
-                lines.append(f"  - {t['name']} | Float: {days}d | Finish: {t['finish']}")
+                lines.append(f"  - {t['name']} | Float: {days} cal days | Finish: {t['finish']}")
             if len(near_critical) > 15:
                 lines.append(f"  ... +{len(near_critical) - 15} more near-critical")
             lines.append("")

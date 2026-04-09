@@ -338,7 +338,7 @@ class P6Parser:
                 float_days = round(float(r['total_float_hr_cnt']) / 8.0, 1)
                 finish = str(r.get('early_end_date') or r.get('target_end_date') or '')[:10]
                 near_critical_list.append(
-                    f"  - {r.get('task_name', 'Unknown')} | Float: {float_days}d | Finish: {finish}"
+                    f"  - {r.get('task_name', 'Unknown')} | Float: {float_days} cal days | Finish: {finish}"
                 )
 
         # Build CP chain context block

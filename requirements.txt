@@ -9,3 +9,6 @@ mpxj
 python-dateutil
 pillow>=11.0.0
 lxml_html_clean>=0.4.3
+flask>=3.0.0
+gunicorn>=21.2.0
+pdfplumber>=0.11.0
