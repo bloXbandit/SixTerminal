@@ -266,7 +266,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
         except Exception as _ve:
             logger.warning(f"[{slug}] Variance computation failed: {_ve}")
 
-    # --- Parse baseline for drift context ---
+    # --- Parse baseline once for both context display and drift variance ---
     if baseline_path and baseline_path != current_path:
         baseline_data = _parse_schedule(baseline_path)
         if baseline_data:
@@ -274,28 +274,26 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             parts.append(f"=== BASELINE SCHEDULE ({os.path.basename(baseline_path)}) ===")
             parts.append(baseline_data["raw_context"])
 
-    # --- Compute baseline drift variance ---
-    if baseline_path and baseline_path != current_path and current_data.get("tasks"):
-        try:
-            src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
-            if src_path not in sys.path:
-                sys.path.insert(0, src_path)
-            from variance_engine import compute_variance, format_variance_for_context
-            baseline_data_v = _parse_schedule(baseline_path)
-            if baseline_data_v and baseline_data_v.get("tasks"):
-                drift = compute_variance(
-                    current_tasks=current_data["tasks"],
-                    previous_tasks=baseline_data_v["tasks"],
-                    label_current=current_label.replace("_", " ").title(),
-                    label_previous="Baseline",
-                )
-                drift_ctx = format_variance_for_context(drift)
-                if drift_ctx:
-                    parts.append("")
-                    parts.append("=== BASELINE DRIFT ===")
-                    parts.append(drift_ctx)
-        except Exception as _de:
-            logger.warning(f"[{slug}] Baseline drift computation failed: {_de}")
+            # Compute drift variance using the already-parsed baseline tasks
+            if current_data.get("tasks") and baseline_data.get("tasks"):
+                try:
+                    src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+                    if src_path not in sys.path:
+                        sys.path.insert(0, src_path)
+                    from variance_engine import compute_variance, format_variance_for_context
+                    drift = compute_variance(
+                        current_tasks=current_data["tasks"],
+                        previous_tasks=baseline_data["tasks"],
+                        label_current=current_label.replace("_", " ").title(),
+                        label_previous="Baseline",
+                    )
+                    drift_ctx = format_variance_for_context(drift)
+                    if drift_ctx:
+                        parts.append("")
+                        parts.append("=== BASELINE DRIFT ===")
+                        parts.append(drift_ctx)
+                except Exception as _de:
+                    logger.warning(f"[{slug}] Baseline drift computation failed: {_de}")
 
     # --- PDF crosscheck (silent, for LLM verification only) ---
     if verify_pdf:

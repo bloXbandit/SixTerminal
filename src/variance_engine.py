@@ -25,7 +25,7 @@ PHASE_GROUPS = [
     ("Interiors",             ["drywall", "framing interior", "insulation", "finishes", "flooring", "ceiling", "painting", "paint", "millwork", "casework", "tile", "carpet", "doors", "hardware", "interior"]),
     ("MEP Finish / Trim",     ["trim out", "trim-out", "device", "fixtures", "switchgear", "startup", "start-up", "balancing", "commissioning", "controls", "bms", "fire alarm", "test and balance"]),
     ("Site Improvements",     ["site improvement", "landscaping", "irrigation", "hardscape", "fencing", "signage", "striping", "monument"]),
-    ("Inspections / Closeout",["inspection", "punch", "certificate of occupancy", "co ", "substantial completion", "turnover", "closeout", "final", "beneficial occupancy", "owner acceptance"]),
+    ("Inspections / Closeout",["inspection", "punch", "certificate of occupancy", "substantial completion", "turnover", "closeout", "final completion", "final inspection", "beneficial occupancy", "owner acceptance", "project closeout"]),
 ]
 
 DEFAULT_PHASE = "General / Other"
@@ -44,8 +44,11 @@ def _parse_date(val) -> Optional[date]:
     """Parse any date string or object to a date. Returns None on failure."""
     if val is None:
         return None
-    if isinstance(val, (datetime, date)):
-        return val if isinstance(val, date) else val.date()
+    # datetime is a subclass of date — must check datetime first
+    if isinstance(val, datetime):
+        return val.date()
+    if isinstance(val, date):
+        return val
     s = str(val).strip()[:10]
     if not s or s in ("nan", "None", "NaT", ""):
         return None
@@ -68,15 +71,26 @@ def _extract_activity_map(tasks: List[Dict]) -> Dict[str, Dict]:
     """
     Build {normalized_name: task_dict} from a task list.
     Filters out summaries and blank names.
+    Where duplicate names exist, append a counter suffix to keep both.
     """
     result = {}
+    name_count: Dict[str, int] = {}
     for t in tasks:
         name = (t.get("name") or t.get("task_name") or "").strip()
         if not name:
             continue
         if t.get("summary", False):
             continue
-        result[name.lower()] = t
+        key = name.lower()
+        if key in result:
+            # First collision — rename the existing entry with suffix :1
+            if name_count.get(key, 0) == 0:
+                result[key + ":1"] = result.pop(key)
+                name_count[key] = 1
+            name_count[key] += 1
+            result[key + f":{name_count[key]}"] = t
+        else:
+            result[key] = t
     return result
 
 
@@ -177,14 +191,24 @@ def compute_variance(
             phases[phase]["unchanged"] += 1
             continue
 
-        # Float info for context
-        curr_float = curr.get("total_slack") or curr.get("total_float_hrs")
+        # Float info for context — handle both MPP string format and XER hours float
         float_days = None
-        if curr_float is not None:
+        raw_float = curr.get("total_slack") or curr.get("total_float_hrs")
+        if raw_float is not None and raw_float != "":
             try:
-                f = float(str(curr_float).split()[0])
-                # If it looks like hours (large number), convert
-                float_days = round(f / 8.0, 1) if f > 60 else round(f, 1)
+                import re as _re
+                s_f = str(raw_float).strip().lower()
+                m_f = _re.match(r'([\d.]+)\s*([dh]?)', s_f)
+                if m_f:
+                    fval = float(m_f.group(1))
+                    unit = m_f.group(2)
+                    if unit == 'h':
+                        float_days = round(fval / 8.0, 1)  # hours → days
+                    elif unit == 'd':
+                        float_days = round(fval, 1)         # already days
+                    else:
+                        # No unit — if value looks like hours (>60), convert
+                        float_days = round(fval / 8.0, 1) if fval > 60 else round(fval, 1)
             except Exception:
                 pass
 
@@ -261,14 +285,14 @@ def _detect_anomalies(phases: Dict, max_slip: int, max_slip_act: str) -> List[st
         critical_slips = [s for s in slipped if s["critical"] and (s["float_days"] or 0) < 5]
         for s in critical_slips[:3]:
             flags.append(
-                f"CRITICAL SLIP: '{s['name']}' ({phase}) slipped {s['finish_delta']}d with near-zero float — likely driving project completion."
+                f"CRITICAL SLIP: '{s['name']}' ({phase}) slipped {s['finish_delta']} calendar days with near-zero float \u2014 likely driving project completion."
             )
 
         # Large slip offset by float — recoverable
         buffered_slips = [s for s in slipped if (s["float_days"] or 0) >= s["finish_delta"] and s["finish_delta"] > 5]
         for s in buffered_slips[:2]:
             flags.append(
-                f"FLOAT-BUFFERED: '{s['name']}' ({phase}) slipped {s['finish_delta']}d but has {s['float_days']}d float — may not affect completion."
+                f"FLOAT-BUFFERED: '{s['name']}' ({phase}) slipped {s['finish_delta']} calendar days but has {s['float_days']} calendar days float \u2014 may not affect completion."
             )
 
         # Systemic movement — 3+ activities in same phase all moved same direction
@@ -276,7 +300,7 @@ def _detect_anomalies(phases: Dict, max_slip: int, max_slip_act: str) -> List[st
             avg_slip = sum(s["finish_delta"] for s in slipped) / len(slipped)
             if avg_slip >= 7:
                 flags.append(
-                    f"SYSTEMIC SLIP: {len(slipped)} activities in '{phase}' averaged {avg_slip:.0f}d slip — likely a phase-level driver, not isolated."
+                    f"SYSTEMIC SLIP: {len(slipped)} activities in '{phase}' averaged {avg_slip:.0f} calendar days slip \u2014 likely a phase-level driver, not isolated."
                 )
 
         # Early-phase slip propagating forward
@@ -286,7 +310,7 @@ def _detect_anomalies(phases: Dict, max_slip: int, max_slip_act: str) -> List[st
             for lp in late_phases:
                 if phases.get(lp, {}).get("slipped"):
                     flags.append(
-                        f"PROPAGATION: Slip in '{phase}' may be driving downstream movement in '{lp}' — trace source before reporting."
+                        f"PROPAGATION: Slip in '{phase}' may be driving downstream movement in '{lp}' \u2014 trace source before reporting."
                     )
                     break
 
