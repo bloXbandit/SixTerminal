@@ -62,6 +62,14 @@ except Exception as _pe:
     def list_projects(): return []
     def has_schedule(slug): return False
 
+try:
+    from tracker_loader import load_tracker
+    load_tracker()
+    logger.info("Project tracker loaded.")
+except Exception as _te:
+    logger.warning(f"Tracker loader not available: {_te}")
+    def load_tracker(): pass
+
 
 def _parse_uploaded_file(filepath: str, filename: str) -> str:
     """Parse an uploaded schedule file and return a context string for the Copilot."""

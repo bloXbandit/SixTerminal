@@ -285,6 +285,16 @@ def get_project_context(slug: str, page: Optional[str] = None) -> str:
         parts.append(f"CURRENT PAGE VIEW: {page}")
         parts.append(_page_hint(page))
 
+    # Authoritative tracker data (data dates, update history) — injected first
+    try:
+        from tracker_loader import get_tracker_context
+        tracker_ctx = get_tracker_context(slug)
+        if tracker_ctx:
+            parts.append("")
+            parts.append(tracker_ctx)
+    except Exception:
+        pass
+
     milestone_ctx = _load_milestone_map(slug)
     if milestone_ctx:
         parts.append("")
