@@ -107,8 +107,8 @@ def _find_versioned_files(project_path: str) -> dict:
 def _parse_schedule(filepath: str) -> Optional[dict]:
     """
     Parse any schedule file (mpp/xml/xer) and return a normalized dict:
-    { name, data_date, total, completed, in_progress, not_started, pct_complete,
-      milestones: [{name, finish}], raw_context }
+    { raw_context: str, source: str, tasks: List[Dict] }
+    tasks is used by the variance engine for delta computation.
     """
     ext = os.path.splitext(filepath)[1].lower()
 
@@ -117,7 +117,11 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
             MPPParser = _get_mpp_parser()
             p = MPPParser(filepath)
             raw = p.get_llm_context()
-            return {"raw_context": raw, "source": os.path.basename(filepath)}
+            return {
+                "raw_context": raw,
+                "source": os.path.basename(filepath),
+                "tasks": p.tasks,
+            }
 
         elif ext == ".xer":
             P6Parser = _get_xer_parser()
@@ -148,7 +152,16 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
             nc_ctx = ctx.get("near_critical_context", "")
             if nc_ctx:
                 lines += ["", nc_ctx]
-            return {"raw_context": "\n".join(lines), "source": os.path.basename(filepath)}
+            # Normalize XER rows into task dicts for variance engine
+            xer_tasks = []
+            if p.df_activities is not None and not p.df_activities.empty:
+                for _, row in p.df_activities.iterrows():
+                    xer_tasks.append(p._normalize_task_row(row))
+            return {
+                "raw_context": "\n".join(lines),
+                "source": os.path.basename(filepath),
+                "tasks": xer_tasks,
+            }
 
     except Exception as e:
         logger.error(f"Parse failed for {filepath}: {e}")
@@ -224,13 +237,34 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     parts.append("=== CURRENT SCHEDULE ===")
     parts.append(current_data["raw_context"])
 
-    # --- Parse previous for delta context ---
+    # --- Parse previous for delta context + variance ---
+    previous_data = None
     if previous_path:
         previous_data = _parse_schedule(previous_path)
         if previous_data:
             parts.append("")
             parts.append(f"=== PREVIOUS SCHEDULE ({os.path.basename(previous_path)}) ===")
             parts.append(previous_data["raw_context"])
+
+    # --- Compute variance between current and previous ---
+    if previous_data and current_data.get("tasks") and previous_data.get("tasks"):
+        try:
+            src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+            if src_path not in sys.path:
+                sys.path.insert(0, src_path)
+            from variance_engine import compute_variance, format_variance_for_context
+            variance = compute_variance(
+                current_tasks=current_data["tasks"],
+                previous_tasks=previous_data["tasks"],
+                label_current=current_label.replace("_", " ").title(),
+                label_previous=os.path.splitext(os.path.basename(previous_path))[0].replace("_", " ").title(),
+            )
+            variance_ctx = format_variance_for_context(variance)
+            if variance_ctx:
+                parts.append("")
+                parts.append(variance_ctx)
+        except Exception as _ve:
+            logger.warning(f"[{slug}] Variance computation failed: {_ve}")
 
     # --- Parse baseline for drift context ---
     if baseline_path and baseline_path != current_path:
@@ -239,6 +273,29 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             parts.append("")
             parts.append(f"=== BASELINE SCHEDULE ({os.path.basename(baseline_path)}) ===")
             parts.append(baseline_data["raw_context"])
+
+    # --- Compute baseline drift variance ---
+    if baseline_path and baseline_path != current_path and current_data.get("tasks"):
+        try:
+            src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+            if src_path not in sys.path:
+                sys.path.insert(0, src_path)
+            from variance_engine import compute_variance, format_variance_for_context
+            baseline_data_v = _parse_schedule(baseline_path)
+            if baseline_data_v and baseline_data_v.get("tasks"):
+                drift = compute_variance(
+                    current_tasks=current_data["tasks"],
+                    previous_tasks=baseline_data_v["tasks"],
+                    label_current=current_label.replace("_", " ").title(),
+                    label_previous="Baseline",
+                )
+                drift_ctx = format_variance_for_context(drift)
+                if drift_ctx:
+                    parts.append("")
+                    parts.append("=== BASELINE DRIFT ===")
+                    parts.append(drift_ctx)
+        except Exception as _de:
+            logger.warning(f"[{slug}] Baseline drift computation failed: {_de}")
 
     # --- PDF crosscheck (silent, for LLM verification only) ---
     if verify_pdf:
