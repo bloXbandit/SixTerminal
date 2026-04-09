@@ -487,6 +487,38 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                 except Exception as _de:
                     logger.warning(f"[{slug}] Baseline drift computation failed: {_de}")
 
+    # --- Schedule risk diagnostics ---
+    try:
+        from risk_engine import run_risk_diagnostics, format_risk_for_context
+        _data_date = None
+        try:
+            from tracker_loader import get_tracker_context
+            _tc = get_tracker_context(slug)
+            if _tc:
+                import re as _re2
+                _ddm = _re2.search(r'Data Date[:\s]+(\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{4})', _tc)
+                if _ddm:
+                    from datetime import datetime as _dt
+                    for _fmt in ("%Y-%m-%d", "%m/%d/%Y"):
+                        try:
+                            _data_date = _dt.strptime(_ddm.group(1), _fmt).date()
+                            break
+                        except Exception:
+                            pass
+        except Exception:
+            pass
+        risk = run_risk_diagnostics(
+            tasks=current_data.get("tasks", []),
+            relationships=current_data.get("relationships", []),
+            data_date=_data_date,
+        )
+        risk_ctx = format_risk_for_context(risk)
+        if risk_ctx:
+            parts.append("")
+            parts.append(risk_ctx)
+    except Exception as _re:
+        logger.warning(f"[{slug}] Risk diagnostics failed: {_re}")
+
     # --- PDF crosscheck (silent, for LLM verification only) ---
     if verify_pdf:
         pdf_lines = _extract_pdf_milestones(verify_pdf)
