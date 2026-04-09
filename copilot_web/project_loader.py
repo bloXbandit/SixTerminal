@@ -268,7 +268,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             here = os.path.dirname(os.path.abspath(__file__))
             if here not in sys.path:
                 sys.path.insert(0, here)
-            from variance_engine import compute_variance, format_variance_for_context
+            from variance_engine import compute_variance, format_variance_for_context, compute_compression
             variance = compute_variance(
                 current_tasks=current_data["tasks"],
                 previous_tasks=previous_data["tasks"],
@@ -279,6 +279,45 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             if variance_ctx:
                 parts.append("")
                 parts.append(variance_ctx)
+
+            # --- Compression analysis (current vs previous) ---
+            try:
+                compression = compute_compression(
+                    current_tasks=current_data["tasks"],
+                    previous_tasks=previous_data["tasks"],
+                )
+                if compression.get("compression_signal") != "UNKNOWN":
+                    sig = compression["compression_signal"]
+                    pct = compression.get("compression_pct", 0)
+                    span_delta = compression.get("span_delta_days", 0)
+                    density_delta = compression.get("density_delta_pct", 0)
+                    hint = compression.get("narrative_hint", "")
+                    parts.append("")
+                    parts.append(
+                        f"=== SCHEDULE COMPRESSION ANALYSIS (Current vs Previous) ===\n"
+                        f"Signal: {sig} | Remaining span change: {span_delta:+d} calendar days ({pct:+.1f}%) | "
+                        f"Activity density change: {density_delta:+.1f}%\n"
+                        f"Incomplete activities: {compression.get('current_incomplete_count','N/A')} now vs "
+                        f"{compression.get('previous_incomplete_count','N/A')} prior\n"
+                        f"NARRATIVE HINT: {hint}"
+                    )
+            except Exception as _ce:
+                logger.warning(f"[{slug}] Compression computation failed: {_ce}")
+
+            # --- Critical path shift (current vs previous) ---
+            try:
+                from critical_path import build_critical_chain, compare_critical_chains
+                curr_rels = current_data.get("relationships", [])
+                prev_rels = previous_data.get("relationships", [])
+                curr_chain = build_critical_chain(current_data["tasks"], curr_rels)
+                prev_chain = build_critical_chain(previous_data["tasks"], prev_rels)
+                cp_shift_ctx = compare_critical_chains(curr_chain, prev_chain)
+                if cp_shift_ctx:
+                    parts.append("")
+                    parts.append(cp_shift_ctx)
+            except Exception as _cpe:
+                logger.warning(f"[{slug}] CP shift computation failed: {_cpe}")
+
         except Exception as _ve:
             logger.warning(f"[{slug}] Variance computation failed: {_ve}")
 

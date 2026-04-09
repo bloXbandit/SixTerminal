@@ -331,6 +331,102 @@ def _detect_anomalies(phases: Dict, max_slip: int, max_slip_act: str) -> List[st
     return flags
 
 
+def compute_compression(current_tasks: List[Dict], previous_tasks: List[Dict]) -> Dict:
+    """
+    Quantifies schedule compression between two snapshots.
+    Compression = same/similar scope packed into less remaining time.
+
+    Returns:
+        {
+          "current_remaining_span_days": int,   # calendar days from data date to last finish
+          "previous_remaining_span_days": int,
+          "span_delta_days": int,               # negative = compressed, positive = expanded
+          "current_activity_density": float,    # activities per remaining week
+          "previous_activity_density": float,
+          "density_delta_pct": float,           # % change in density (positive = more compressed)
+          "current_incomplete_count": int,
+          "previous_incomplete_count": int,
+          "compression_signal": str,            # "COMPRESSED" | "EXPANDED" | "NEUTRAL"
+          "compression_pct": float,             # % the remaining span changed
+          "narrative_hint": str,
+        }
+    """
+    def _remaining(tasks):
+        incomplete = [t for t in tasks if float(t.get("percent_complete") or 0) < 100]
+        dates = []
+        for t in incomplete:
+            d = _parse_date(t.get("finish") or t.get("target_end_date") or t.get("early_end_date"))
+            if d:
+                dates.append(d)
+        if not dates:
+            return None, None, len(incomplete)
+        return min(dates), max(dates), len(incomplete)
+
+    curr_start, curr_end, curr_count = _remaining(current_tasks)
+    prev_start, prev_end, prev_count = _remaining(previous_tasks)
+
+    curr_span = (curr_end - curr_start).days if curr_start and curr_end else None
+    prev_span = (prev_end - prev_start).days if prev_start and prev_end else None
+
+    if curr_span is None or prev_span is None or prev_span == 0:
+        return {
+            "compression_signal": "UNKNOWN",
+            "narrative_hint": "Insufficient date data to assess compression."
+        }
+
+    span_delta = curr_span - prev_span
+    compression_pct = round((span_delta / prev_span) * 100, 1)
+
+    # Density = incomplete activities per week of remaining span
+    curr_density = round((curr_count / (curr_span / 7)) if curr_span > 0 else 0, 2)
+    prev_density = round((prev_count / (prev_span / 7)) if prev_span > 0 else 0, 2)
+    density_delta_pct = round(((curr_density - prev_density) / prev_density * 100) if prev_density > 0 else 0, 1)
+
+    # Signal thresholds
+    if compression_pct <= -5 and density_delta_pct >= 5:
+        signal = "COMPRESSED"
+    elif compression_pct >= 5 and density_delta_pct <= -5:
+        signal = "EXPANDED"
+    else:
+        signal = "NEUTRAL"
+
+    # Narrative hint
+    if signal == "COMPRESSED":
+        hint = (
+            f"The remaining schedule has compressed by {abs(compression_pct)}% — "
+            f"the same scope is now planned into {abs(span_delta)} fewer calendar days. "
+            f"Activity density increased by {density_delta_pct}%. "
+            f"Assess whether durations were shortened on paper or genuine acceleration is supported."
+        )
+    elif signal == "EXPANDED":
+        hint = (
+            f"The remaining schedule has expanded by {abs(compression_pct)}% — "
+            f"work has been redistributed across {abs(span_delta)} additional calendar days. "
+            f"Activity density decreased by {abs(density_delta_pct)}%. "
+            f"This may reflect a more realistic plan or a pushed-out completion."
+        )
+    else:
+        hint = (
+            f"No significant compression or expansion detected. "
+            f"Remaining span changed by {span_delta:+d} calendar days ({compression_pct:+.1f}%) "
+            f"with a {density_delta_pct:+.1f}% change in activity density."
+        )
+
+    return {
+        "current_remaining_span_days": curr_span,
+        "previous_remaining_span_days": prev_span,
+        "span_delta_days": span_delta,
+        "current_activity_density": curr_density,
+        "previous_activity_density": prev_density,
+        "density_delta_pct": density_delta_pct,
+        "current_incomplete_count": curr_count,
+        "previous_incomplete_count": prev_count,
+        "compression_signal": signal,
+        "compression_pct": compression_pct,
+        "narrative_hint": hint,
+    }
+
+
 def format_variance_for_context(variance: Dict, max_items_per_phase: int = 5) -> str:
     """
     Formats the variance result into a compact LLM context block.

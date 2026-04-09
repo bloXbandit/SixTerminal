@@ -269,6 +269,87 @@ def _build_narrative_hint(chain_names: List[str], target: Dict, mode: str) -> st
     return hint
 
 
+def compare_critical_chains(current_chain: Dict, previous_chain: Dict) -> str:
+    """
+    Compares two critical path chains (current vs previous) and returns a
+    structured context block describing what shifted, what dropped off, and
+    what's new — for LLM narration.
+    """
+    curr_names = current_chain.get("chain_names", [])
+    prev_names = previous_chain.get("chain_names", [])
+
+    if not curr_names and not prev_names:
+        return ""
+
+    curr_set = set(n.lower() for n in curr_names)
+    prev_set = set(n.lower() for n in prev_names)
+
+    held = [n for n in curr_names if n.lower() in prev_set]
+    dropped = [n for n in prev_names if n.lower() not in curr_set]
+    added = [n for n in curr_names if n.lower() not in prev_set]
+
+    curr_top = curr_names[:3] if curr_names else []
+    prev_top = prev_names[:3] if prev_names else []
+
+    lines = ["=== CRITICAL PATH SHIFT (Current vs Previous) ==="]
+
+    if curr_top:
+        lines.append(f"Current driving sequence (top): {' → '.join(curr_top)}")
+    if prev_top:
+        lines.append(f"Previous driving sequence (top): {' → '.join(prev_top)}")
+
+    lines.append("")
+
+    if not dropped and not added:
+        lines.append("PATH UNCHANGED: The driving sequence has not materially changed from the previous update.")
+    else:
+        if dropped:
+            lines.append(f"DROPPED FROM PATH ({len(dropped)}): {', '.join(dropped[:6])}")
+        if added:
+            lines.append(f"NEW ON PATH ({len(added)}): {', '.join(added[:6])}")
+        if held:
+            lines.append(f"HELD ON PATH ({len(held)}): {', '.join(held[:6])}")
+
+        # Characterize the shift
+        if dropped and added:
+            lines.append("")
+            lines.append(
+                f"SHIFT SUMMARY: The critical path has moved away from "
+                f"'{dropped[0]}'-led sequence toward a path now driven by '{added[0]}'. "
+                f"Assess whether the logic change reflects genuine resequencing or revised relationships."
+            )
+        elif added and not dropped:
+            lines.append("")
+            lines.append(
+                f"PATH EXTENDED: {len(added)} new activities joined the critical path — "
+                f"these were previously off-path and may indicate float erosion or logic additions."
+            )
+        elif dropped and not added:
+            lines.append("")
+            lines.append(
+                f"PATH SHORTENED: {len(dropped)} activities dropped off the critical path — "
+                f"these may have completed or had their logic revised."
+            )
+
+    # Narrative hint for LLM
+    if curr_names and prev_names and (dropped or added):
+        prev_lead = prev_names[0] if prev_names else "prior sequence"
+        curr_lead = curr_names[0] if curr_names else "current sequence"
+        curr_tail = curr_names[-1] if len(curr_names) > 1 else ""
+        hint = (
+            f"The critical path has shifted from a path previously led by '{prev_lead}' "
+            f"to a current path now led by '{curr_lead}'"
+        )
+        if curr_tail and curr_tail != curr_lead:
+            hint += f", continuing through to '{curr_tail}'"
+        hint += ". "
+        hint += ("Review whether this reflects a legitimate resequencing or a paper revision.")
+        lines.append("")
+        lines.append(f"NARRATIVE HINT: {hint}")
+
+    return "\n".join(lines)
+
+
 def format_chain_for_context(chain_result: Dict, max_activities: int = 25) -> str:
     """
     Formats chain result into a compact LLM context block.
