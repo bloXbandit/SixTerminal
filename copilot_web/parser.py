@@ -37,17 +37,7 @@ class P6Parser:
         logger.info(f"Parsing XER file: {self.xer_path}")
         
         try:
-            # Xer expects file content as string, not file path
-            # Attempt to read with standard encoding
-            try:
-                with open(self.xer_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                self.reader = Xer(content)
-            except UnicodeDecodeError:
-                logger.warning("UTF-8 parsing failed. Retrying with 'cp1252' (Windows)...")
-                with open(self.xer_path, 'r', encoding='cp1252', errors='replace') as f:
-                    content = f.read()
-                self.reader = Xer(content)
+            self.reader = Xer.reader(self.xer_path)
 
             # parsing is done by Xer init
             parser = self.reader

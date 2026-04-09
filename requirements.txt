@@ -1,4 +1,4 @@
-xerparser==0.9.4
+xerparser>=0.13.7
 pandas>=2.2.0
 openpyxl>=3.1.5
 plotly>=5.18.0

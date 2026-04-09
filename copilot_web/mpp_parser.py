@@ -18,32 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 def _get_mpxj():
-    """Lazy import mpxj and return the module. Raises ImportError with helpful message if missing."""
-    import os
-    # Ensure JAVA_HOME is set so JPype can locate the JVM on Linux (Render/Docker)
-    if not os.environ.get("JAVA_HOME"):
-        for candidate in [
-            "/usr/lib/jvm/java-11-openjdk-amd64",
-            "/usr/lib/jvm/java-17-openjdk-amd64",
-            "/usr/lib/jvm/default-java",
-            "/usr/lib/jvm/java-11-openjdk",
-            "/usr/lib/jvm/java-17-openjdk",
-        ]:
-            if os.path.exists(candidate):
-                os.environ["JAVA_HOME"] = candidate
-                os.environ["PATH"] = os.path.join(candidate, "bin") + ":" + os.environ.get("PATH", "")
-                break
-    # Also set JVM path explicitly for JPype if needed
+    """Start JVM and import mpxj per official docs: https://pypi.org/project/mpxj/"""
     try:
         import jpype
+        import mpxj  # noqa: F401 - triggers mpxj jar loading
         if not jpype.isJVMStarted():
-            jvm_path = jpype.getDefaultJVMPath()
-            if jvm_path:
-                jpype.startJVM(jvm_path, convertStrings=False)
-    except Exception:
-        pass
-    try:
-        import mpxj
+            jpype.startJVM()
         return mpxj
     except ImportError as _e:
         raise ImportError(
