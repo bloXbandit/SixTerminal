@@ -18,7 +18,9 @@ PROJECTS_DIR = os.path.join(os.path.dirname(__file__), "projects")
 _project_cache: Dict[str, str] = {}
 _project_meta: Dict[str, dict] = {}
 _project_health: Dict[str, dict] = {}  # {slug: {status, compression_pct, max_slip_days, max_accel_days}}
-_project_tasks: Dict[str, list] = {}   # {slug: [task_dicts]} — current schedule tasks for milestone lookup
+_project_tasks: Dict[str, list] = {}          # {slug: [task_dicts]} — current schedule tasks for milestone lookup
+_project_tasks_previous: Dict[str, list] = {}  # {slug: [task_dicts]} — previous update tasks
+_project_tasks_baseline: Dict[str, list] = {}  # {slug: [task_dicts]} — baseline tasks
 
 
 def _get_mpp_parser():
@@ -78,10 +80,15 @@ def _find_versioned_files(project_path: str) -> dict:
       baseline: filepath or None
       updates:  list of (label, filepath) sorted ascending by label
       verify_pdf: filepath or None
+      variance_pdfs: dict of {update_num: filepath} for variance_N.pdf files
     """
+    import re as _re
     baseline = None
     updates = []
     verify_pdf = None
+    variance_pdfs = {}  # {int: filepath}
+
+    verify_pdfs = {}  # {int: filepath} for versioned verify_N.pdf
 
     for fname in os.listdir(project_path):
         lower = fname.lower()
@@ -89,6 +96,18 @@ def _find_versioned_files(project_path: str) -> dict:
 
         if lower == "verify.pdf":
             verify_pdf = fpath
+            continue
+
+        # verify_N.pdf — versioned activity list per update
+        vfm = _re.match(r'^verify[_\-](\d+)\.pdf$', lower)
+        if vfm:
+            verify_pdfs[int(vfm.group(1))] = fpath
+            continue
+
+        # variance_N.pdf — e.g. variance_1.pdf, variance_2.pdf
+        vm = _re.match(r'^variance[_\-](\d+)\.pdf$', lower)
+        if vm:
+            variance_pdfs[int(vm.group(1))] = fpath
             continue
 
         name_no_ext = os.path.splitext(lower)[0]
@@ -103,7 +122,7 @@ def _find_versioned_files(project_path: str) -> dict:
             updates.append((name_no_ext, fpath))
 
     updates.sort(key=lambda x: int(x[0].split("_", 1)[1]) if x[0].split("_", 1)[1].isdigit() else 0)
-    return {"baseline": baseline, "updates": updates, "verify_pdf": verify_pdf}
+    return {"baseline": baseline, "updates": updates, "verify_pdf": verify_pdf, "variance_pdfs": variance_pdfs, "verify_pdfs": verify_pdfs}
 
 
 def _parse_schedule(filepath: str) -> Optional[dict]:
@@ -192,6 +211,29 @@ def _extract_pdf_milestones(pdf_path: str) -> list:
         return entries
     except Exception as e:
         logger.warning(f"PDF crosscheck failed: {e}")
+        return []
+
+
+def _extract_variance_pdf(pdf_path: str) -> list:
+    """
+    Extract text lines from a variance_N.pdf report.
+    Returns filtered, meaningful lines for LLM injection.
+    """
+    try:
+        import pdfplumber
+        lines = []
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages[:30]:
+                text = page.extract_text()
+                if not text:
+                    continue
+                for line in text.splitlines():
+                    line = line.strip()
+                    if len(line) > 5:
+                        lines.append(line)
+        return lines
+    except Exception as e:
+        logger.warning(f"Variance PDF extraction failed ({pdf_path}): {e}")
         return []
 
 
@@ -303,6 +345,8 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     baseline_path = files["baseline"]
     updates = files["updates"]
     verify_pdf = files["verify_pdf"]
+    variance_pdfs = files.get("variance_pdfs", {})
+    verify_pdfs = files.get("verify_pdfs", {})
 
     if not baseline_path and not updates:
         return ""
@@ -327,16 +371,26 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     parts.append(f"SCHEDULE VERSIONS: {'baseline' if baseline_path else 'no baseline'} + {total_updates} update(s)")
     parts.append(f"CURRENT SUBMISSION: {current_label} ({os.path.basename(current_path)})")
 
-    # --- Locate compression PDF for current update (e.g. compression_update3.pdf) ---
+    # --- Locate compression PDF for current update (versioned: compression_updateN.pdf) ---
     _compression_pdf_path = None
     try:
         import re as _re
-        m = _re.search(r'update[_\s]*(\d+)', current_label, _re.IGNORECASE)
-        if m:
-            update_num = m.group(1)
-            candidate = os.path.join(project_path, f"compression_update{update_num}.pdf")
-            if os.path.exists(candidate):
-                _compression_pdf_path = candidate
+        # Scan folder for all compression_updateN.pdf files
+        _comp_pdfs = {}
+        for _fn in os.listdir(project_path):
+            _cm = _re.match(r'^compression[_\-]update[_\-]?(\d+)\.pdf$', _fn.lower())
+            if _cm:
+                _comp_pdfs[int(_cm.group(1))] = os.path.join(project_path, _fn)
+        if _comp_pdfs:
+            m = _re.search(r'update[_\s]*(\d+)', current_label, _re.IGNORECASE)
+            if m:
+                cur_num = int(m.group(1))
+                if cur_num in _comp_pdfs:
+                    _compression_pdf_path = _comp_pdfs[cur_num]
+                else:
+                    _cands = [n for n in _comp_pdfs if n <= cur_num]
+                    if _cands:
+                        _compression_pdf_path = _comp_pdfs[max(_cands)]
     except Exception:
         pass
 
@@ -348,6 +402,9 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
 
     # --- Store tasks for milestone date cross-referencing ---
     _project_tasks[slug] = current_data.get("tasks", [])
+    # Clear previous/baseline caches so stale data doesn't bleed across reloads
+    _project_tasks_previous.pop(slug, None)
+    _project_tasks_baseline.pop(slug, None)
 
     # --- Compression % from current tasks ---
     _compression_pct = None
@@ -369,6 +426,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     if previous_path:
         previous_data = _parse_schedule(previous_path)
         if previous_data:
+            _project_tasks_previous[slug] = previous_data.get("tasks", [])
             parts.append("")
             parts.append(f"=== PREVIOUS SCHEDULE ({os.path.basename(previous_path)}) ===")
             parts.append(previous_data["raw_context"])
@@ -415,7 +473,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             except Exception as _ce:
                 logger.warning(f"[{slug}] Compression computation failed: {_ce}")
 
-            # --- Verified compression PDF (schedule validator output) ---
+            # --- Verified compression PDF (schedule validator output) — current update ---
             if _compression_pdf_path:
                 try:
                     comp_pdf_data = _extract_compression_pdf(_compression_pdf_path)
@@ -428,6 +486,39 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                         parts.append(comp_pdf_ctx)
                 except Exception as _cpdf:
                     logger.warning(f"[{slug}] Compression PDF inject failed: {_cpdf}")
+
+            # --- Historical compression PDFs (prior updates — headline only) ---
+            try:
+                import re as _reh
+                _all_comp_pdfs = {}
+                for _fn in os.listdir(project_path):
+                    _hm = _reh.match(r'^compression[_\-]update[_\-]?(\d+)\.pdf$', _fn.lower())
+                    if _hm:
+                        _all_comp_pdfs[int(_hm.group(1))] = os.path.join(project_path, _fn)
+                _cur_comp_num = None
+                if _compression_pdf_path:
+                    _hn = _reh.search(r'(\d+)\.pdf$', os.path.basename(_compression_pdf_path).lower())
+                    if _hn:
+                        _cur_comp_num = int(_hn.group(1))
+                _prior_comp = {n: p for n, p in _all_comp_pdfs.items() if n != _cur_comp_num}
+                if _prior_comp:
+                    hist_lines = ["=== COMPRESSION HISTORY (prior updates — headline only) ==="]
+                    for _n in sorted(_prior_comp.keys()):
+                        try:
+                            _hdata = _extract_compression_pdf(_prior_comp[_n])
+                            if _hdata and _hdata.get("compression_pct") is not None:
+                                _hpct = _hdata["compression_pct"]
+                                _hdir = "compressed" if _hpct < 0 else "expanded" if _hpct > 0 else "unchanged"
+                                _hfinish = f" | Finish: {_hdata['earlier_finish']} → {_hdata['later_finish']}" if _hdata.get("earlier_finish") and _hdata.get("later_finish") else ""
+                                _hdates = f" | Compared: {_hdata['earlier_data_date']} → {_hdata['later_data_date']}" if _hdata.get("earlier_data_date") and _hdata.get("later_data_date") else ""
+                                hist_lines.append(f"  Update {_n}: {_hpct:+d}% ({_hdir}){_hfinish}{_hdates}")
+                        except Exception:
+                            pass
+                    if len(hist_lines) > 1:
+                        parts.append("")
+                        parts.append("\n".join(hist_lines))
+            except Exception as _hce:
+                logger.warning(f"[{slug}] Historical compression PDF inject failed: {_hce}")
 
             # --- Critical path shift (current vs previous) ---
             try:
@@ -450,6 +541,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     if baseline_path and baseline_path != current_path:
         baseline_data = _parse_schedule(baseline_path)
         if baseline_data:
+            _project_tasks_baseline[slug] = baseline_data.get("tasks", [])
             parts.append("")
             parts.append(f"=== BASELINE SCHEDULE ({os.path.basename(baseline_path)}) ===")
             parts.append(baseline_data["raw_context"])
@@ -519,13 +611,71 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     except Exception as _re:
         logger.warning(f"[{slug}] Risk diagnostics failed: {_re}")
 
-    # --- PDF crosscheck (silent, for LLM verification only) ---
-    if verify_pdf:
-        pdf_lines = _extract_pdf_milestones(verify_pdf)
+    # --- Variance PDF — trump-card reference for current update variance ---
+    if variance_pdfs:
+        # Find the variance PDF matching the current update number
+        import re as _re2
+        current_update_num = None
+        m2 = _re2.search(r'update[_\s]*(\d+)', current_label, _re2.IGNORECASE)
+        if m2:
+            current_update_num = int(m2.group(1))
+        # Use exact match first, then fall back to highest available <= current
+        variance_pdf_path = None
+        if current_update_num is not None:
+            if current_update_num in variance_pdfs:
+                variance_pdf_path = variance_pdfs[current_update_num]
+            else:
+                candidates = [n for n in variance_pdfs if n <= current_update_num]
+                if candidates:
+                    variance_pdf_path = variance_pdfs[max(candidates)]
+        if variance_pdf_path:
+            try:
+                var_lines = _extract_variance_pdf(variance_pdf_path)
+                if var_lines:
+                    vnum = os.path.splitext(os.path.basename(variance_pdf_path))[0]
+                    parts.append("")
+                    parts.append(
+                        f"=== VARIANCE REPORT PDF ({vnum}) — VERIFIED HUMAN OUTPUT ===\n"
+                        f"Use this as the authoritative reference for variance between the two schedule versions it covers.\n"
+                        f"Cross-check your computed variance analysis against this. Where they differ, trust this PDF.\n"
+                        f"Use it to confirm trends, identify patterns not visible in activity-level deltas, and refine your narrative."
+                    )
+                    parts.append("\n".join(var_lines[:300]))
+            except Exception as _vpdf:
+                logger.warning(f"[{slug}] Variance PDF inject failed: {_vpdf}")
+
+    # --- Versioned verify PDF — activity list for current update, highest confidence date source ---
+    import re as _re3
+    current_update_num_v = None
+    m3 = _re3.search(r'update[_\s]*(\d+)', current_label, _re3.IGNORECASE)
+    if m3:
+        current_update_num_v = int(m3.group(1))
+
+    active_verify_pdf = None
+    if verify_pdfs and current_update_num_v is not None:
+        if current_update_num_v in verify_pdfs:
+            active_verify_pdf = verify_pdfs[current_update_num_v]
+        else:
+            vcandidates = [n for n in verify_pdfs if n <= current_update_num_v]
+            if vcandidates:
+                active_verify_pdf = verify_pdfs[max(vcandidates)]
+    elif verify_pdf:
+        active_verify_pdf = verify_pdf  # fall back to unversioned verify.pdf
+
+    if active_verify_pdf:
+        pdf_lines = _extract_pdf_milestones(active_verify_pdf)
         if pdf_lines:
+            vlabel = os.path.splitext(os.path.basename(active_verify_pdf))[0]
             parts.append("")
-            parts.append("=== PDF VERIFICATION REFERENCE (use to crosscheck activity dates/names — do not expose raw) ===")
-            parts.append("\n".join(pdf_lines[:200]))
+            parts.append(
+                f"=== ACTIVITY VERIFICATION REFERENCE ({vlabel}) — use to verify current update activity dates/names ===\n"
+                f"This is the authoritative activity list for the current update. Use it to:\n"
+                f"  1. Confirm or correct parsed activity dates — where this PDF and the parsed schedule disagree, prefer this PDF.\n"
+                f"  2. Increase confidence in your understanding of the current schedule state.\n"
+                f"  3. Identify activities that may have been missed or misparsed.\n"
+                f"Do not expose this raw data to the user. Use it internally for accuracy."
+            )
+            parts.append("\n".join(pdf_lines[:300]))
 
     return "\n".join(parts)
 
@@ -542,10 +692,40 @@ def _health_tag(max_slip: int, max_accel: int, total_slipped: int, total_acceler
     return "ON TIME"
 
 
+def _build_task_lookup(tasks: list) -> tuple:
+    """Return (name_lookup, id_lookup) dicts from a task list."""
+    by_name: dict = {}
+    by_id: dict = {}
+    for t in tasks:
+        name = (t.get("name") or t.get("task_name") or "").strip().lower()
+        tid = str(t.get("id") or t.get("task_id") or t.get("activity_id") or "").strip()
+        if name:
+            by_name[name] = t
+        if tid:
+            by_id[tid] = t
+    return by_name, by_id
+
+
+def _resolve_task(act_name: str, act_id: str, by_name: dict, by_id: dict):
+    """Find a task by activity name or ID."""
+    return by_name.get(act_name.lower()) or by_id.get(act_id) or None
+
+
+def _extract_finish(task) -> str:
+    """Extract finish date string (date portion only) from a task dict."""
+    if task is None:
+        return ""
+    v = (task.get("finish") or task.get("target_end_date") or
+         task.get("early_end_date") or "")
+    return str(v)[:10] if v else ""
+
+
 def _load_milestone_map(slug: str) -> str:
     """
     Load milestone_map.json and cross-reference against parsed tasks to inject
     actual forecast dates, baseline dates, and % complete into the milestone context.
+    Uses 2-source confidence verification: current + previous OR current + baseline.
+    Emits a VERIFIED tag when at least 2 sources agree on a date.
     """
     mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
     if not os.path.exists(mm_path):
@@ -557,50 +737,57 @@ def _load_milestone_map(slug: str) -> str:
         if not milestones:
             return ""
 
-        # Build a lookup from the cached parsed tasks — by activity name (lower) and by ID (str)
-        task_lookup_name: dict = {}
-        task_lookup_id: dict = {}
-        cached_ctx = _project_cache.get(slug, "")
-        # Tasks are stored separately — re-access via a lightweight parse of the cached task list
-        # We stored tasks in a side-channel dict at parse time
-        tasks = _project_tasks.get(slug, [])
-        for t in tasks:
-            name = (t.get("name") or t.get("task_name") or "").strip().lower()
-            tid = str(t.get("id") or t.get("task_id") or t.get("activity_id") or "").strip()
-            if name:
-                task_lookup_name[name] = t
-            if tid:
-                task_lookup_id[tid] = t
+        # Build lookups for all three schedule versions
+        curr_by_name, curr_by_id = _build_task_lookup(_project_tasks.get(slug, []))
+        prev_by_name, prev_by_id = _build_task_lookup(_project_tasks_previous.get(slug, []))
+        base_by_name, base_by_id = _build_task_lookup(_project_tasks_baseline.get(slug, []))
 
-        lines = ["STANDARDIZED MILESTONES (always use these names — dates are from current schedule):"]
+        lines = [
+            "STANDARDIZED MILESTONES (dates cross-referenced across schedule versions — VERIFIED = 2+ sources agree):"
+        ]
         for m in sorted(milestones, key=lambda x: x.get("sort", 99)):
             std = m["standardized_name"]
             act_name = (m.get("activity_name") or "").strip()
             act_id = str(m.get("activity_id") or "")
 
-            # Find the matching task
-            task = (task_lookup_name.get(act_name.lower())
-                    or task_lookup_id.get(act_id)
-                    or None)
+            curr_task = _resolve_task(act_name, act_id, curr_by_name, curr_by_id)
+            prev_task = _resolve_task(act_name, act_id, prev_by_name, prev_by_id)
+            base_task = _resolve_task(act_name, act_id, base_by_name, base_by_id)
 
-            if task:
-                finish = (task.get("finish") or task.get("target_end_date") or
-                          task.get("early_end_date") or "")
-                baseline_finish = (task.get("baseline_finish") or
-                                   task.get("bl_finish") or "")
-                pct = task.get("percent_complete", 0)
-                # Trim to date only
-                if finish:
-                    finish = str(finish)[:10]
+            if curr_task:
+                curr_finish = _extract_finish(curr_task)
+                pct = curr_task.get("percent_complete", 0)
+
+                # Baseline finish — prefer embedded field, fall back to baseline task
+                baseline_finish = (curr_task.get("baseline_finish") or
+                                   curr_task.get("bl_finish") or
+                                   _extract_finish(base_task) or "")
                 if baseline_finish:
                     baseline_finish = str(baseline_finish)[:10]
 
-                date_str = f"Forecast: {finish}" if finish else "Forecast: N/A"
+                # Previous forecast — from prior update task
+                prev_finish = _extract_finish(prev_task)
+
+                # --- 2-source confidence check ---
+                # Source A: current schedule file
+                # Source B: previous update (if finish matches or is close) OR baseline embedded field
+                sources_agree = 0
+                if curr_finish:
+                    sources_agree += 1  # current is always source 1
+                if prev_task and prev_finish:
+                    sources_agree += 1  # previous update is source 2
+                elif base_task and baseline_finish:
+                    sources_agree += 1  # baseline is source 2
+
+                confidence = "[VERIFIED — 2 sources]" if sources_agree >= 2 else "[1 source]"
+
+                date_str = f"Forecast: {curr_finish}" if curr_finish else "Forecast: N/A"
                 bl_str = f" | Baseline: {baseline_finish}" if baseline_finish else ""
+                prev_str = f" | Prior Update: {prev_finish}" if prev_finish else ""
                 pct_str = f" | {pct:.0f}% complete" if pct is not None else ""
-                lines.append(f"  - {std}: {date_str}{bl_str}{pct_str}")
+                lines.append(f"  - {std}: {date_str}{bl_str}{prev_str}{pct_str}  {confidence}")
             else:
-                # No task match — still emit the name so LLM knows what milestones exist
+                # No current task match — still emit the name
                 if act_name and act_name != std:
                     lines.append(f"  - {std}  (activity: '{act_name}' — date not resolved)")
                 else:

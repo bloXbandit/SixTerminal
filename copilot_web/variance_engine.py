@@ -94,6 +94,36 @@ def _extract_activity_map(tasks: List[Dict]) -> Dict[str, Dict]:
     return result
 
 
+def _extract_id_map(tasks: List[Dict]) -> Dict[str, Dict]:
+    """
+    Build {activity_id: task_dict} as a fallback lookup when name matching fails.
+    Used for XER projects where activity IDs are stable across updates.
+    """
+    result = {}
+    for t in tasks:
+        if t.get("summary", False):
+            continue
+        tid = str(t.get("activity_id") or t.get("task_id") or t.get("id") or "").strip()
+        if tid:
+            result[tid] = t
+    return result
+
+
+def _detect_source_type(tasks: List[Dict]) -> str:
+    """
+    Detect whether the task list came from XER, MPP, or mixed sources.
+    Uses presence of XER-specific fields (activity_id, total_float_hrs) vs MPP fields (total_slack).
+    Returns: 'XER', 'MPP', or 'MIXED'
+    """
+    xer_signals = sum(1 for t in tasks[:20] if t.get("activity_id") or t.get("total_float_hrs") is not None)
+    mpp_signals = sum(1 for t in tasks[:20] if t.get("total_slack") is not None and not t.get("activity_id"))
+    if xer_signals > mpp_signals:
+        return "XER"
+    if mpp_signals > xer_signals:
+        return "MPP"
+    return "MIXED"
+
+
 def compute_variance(
     current_tasks: List[Dict],
     previous_tasks: List[Dict],
@@ -132,6 +162,16 @@ def compute_variance(
     curr_map = _extract_activity_map(current_tasks)
     prev_map = _extract_activity_map(previous_tasks)
 
+    # ID-based fallback maps — used when name match fails (e.g. renamed P6 activities)
+    curr_id_map = _extract_id_map(current_tasks)
+    prev_id_map = _extract_id_map(previous_tasks)
+
+    # Source type for confidence context
+    source_type = _detect_source_type(current_tasks)
+
+    # Track ID-fallback matches for summary reporting
+    id_fallback_count = 0
+
     phases: Dict[str, Dict] = {}
 
     def _get_phase(name_key: str) -> str:
@@ -154,12 +194,33 @@ def compute_variance(
     max_accel_days = 0
     max_accel_activity = ""
 
-    # Match activities by name
+    # Match activities by name first, then ID fallback for unmatched
     all_names = set(curr_map.keys()) | set(prev_map.keys())
+
+    # Collect unmatched IDs for fallback pass
+    matched_curr_ids: set = set()
+    matched_prev_ids: set = set()
 
     for name_key in all_names:
         curr = curr_map.get(name_key)
         prev = prev_map.get(name_key)
+
+        # If one side is missing, try ID-based fallback before declaring new/removed
+        if curr and not prev:
+            curr_id = str(curr.get("activity_id") or curr.get("task_id") or curr.get("id") or "").strip()
+            if curr_id and curr_id in prev_id_map and curr_id not in matched_prev_ids:
+                prev = prev_id_map[curr_id]
+                matched_prev_ids.add(curr_id)
+                matched_curr_ids.add(curr_id)
+                id_fallback_count += 1
+        elif prev and not curr:
+            prev_id = str(prev.get("activity_id") or prev.get("task_id") or prev.get("id") or "").strip()
+            if prev_id and prev_id in curr_id_map and prev_id not in matched_curr_ids:
+                curr = curr_id_map[prev_id]
+                matched_curr_ids.add(prev_id)
+                matched_prev_ids.add(prev_id)
+                id_fallback_count += 1
+
         phase = _get_phase(name_key)
         _ensure_phase(phase)
 
@@ -265,6 +326,8 @@ def compute_variance(
             "max_accel_days": max_accel_days,
             "max_accel_activity": max_accel_activity,
             "phases_with_movement": phases_with_movement,
+            "source_type": source_type,
+            "id_fallback_count": id_fallback_count,
         },
         "anomalies": anomalies,
     }
@@ -439,8 +502,23 @@ def format_variance_for_context(variance: Dict, max_items_per_phase: int = 5) ->
     label_curr = variance.get("label_current", "Current")
     label_prev = variance.get("label_previous", "Previous")
 
+    source_type = s.get("source_type", "UNKNOWN")
+    id_fallback = s.get("id_fallback_count", 0)
+
+    # Confidence note for LLM
+    if source_type == "XER":
+        confidence_note = "Source: XER (P6) — activity IDs available; ID-based fallback active for renamed activities."
+    elif source_type == "MPP":
+        confidence_note = "Source: MPP (MS Project) — name-based matching; dates are reliable if activity names are consistent."
+    else:
+        confidence_note = "Source: MIXED (XER + MPP or unknown) — use highest-confidence dates from verified PDF sources where available."
+
+    if id_fallback > 0:
+        confidence_note += f" {id_fallback} activities matched by ID fallback (name changed between updates — delta preserved)."
+
     lines = [
         f"=== VARIANCE ANALYSIS: {label_curr} vs. {label_prev} ===",
+        confidence_note,
         f"Activities compared: {s.get('total_compared', 0)} | "
         f"Slipped: {s.get('total_slipped', 0)} | "
         f"Accelerated (pulled earlier): {s.get('total_accelerated', 0)}",
