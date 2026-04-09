@@ -1,0 +1,868 @@
+ERMHDR	15.2	2025-08-27	Project	Admin	Admin	PowerProject	Project Manager	DEF
+%T	CURRTYPE
+%F	curr_id	decimal_digit_cnt	curr_symbol	decimal_symbol	digit_group_symbol	curr_type	curr_short_name	base_exch_rate
+%R	28	2	$	.	,	Default	DEF	1.0000000000
+%R	29	2	€	.	,	Euro	EUR	1.1070000000
+%R	9171	2	£	.	,	Pounds	GBP	1.0000000000
+%R	9929	2		.	,	none	NON	1.0000000000
+%R	10095	2	$	.	,	Dollars	DOL	1.0000000000
+%R	14646	2	$	.	,	Default	DEF	1.0000000000
+%R	34182	2	$	.	,	US Dollar	USD	1.0000000000
+%T	PROJECT
+%F	proj_id	fy_start_month_num	chng_eff_cmp_pct_flag	rsrc_self_add_flag	allow_complete_flag	rsrc_multi_assign_flag	checkout_flag	project_flag	step_complete_flag	cost_qty_recalc_flag	sum_only_flag	batch_sum_flag	name_sep_char	def_complete_pct_type	proj_short_name	acct_id	orig_proj_id	base_type_id	clndr_id	sum_base_proj_id	task_code_base	task_code_step	priority_num	wbs_max_sum_level	risk_level	strgy_priority_num	last_checksum	critical_drtn_hr_cnt	def_cost_per_qty	last_recalc_date	plan_start_date	plan_end_date	scd_end_date	add_date	sum_data_date	last_tasksum_date	fcst_start_date	def_duration_type	task_code_prefix	guid	def_qty_type	add_by_name	web_local_root_path	proj_ur	def_rate_type	add_act_remain_flag	act_this_per_link_flag	def_task_type	act_pct_link_flag	critical_path_type	task_code_prefix_flag	def_rollup_dates_flag	rem_target_link_flag	reset_planned_flag	allow_neg_act_flag	loaded_scope_level	export_flag	next_data_date	trsrcsum_loaded
+%R	45799	4	Y	Y	Y	Y	N	Y	N	N	N	Y	.	CP_Drtn	Public Sto				45946		1000	10	10					0	0.0000000000	2025-03-07 00:00	2024-07-15 00:00		2026-01-06 08:00	2026-01-06 08:00				DT_FixedDUR2		hcMwfKshN0mjMvVNOfxTOw	QT_Hour	Admin			COST_PER_QTY	N	Y	TT_Task	Y	CT_TotFloat	Y	Y	Y	N	N	7	Y		
+%T	ACTVTYPE
+%F	actv_code_type_id	actv_short_len	seq_num	actv_code_type	proj_id	wbs_id	actv_code_type_scope
+%R	45801	20	8000	Floor Level	45799		AS_Project
+%R	45802	20	8001	Impacts	45799		AS_Project
+%R	45803	20	8002	Area	45799		AS_Project
+%R	45804	20	8003	Occupancy	45799		AS_Project
+%R	45805	20	8004	Phase	45799		AS_Project
+%R	45806	20	8005	Responsibilities	45799		AS_Project
+%T	CALENDAR
+%F	clndr_id	default_flag	clndr_name	proj_id	base_clndr_id	last_chng_date	clndr_type	day_hr_cnt	week_hr_cnt	month_hr_cnt	year_hr_cnt	clndr_data
+%R	45945	Y	WEO 5-Day Work Week with Holidays				CA_Rsrc	8.0000000000	40.000000000	168.08333333	2017.0000000	(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()((0||0(d|41275)())(0||1(d|41421)())(0||2(d|41459)())(0||3(d|41519)())(0||4(d|41606)())(0||5(d|41607)())(0||6(d|41633)())(0||7(d|41640)())(0||8(d|41785)())(0||9(d|41824)())(0||10(d|41883)())(0||11(d|41970)())(0||12(d|41971)())(0||13(d|41998)())(0||14(d|42005)())(0||15(d|42051)())(0||16(d|42149)())(0||17(d|42188)())(0||18(d|42254)())(0||19(d|42334)())(0||20(d|42335)())(0||21(d|42363)())(0||22(d|42364)())(0||23(d|42366)())(0||24(d|42370)())(0||25(d|42415)())(0||26(d|42520)())(0||27(d|42555)())(0||28(d|42618)())(0||29(d|42698)())(0||30(d|42699)())(0||31(d|42730)())(0||32(d|42731)())(0||33(d|42737)())(0||34(d|42884)())(0||35(d|42920)())(0||36(d|42982)())(0||37(d|43062)())(0||38(d|43063)())(0||39(d|43094)())(0||40(d|43095)())(0||41(d|43101)())(0||42(d|43248)())(0||43(d|43285)())(0||44(d|43346)())(0||45(d|43426)())(0||46(d|43427)())(0||47(d|43448)())(0||48(d|43459)())(0||49(d|43466)())(0||50(d|43594)())(0||51(d|43595)())(0||52(d|43612)())(0||53(d|43650)())(0||54(d|43690)())(0||55(d|43692)())(0||56(d|43710)())(0||57(d|43797)())(0||58(d|43798)())(0||59(d|43811)())(0||60(d|43812)())(0||61(d|43824)())(0||62(d|43831)())(0||63(d|43976)())(0||64(d|44015)())(0||65(d|44016)())(0||66(d|44081)())(0||67(d|44161)())(0||68(d|44162)())(0||69(d|44190)())(0||70(d|44191)())(0||71(d|44192)())(0||72(d|44197)())(0||73(d|44347)())(0||74(d|44381)())(0||75(d|44382)())(0||76(d|44445)())(0||77(d|44525)())(0||78(d|44526)())(0||79(d|44554)())(0||80(d|44555)())(0||81(d|44561)())(0||82(d|44562)())(0||83(d|44711)())(0||84(d|44746)())(0||85(d|44809)())(0||86(d|44889)())(0||87(d|44890)())(0||88(d|44920)())(0||89(d|44921)())(0||90(d|44927)())(0||91(d|44928)())(0||92(d|45075)())(0||93(d|45111)())(0||94(d|45173)())(0||95(d|45253)())(0||96(d|45254)())(0||97(d|45285)())(0||98(d|45292)())(0||99(d|45439)())(0||100(d|45477)())(0||101(d|45537)())(0||102(d|45624)())(0||103(d|45625)())(0||104(d|45651)())(0||105(d|45658)())(0||106(d|45803)())(0||107(d|45842)())(0||108(d|45901)())(0||109(d|45988)())(0||110(d|45989)())(0||111(d|46016)())(0||112(d|46023)())(0||113(d|46167)())(0||114(d|46206)())(0||115(d|46207)())(0||116(d|46272)())(0||117(d|46352)())(0||118(d|46353)())(0||119(d|46381)())(0||120(d|46388)())(0||121(d|46538)())(0||122(d|46572)())(0||123(d|46573)())(0||124(d|46636)())(0||125(d|46716)())(0||126(d|46717)())(0||127(d|46745)())(0||128(d|46746)())(0||129(d|46752)())(0||130(d|46753)())(0||131(d|46902)())(0||132(d|46938)())(0||133(d|47000)())(0||134(d|47080)())(0||135(d|47081)())(0||136(d|47112)())(0||137(d|47119)())(0||138(d|47266)())(0||139(d|47303)())(0||140(d|47364)())(0||141(d|47444)())(0||142(d|47445)())(0||143(d|47477)())(0||144(d|47484)())(0||145(d|47630)())(0||146(d|47668)())(0||147(d|47728)())(0||148(d|47815)())(0||149(d|47816)())(0||150(d|47842)())(0||151(d|47849)())(0||152(d|47994)())(0||153(d|48033)())(0||154(d|48092)())(0||155(d|48179)())(0||156(d|48180)())(0||157(d|48207)())(0||158(d|48214)())(0||159(d|48365)())(0||160(d|48400)())(0||161(d|48463)())(0||162(d|48543)())(0||163(d|48544)())(0||164(d|48572)())(0||165(d|48579)())(0||166(d|48729)())(0||167(d|48764)())(0||168(d|48827)())(0||169(d|48907)())(0||170(d|48908)())(0||171(d|48939)())(0||172(d|48946)())(0||173(d|49093)())(0||174(d|49129)())(0||175(d|49191)())(0||176(d|49271)())(0||177(d|49272)())(0||178(d|49303)())(0||179(d|49310)())(0||180(d|49457)())(0||181(d|49494)())(0||182(d|49555)())(0||183(d|49635)())(0||184(d|49636)())(0||185(d|49668)())(0||186(d|49675)())(0||187(d|49821)())(0||188(d|49860)())(0||189(d|49919)())(0||190(d|50006)())(0||191(d|50007)())(0||192(d|50034)())(0||193(d|50041)())(0||194(d|50185)())(0||195(d|50224)())(0||196(d|50290)())(0||197(d|50370)())(0||198(d|50371)())(0||199(d|50399)())(0||200(d|50406)())(0||201(d|50556)())(0||202(d|50591)())(0||203(d|50654)())(0||204(d|50734)())(0||205(d|50735)())(0||206(d|50763)())(0||207(d|50770)())(0||208(d|50920)())(0||209(d|50955)())(0||210(d|51018)())(0||211(d|51098)())(0||212(d|51099)())(0||213(d|51130)())(0||214(d|51137)())(0||215(d|51284)())(0||216(d|51321)())(0||217(d|51382)())(0||218(d|51462)())(0||219(d|51463)())(0||220(d|51495)())))))
+%R	45947	N	ELAPSED_TIME				CA_Base	24.000000000	168.00000000	5040.0000000	61320.000000	(0||CalendarData()((0||DaysOfWeek()((0||1()((0||0(s|00:00|f|00:00)())))(0||2()((0||0(s|00:00|f|00:00)())))(0||3()((0||0(s|00:00|f|00:00)())))(0||4()((0||0(s|00:00|f|00:00)())))(0||5()((0||0(s|00:00|f|00:00)())))(0||6()((0||0(s|00:00|f|00:00)())))(0||7()((0||0(s|00:00|f|00:00)())))))(0||Exceptions()())))
+%R	45946	Y	WEO 5-Day Work Week with Holidays	45799			CA_Project	8.0000000000	40.000000000	168.08333333	2017.0000000	(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()((0||0(d|41275)())(0||1(d|41421)())(0||2(d|41459)())(0||3(d|41519)())(0||4(d|41606)())(0||5(d|41607)())(0||6(d|41633)())(0||7(d|41640)())(0||8(d|41785)())(0||9(d|41824)())(0||10(d|41883)())(0||11(d|41970)())(0||12(d|41971)())(0||13(d|41998)())(0||14(d|42005)())(0||15(d|42051)())(0||16(d|42149)())(0||17(d|42188)())(0||18(d|42254)())(0||19(d|42334)())(0||20(d|42335)())(0||21(d|42363)())(0||22(d|42364)())(0||23(d|42366)())(0||24(d|42370)())(0||25(d|42415)())(0||26(d|42520)())(0||27(d|42555)())(0||28(d|42618)())(0||29(d|42698)())(0||30(d|42699)())(0||31(d|42730)())(0||32(d|42731)())(0||33(d|42737)())(0||34(d|42884)())(0||35(d|42920)())(0||36(d|42982)())(0||37(d|43062)())(0||38(d|43063)())(0||39(d|43094)())(0||40(d|43095)())(0||41(d|43101)())(0||42(d|43248)())(0||43(d|43285)())(0||44(d|43346)())(0||45(d|43426)())(0||46(d|43427)())(0||47(d|43448)())(0||48(d|43459)())(0||49(d|43466)())(0||50(d|43594)())(0||51(d|43595)())(0||52(d|43612)())(0||53(d|43650)())(0||54(d|43690)())(0||55(d|43692)())(0||56(d|43710)())(0||57(d|43797)())(0||58(d|43798)())(0||59(d|43811)())(0||60(d|43812)())(0||61(d|43824)())(0||62(d|43831)())(0||63(d|43976)())(0||64(d|44015)())(0||65(d|44016)())(0||66(d|44081)())(0||67(d|44161)())(0||68(d|44162)())(0||69(d|44190)())(0||70(d|44191)())(0||71(d|44192)())(0||72(d|44197)())(0||73(d|44347)())(0||74(d|44381)())(0||75(d|44382)())(0||76(d|44445)())(0||77(d|44525)())(0||78(d|44526)())(0||79(d|44554)())(0||80(d|44555)())(0||81(d|44561)())(0||82(d|44562)())(0||83(d|44711)())(0||84(d|44746)())(0||85(d|44809)())(0||86(d|44889)())(0||87(d|44890)())(0||88(d|44920)())(0||89(d|44921)())(0||90(d|44927)())(0||91(d|44928)())(0||92(d|45075)())(0||93(d|45111)())(0||94(d|45173)())(0||95(d|45253)())(0||96(d|45254)())(0||97(d|45285)())(0||98(d|45292)())(0||99(d|45439)())(0||100(d|45477)())(0||101(d|45537)())(0||102(d|45624)())(0||103(d|45625)())(0||104(d|45651)())(0||105(d|45658)())(0||106(d|45803)())(0||107(d|45842)())(0||108(d|45901)())(0||109(d|45988)())(0||110(d|45989)())(0||111(d|46016)())(0||112(d|46023)())(0||113(d|46167)())(0||114(d|46206)())(0||115(d|46207)())(0||116(d|46272)())(0||117(d|46352)())(0||118(d|46353)())(0||119(d|46381)())(0||120(d|46388)())(0||121(d|46538)())(0||122(d|46572)())(0||123(d|46573)())(0||124(d|46636)())(0||125(d|46716)())(0||126(d|46717)())(0||127(d|46745)())(0||128(d|46746)())(0||129(d|46752)())(0||130(d|46753)())(0||131(d|46902)())(0||132(d|46938)())(0||133(d|47000)())(0||134(d|47080)())(0||135(d|47081)())(0||136(d|47112)())(0||137(d|47119)())(0||138(d|47266)())(0||139(d|47303)())(0||140(d|47364)())(0||141(d|47444)())(0||142(d|47445)())(0||143(d|47477)())(0||144(d|47484)())(0||145(d|47630)())(0||146(d|47668)())(0||147(d|47728)())(0||148(d|47815)())(0||149(d|47816)())(0||150(d|47842)())(0||151(d|47849)())(0||152(d|47994)())(0||153(d|48033)())(0||154(d|48092)())(0||155(d|48179)())(0||156(d|48180)())(0||157(d|48207)())(0||158(d|48214)())(0||159(d|48365)())(0||160(d|48400)())(0||161(d|48463)())(0||162(d|48543)())(0||163(d|48544)())(0||164(d|48572)())(0||165(d|48579)())(0||166(d|48729)())(0||167(d|48764)())(0||168(d|48827)())(0||169(d|48907)())(0||170(d|48908)())(0||171(d|48939)())(0||172(d|48946)())(0||173(d|49093)())(0||174(d|49129)())(0||175(d|49191)())(0||176(d|49271)())(0||177(d|49272)())(0||178(d|49303)())(0||179(d|49310)())(0||180(d|49457)())(0||181(d|49494)())(0||182(d|49555)())(0||183(d|49635)())(0||184(d|49636)())(0||185(d|49668)())(0||186(d|49675)())(0||187(d|49821)())(0||188(d|49860)())(0||189(d|49919)())(0||190(d|50006)())(0||191(d|50007)())(0||192(d|50034)())(0||193(d|50041)())(0||194(d|50185)())(0||195(d|50224)())(0||196(d|50290)())(0||197(d|50370)())(0||198(d|50371)())(0||199(d|50399)())(0||200(d|50406)())(0||201(d|50556)())(0||202(d|50591)())(0||203(d|50654)())(0||204(d|50734)())(0||205(d|50735)())(0||206(d|50763)())(0||207(d|50770)())(0||208(d|50920)())(0||209(d|50955)())(0||210(d|51018)())(0||211(d|51098)())(0||212(d|51099)())(0||213(d|51130)())(0||214(d|51137)())(0||215(d|51284)())(0||216(d|51321)())(0||217(d|51382)())(0||218(d|51462)())(0||219(d|51463)())(0||220(d|51495)())))))
+%T	ACTVCODE
+%F	actv_code_id	parent_actv_code_id	actv_code_type_id	actv_code_name	short_name	seq_num
+%R	45807		45801	Basement	Basement	20
+%R	45808		45801	Level 02	Level 02	40
+%R	45809		45801	Level 03	Level 03	50
+%R	45810		45801	Level 04	Level 04	60
+%R	45811		45806	Blank	Blank	5000
+%R	45812		45806	Blank	Blank	5000
+%R	45813		45806	Blank	Blank	5000
+%R	45814		45801	Level 05	Level 05	70
+%R	45815		45802	WEATHER IMPACT	WEATHER IMPACT	0
+%R	45816		45805	Blank	Blank	50
+%R	45817		45805	Blank	Blank	50
+%R	45818		45805	Blank	Blank	50
+%R	45819		45802	RFI's	RFI's	0
+%R	45820		45802	Change Orders	Change Orders	0
+%R	45821		45802	Owner Changes	Owner Changes	0
+%R	45822		45802	Manpower	Manpower	0
+%R	45823		45801	Level 01	Level 01	30
+%R	45824		45802	Procurement	Procurement	0
+%R	45825		45803	Area A	Area A	3
+%R	45826		45803	Area B	Area B	2
+%R	45827		45803	Area C	Area C	1
+%R	45828		45806	Architect	Architect	1005
+%R	45829		45806	Engineer	Engineer	1010
+%R	45830		45806	Owner	Owner	1015
+%R	45831		45806	Inspections	Inspections	1020
+%R	45832		45806	Demolition	Demolition	1025
+%R	45833		45806	Abatement	Abatement	1030
+%R	45834		45806	Core Drill	Core Drill	1035
+%R	45835		45806	Xray or Specialty	Xray or Specialty	1040
+%R	45836		45806	Dirtwork / Earthwork	Dirtwork / Earthwork	1045
+%R	45837		45806	Drilled Piers	Drilled Piers	1050
+%R	45838		45806	Shotcrete	Shotcrete	1055
+%R	45839		45806	Site Utilities - Wet	Site Utilities - Wet	1060
+%R	45840		45806	Site Utilities - Dry	Site Utilities - Dry	1060
+%R	45841		45806	Outside Power / Power Company	Outside Power / Power Company	1075
+%R	45842		45806	Concrete Crew	Concrete Crew	1080
+%R	45843		45806	Columns	Columns	1085
+%R	45844		45806	Stress Decks	Stress Decks	1090
+%R	45845		45806	Shoring	Shoring	1091
+%R	45846		45806	Deck and Detail	Deck and Detail	1095
+%R	45847		45806	Rebar	Rebar	1100
+%R	45848		45806	Pour Crew	Pour Crew	1105
+%R	45849		45806	Cure Time	Cure Time	1110
+%R	45850		45806	Damproofing-Waterproofing	Damproofing-Waterproofing	1120
+%R	45851		45806	Structural Steel	Structural Steel	1125
+%R	45852		45806	Composite Decking	Composite Decking	1126
+%R	45853		45806	Fireproofing	Fireproofing	1130
+%R	45854		45806	Scaffolding	Scaffolding	1135
+%R	45855		45806	Exterior Shell Crew	Exterior Shell Crew	1140
+%R	45856		45806	Exterior Shell Finishes	Exterior Shell Finishes	1145
+%R	45857		45806	Ext / Int  Timbers	Ext / Int  Timbers	1150
+%R	45858		45806	Roofing	Roofing	1155
+%R	45859		45806	Mason / Bricklayer - EXTERIOR	Mason / Bricklayer - EXTERIOR	1160
+%R	45860		45806	Mason / Bricklayer - INTERIOR	Mason / Bricklayer - INTERIOR	1165
+%R	45861		45806	Glazing / Windows	Glazing / Windows	1170
+%R	45862		45806	Aluminum Storefront	Aluminum Storefront	1171
+%R	45863		45806	Metal Panels	Metal Panels	1172
+%R	45864		45806	Stucco	Stucco	1173
+%R	45865		45806	Caulking & Sealants		1174
+%R	45866		45806	Interior Framing Crew	Interior Framing Crew	1175
+%R	45867		45806	Insulation	Insulation	1180
+%R	45868		45806	MEP	MEP	1185
+%R	45869		45806	Mechanical	Mechanical	1190
+%R	45870		45806	Plumbing	Plumbing	1195
+%R	45871		45806	Electrician	Electrician	1200
+%R	45872		45806	Low Voltage	Low Voltage	1205
+%R	45873		45806	Access Control	Access Control	1206
+%R	45874		45806	Fire Sprinkler	Fire Sprinkler	1210
+%R	45875		45806	Drywall	Drywall	1215
+%R	45876		45806	Drywall - Hang	Drywall - Hang	1220
+%R	45877		45806	Drywall - T&F	Drywall - T&F	1225
+%R	45878		45806	Gypcrete	Gypcrete	1226
+%R	45879		45806	Ceiling Grid & Acoustical Tile	Ceiling Grid & Acoustical Tile	1230
+%R	45880		45806	Flooring	Flooring	1235
+%R	45881		45806	Tile Work	Tile Work	1240
+%R	45882		45806	Painter	Painter	1245
+%R	45883		45806	Wall Coverings	Wall Coverings	1250
+%R	45884		45806	Millwork / Casework	Millwork / Casework	1255
+%R	45885		45806	Countertops	Countertops	1256
+%R	45886		45806	Doors, Frames, Hardware	Doors, Frames, Hardware	1260
+%R	45887		45806	Overhead Doors	Overhead Doors	1261
+%R	45888		45806	Toilet Partions & Accessories	Toilet Partions & Accessories	1265
+%R	45889		45806	Signage	Signage	1270
+%R	45890		45806	Elevator	Elevator	1275
+%R	45891		45806	Pools and Spa	Pools and Spa	1276
+%R	45892		45806	FF&E	FF&E	1280
+%R	45893		45806	Final Cleaning	Final Cleaning	1281
+%R	45894		45806	Window Treatments	Window Treatments	1282
+%R	45895		45806	Fire Alarm	Fire Alarm	1285
+%R	45896		45806	Site Hardscapes	Site Hardscapes	1290
+%R	45897		45806	Site Pavers	Site Pavers	1291
+%R	45898		45806	Site Landscaping	Site Landscaping	1295
+%R	45899		45806	Exterior Furnishings	Exterior Furnishings	1300
+%R	45900		45806	Fencing	Fencing	1301
+%R	45901		45806	Paving	Paving	1305
+%R	45902		45806	Crane & Hoist	Crane & Hoist	1400
+%R	45903		45806	WEO	WEO	0
+%R	45904		45806	WEATHER IMPACT	WEATHER IMPACT	0
+%R	45905		45803	Area 1	Area 1	0
+%R	45906		45803	Area 2	Area 2	0
+%R	45907		45803	Area 3	Area 3	0
+%R	45908		45801	Level P2	Level P2	15
+%R	45909		45801	Level P1	Level P1	10
+%R	45910		45801	Roof Level	Roof Level	80
+%R	45911		45801	Site	Site	90
+%R	45912		45801	Ground	Ground	100
+%R	45913		45801	Exterior	Exterior	111
+%R	45914		45804	Leasing & Amentities	Leasing & Amentities	0
+%R	45915		45804	1st Occupancy	1st Occupancy	0
+%R	45916		45804	2nd Occupancy	2nd Occupancy	0
+%R	45917		45804	3rd Occupancy	3rd Occupancy	0
+%R	45918		45804	4th Occupancy	4th Occupancy	0
+%R	45919		45805	Phase 2	Phase 2	20
+%R	45920		45805	Phase 3	Phase 3	30
+%R	45921		45805	Phase 1	Phase 1	10
+%R	45922		45806	City Utilities - Dry	City Utilities - Dry	1070
+%R	45923		45806	City Utilities - Wet	City Utilities - Wet	1070
+%R	45924		45806	Phone / Dial Tone	Phone / Dial Tone	1076
+%R	45925		45806	Appliances	Appliances	1283
+%R	45926		45803	Blank	Blank	10
+%R	45927		45803	Blank	Blank	10
+%R	45928		45803	Blank	Blank	10
+%R	45929		45801	Blank	Blank	200
+%R	45930		45801	Blank	Blank	200
+%R	45931		45801	Blank	Blank	200
+%R	45932		45802	Blank	Blank	50
+%R	45933		45802	Blank	Blank	50
+%R	45934		45802	Blank	Blank	50
+%R	45935		45804	Blank	Blank	50
+%R	45936		45804	Blank	Blank	50
+%R	45937		45804	Blank	Blank	50
+%R	45938		45806	Fire Proofing		1174
+%R	45939	45815	45802	Hail	Hail	5
+%R	45940	45815	45802	Snow	Snow	1
+%R	45941	45815	45802	Rain	Rain	2
+%R	45942	45815	45802	x_Misc	x_Misc	6
+%R	45943	45815	45802	Heat	Heat	4
+%R	45944	45815	45802	Wind	Wind	3
+%T	RSRC
+%F	rsrc_id	parent_rsrc_id	clndr_id	role_id	shift_id	ts_approve_user_id	user_id	guid	rsrc_seq_num	email_addr	employee_code	office_phone	other_phone	rsrc_name	rsrc_short_name	rsrc_title_name	def_qty_per_hr	cost_qty_type	ot_factor	active_flag	auto_compute_act_flag	def_cost_qty_link_flag	ot_flag	timesheet_flag	xfer_complete_day_cnt	xfer_notstart_day_cnt	curr_id	unit_id	rsrc_type	rsrc_notes	load_tasks_flag	level_flag	last_checksum
+%R	42093		45945					wKsF3veo+EKNgd8P4q2TqQ	9000					RESOURCE 1	RESOURCE 1		1.0000000000	QT_Hour		Y		Y	N	N	365	365	28		RT_Labor				
+%R	42110		45945					zJD88hoYPEqH7phdt/RWsQ	9001					RESOURCE 2	RESOURCE 1-0		1.0000000000	QT_Hour		Y		Y	N	N	365	365	28		RT_Labor				
+%R	42112		45945					vpUTSQuGcUedY9LCEniy4Q	9002					RESOURCE 3	RESOURCE 1-1		1.0000000000	QT_Hour		Y		Y	N	N	365	365	28		RT_Labor				
+%R	42114		45945					ykE3bshvx0KwTcE1GuPAOw	9003					RESOURCE 4	RESOURCE 1-2		1.0000000000	QT_Hour		Y		Y	N	N	365	365	28		RT_Labor				
+%R	42116		45945					9lbK0ypl5kiFAFJMMOuGXw	9004					RESOURCE 5	RESOURCE 1-3		1.0000000000	QT_Hour		Y		Y	N	N	365	365	28		RT_Labor				
+%R	2542		45945					Ncmh0fLzGU2ZiJmcOjpnwg	9005					Any Qty	Any Qts		1.0000000000	QT_Hour		Y		Y	N	N	365	365	28	45948	RT_Mat				
+%T	UMEASURE
+%F	unit_id	seq_num	unit_abbrev	unit_name
+%R	45948	100	No	No
+%T	ACCOUNT
+%F	acct_id	parent_acct_id	acct_seq_num	acct_name	acct_short_name	acct_descr
+%R	30		0	Project Costs	Project Costs	
+%R	3934		1	Cost	Cost	
+%R	2370	30	2	Labour	Labour	
+%R	2371	30	3	Materials	Materials	
+%R	2543	30	4	Prelims	Prelims	
+%R	2369	30	5	Plant	Plant	
+%R	2545	30	6	Provisional Sum	Provisional Sum	
+%R	2609	30	7	Subcontactor	Subcontactor	
+%R	3605	30	8	Design Fees	Design Fees	
+%R	3829	30	9	Revenue	Revenue	
+%R	2544	30	10	PC Sum	PC Sum	
+%T	RSRCCURVDATA
+%F	curv_id	curv_name	default_flag	pct_usage_0	pct_usage_1	pct_usage_2	pct_usage_3	pct_usage_4	pct_usage_5	pct_usage_6	pct_usage_7	pct_usage_8	pct_usage_9	pct_usage_10	pct_usage_11	pct_usage_12	pct_usage_13	pct_usage_14	pct_usage_15	pct_usage_16	pct_usage_17	pct_usage_18	pct_usage_19	pct_usage_20
+%R	96	Linear	N	0.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000	5.00000
+%R	97	Back Loaded	N	0.00000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000
+%R	98	Front Loaded	N	0.00000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	6.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000	3.50000
+%R	99	Trapezoidal	N	0.00000	1.00000	1.00000	3.50000	3.50000	5.50000	5.50000	7.50000	7.50000	7.50000	7.50000	7.50000	7.50000	7.50000	7.50000	5.50000	5.50000	3.50000	3.50000	1.00000	1.00000
+%R	100	Skewed triangle	N	0.00000	0.300000	0.500000	0.900000	1.40000	2.50000	3.50000	4.50000	5.50000	7.00000	8.00000	9.10000	9.40000	10.4000	10.4000	8.10000	6.50000	4.00000	4.00000	2.00000	2.00000
+%R	101	Triangular	N	0.00000	1.00000	1.00000	3.00000	3.00000	5.00000	5.00000	7.00000	7.00000	9.00000	9.00000	9.00000	9.00000	7.00000	7.00000	5.00000	5.00000	3.00000	3.00000	1.00000	1.00000
+%R	102	Triangular increase	N	0.00000	1.00000	1.00000	1.50000	1.50000	3.00000	3.00000	3.50000	3.50000	4.50000	4.50000	5.50000	5.50000	6.50000	6.50000	7.00000	7.00000	8.50000	8.50000	9.00000	9.00000
+%R	103	Linear decrease	N	0.00000	9.50000	9.00000	8.60000	8.10000	7.60000	7.10000	6.70000	6.20000	5.70000	5.20000	4.80000	4.30000	3.80000	3.30000	2.90000	2.40000	1.90000	1.40000	1.00000	0.500000
+%R	104	As late as possible	N	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	50.0000	50.0000
+%R	105	Bell Shaped	N	0.00000	0.500000	0.500000	1.50000	1.50000	4.00000	4.00000	7.50000	7.50000	11.5000	11.5000	11.5000	11.5000	7.50000	7.50000	4.00000	4.00000	1.50000	1.50000	0.500000	0.500000
+%R	106	Triangular Decrease	N	0.00000	9.00000	9.00000	8.50000	8.50000	7.00000	7.00000	6.50000	6.50000	5.50000	5.50000	4.50000	4.50000	3.50000	3.50000	3.00000	3.00000	1.50000	1.50000	1.00000	1.00000
+%R	107	Concave	N	0.00000	10.4000	11.2000	11.2000	11.2000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	0.00000	11.2000	11.2000	11.2000	11.2000	11.2000
+%R	108	Offset Triangular	N	0.00000	1.00000	1.00000	2.50000	2.50000	3.50000	3.50000	5.00000	5.00000	6.50000	6.50000	7.50000	7.50000	8.50000	8.50000	7.00000	7.00000	5.00000	5.00000	3.50000	3.50000
+%R	109	Three step	N	0.00000	3.84620	3.84620	3.84620	3.84620	3.84620	3.84620	3.84620	3.84620	7.69230	7.69230	7.69230	7.69230	7.69230	7.69230	3.84620	3.84620	3.84620	3.84620	3.84620	3.84560
+%T	RSRCRATE
+%F	rsrc_rate_id	rsrc_id	max_qty_per_hr	cost_per_qty	start_date	shift_period_id	cost_per_qty2	cost_per_qty3	cost_per_qty4	cost_per_qty5
+%R	45954	2542	0.0000000000	0.0000000000	2024-07-18 08:00					
+%R	45953	42093	1.0000000000		2024-07-18 08:00					
+%R	45949	42110	1.0000000000		2024-07-18 08:00					
+%R	45950	42112	1.0000000000		2024-07-18 08:00					
+%R	45951	42114	1.0000000000		2024-07-18 08:00					
+%R	45952	42116	1.0000000000		2024-07-18 08:00					
+%T	PROJWBS
+%F	wbs_id	proj_id	obs_id	seq_num	est_wt	proj_node_flag	sum_data_flag	status_code	wbs_short_name	wbs_name	phase_id	parent_wbs_id	ev_user_pct	ev_etc_user_value	orig_cost	indep_remain_total_cost	ann_dscnt_rate_pct	dscnt_period_type	indep_remain_work_qty	anticip_start_date	anticip_end_date	ev_compute_type	ev_etc_compute_type	guid	tmpl_guid	plan_open_state
+%R	37	45799		100	100	Y	N	WS_Open	PSAMAB	Public Storage at Marksheffel and Barnes												EC_Cmp_pct	EE_Rem_hr	hcMwfKshN0mjMvVNOfxTOw		
+%R	42231	45799		101	100	N	N	WS_Open	691056193	Project Summary		37										EC_Cmp_pct	EE_Rem_hr	+agrXdTxp0uyeVtUTCLDaA		
+%R	42323	45799		102	100	N	N	WS_Open	691060893	Pre-Construciton		37										EC_Cmp_pct	EE_Rem_hr	7KV1Bz0iZUGtqsZ32NyFGg		
+%R	42418	45799		103	100	N	N	WS_Open	691065093	Construction		37										EC_Cmp_pct	EE_Rem_hr	tP7lClVYLkeU0HFqy6Jhyw		
+%R	42117	45799		104	100	N	N	WS_Open	691056493	Contract Milestones		42231										EC_Cmp_pct	EE_Rem_hr	/HXdnp/RrUChxTBajY/zNA		
+%R	42238	45799		105	100	N	N	WS_Open	691056293	Construction Milestones		42231										EC_Cmp_pct	EE_Rem_hr	GgJBfR5PREGgf02qymMOcA		
+%R	44471	45799		106	100	N	N	WS_Open	691103693	Schedule Impacts		42231										EC_Cmp_pct	EE_Rem_hr	2984TkaPhEO6gYf5LERn4g		
+%R	42799	45799		107	100	N	N	WS_Open	691080993	Mobilization		42418										EC_Cmp_pct	EE_Rem_hr	Ulrnyu5Q20K5Iq7bhR/oFA		
+%R	42345	45799		108	100	N	N	WS_Open	691061993	Site Development		42418										EC_Cmp_pct	EE_Rem_hr	BEXZ/GLwZ0emBCZMA/qhXQ		
+%R	42321	45799		109	100	N	N	WS_Open	691060793	Procurement		42323										EC_Cmp_pct	EE_Rem_hr	6yN/83An20eMvx3DvuYCXQ		
+%R	42412	45799		110	100	N	N	WS_Open	691064793	Foundation		42418										EC_Cmp_pct	EE_Rem_hr	vuS2gFzUa0ecrWeW5D6VBQ		
+%R	44669	45799		111	100	N	N	WS_Open	691108693	Additional Scope Per Owner - Required For Project Start		42323										EC_Cmp_pct	EE_Rem_hr	qsqVFzR6kEmCbLRJf+KFbQ		
+%R	42606	45799		112	100	N	N	WS_Open	691074393	Superstructure		42418										EC_Cmp_pct	EE_Rem_hr	6Afojn8U3k+tuYn3HCrR/w		
+%R	42614	45799		113	100	N	N	WS_Open	691074793	Exterior Skin		42418										EC_Cmp_pct	EE_Rem_hr	YvOFAts7EUCyOqx11ggzIg		
+%R	43721	45799		114	100	N	N	WS_Open	691091593	Rough-In		42418										EC_Cmp_pct	EE_Rem_hr	QZog3logrUe3agj8t8o3/g		
+%R	43946	45799		115	100	N	N	WS_Open	691091993	Janus Scope		42418										EC_Cmp_pct	EE_Rem_hr	NiMDfhoWVkuGxBGpXbX8nQ		
+%R	44060	45799		116	100	N	N	WS_Open	691094293	Elevators		42418										EC_Cmp_pct	EE_Rem_hr	hluCp8DICkSpw4eN0UWgIQ		
+%R	42620	45799		117	100	N	N	WS_Open	691075093	Interiors		42418										EC_Cmp_pct	EE_Rem_hr	NyRN24qHVkqYI1Vdw1XN9Q		
+%R	42831	45799		118	100	N	N	WS_Open	691082593	Final Sitework		42418										EC_Cmp_pct	EE_Rem_hr	ichZgkDQAkmjPEnYAbAazw		
+%R	42644	45799		119	100	N	N	WS_Open	691075893	Closeout		42418										EC_Cmp_pct	EE_Rem_hr	wlWTg4qS6UKidl6/pdvzPw		
+%R	44474	45799		120	100	N	N	WS_Open	691103793	Weather Delays		44471										EC_Cmp_pct	EE_Rem_hr	ecaw8RYaNkaQAn4M7J3svQ		
+%R	44544	45799		121	100	N	N	WS_Open	691104193	Project Impacts		44471										EC_Cmp_pct	EE_Rem_hr	8X98kbnN+UiTtE/H/ddUxQ		
+%R	44327	45799		122	100	N	N	WS_Open	691098893	Site Infrastructure		42345										EC_Cmp_pct	EE_Rem_hr	JmAJ1g2QX06BnGLo+cyb+w		
+%R	44328	45799		123	100	N	N	WS_Open	691098993	Site Civil		42345										EC_Cmp_pct	EE_Rem_hr	b/0g/j9cr0mSWWmYE5kRTg		
+%R	44367	45799		124	100	N	N	WS_Open	691099993	Paving		42345										EC_Cmp_pct	EE_Rem_hr	+5tzoIWyRkOFn8O+mUr6sw		
+%R	42626	45799		125	100	N	N	WS_Open	691074993	SOMD		42606										EC_Cmp_pct	EE_Rem_hr	P0QxAGl77UqvE5GLLaz8uA		
+%R	44346	45799		126	100	N	N	WS_Open	691099793	Roofing		42614										EC_Cmp_pct	EE_Rem_hr	9HX9npqI/0SjuZXCrwTQFA		
+%R	42833	45799		127	100	N	N	WS_Open	691082693	Hardscapes		42831										EC_Cmp_pct	EE_Rem_hr	LLAClm7gcUGz1TXlN/gVzA		
+%R	44643	45799		128	100	N	N	WS_Open	691107793	W.E. O'Neil BMP Install and Permitting - Owner Approved		44669										EC_Cmp_pct	EE_Rem_hr	h3ctknHZEEmw3MHy5YnUYA		
+%R	44644	45799		129	100	N	N	WS_Open	691107893	W.E. O'Neil Site Prep - Owner Approved		44669										EC_Cmp_pct	EE_Rem_hr	GNTWh4Kk3UeBYbICbNavQA		
+%R	43010	45799		130	100	N	N	WS_Open	691086493	Level 1		42614										EC_Cmp_pct	EE_Rem_hr	TjaA6H9XfEauZQVOhhBsKg		
+%R	43000	45799		131	100	N	N	WS_Open	691086093	Level 3		42614										EC_Cmp_pct	EE_Rem_hr	rueuMagCTk+0R+mSehRI4Q		
+%R	42990	45799		132	100	N	N	WS_Open	691085693	Level 2		42614										EC_Cmp_pct	EE_Rem_hr	H6cefcctH06unCUAu5Ywww		
+%R	43921	45799		133	100	N	N	WS_Open	691091593	North Elevation		42614										EC_Cmp_pct	EE_Rem_hr	U/S3OTcix0W7V/rqWv/BYQ		
+%R	43923	45799		134	100	N	N	WS_Open	691091693	South Elevation		42614										EC_Cmp_pct	EE_Rem_hr	iXKbepyae0e1eS+5auGU+Q		
+%R	43925	45799		135	100	N	N	WS_Open	691091793	East Elevation		42614										EC_Cmp_pct	EE_Rem_hr	OAHiR1xT10S25wQa7MVBRw		
+%R	42988	45799		136	100	N	N	WS_Open	691085593	West Elevation		42614										EC_Cmp_pct	EE_Rem_hr	1wf79+CrEUasgXaVhJQRlg		
+%R	42835	45799		137	100	N	N	WS_Open	691082793	Landscapes 		42831										EC_Cmp_pct	EE_Rem_hr	BGZGL24QfUKoSSELaN8eug		
+%R	43084	45799		138	100	N	N	WS_Open	691088793	Level 1 - Rough-In Work		43721										EC_Cmp_pct	EE_Rem_hr	WFpfwsLe1Ui7wZr13+QpyQ		
+%R	42618	45799		139	100	N	N	WS_Open	691074993	Storage Areas		42620										EC_Cmp_pct	EE_Rem_hr	JB9vrPpmpkSghLZQ1GJf7g		
+%R	42642	45799		140	100	N	N	WS_Open	691075793	CMU Cores		42606										EC_Cmp_pct	EE_Rem_hr	Ez9xwsmcY0m2bO+FfbYiig		
+%R	43148	45799		141	100	N	N	WS_Open	691088893	Level 2 - Rough-In Work		43721										EC_Cmp_pct	EE_Rem_hr	dQ32aa4ln0KLJx42J9b3Bg		
+%R	43150	45799		142	100	N	N	WS_Open	691088993	Level 3 - Rough-In Work		43721										EC_Cmp_pct	EE_Rem_hr	YgqbeZnrHEyRHDTg2Fk+nw		
+%R	42956	45799		143	100	N	N	WS_Open	691084693	Level 2 Deck		42626										EC_Cmp_pct	EE_Rem_hr	IzBmRl8FgUmvIFUUW/pKJA		
+%R	42943	45799		144	100	N	N	WS_Open	691084193	Level 3 Deck		42626										EC_Cmp_pct	EE_Rem_hr	u3adRDcZX0audaGnb9l72A		
+%R	44575	45799		145	100	N	N	WS_Open	691105393	Owner Scope Impacts		44544										EC_Cmp_pct	EE_Rem_hr	mJ3dhHdJvUmKVpGF7iAyEA		
+%R	42941	45799		146	100	N	N	WS_Open	691084093	Roof Deck		42626										EC_Cmp_pct	EE_Rem_hr	zKs+cLtLoUSc2wOt7w4gOg		
+%R	43990	45799		147	100	N	N	WS_Open	691093393	Level 1 - Interiors		42618										EC_Cmp_pct	EE_Rem_hr	FOq0WIuyQEOW0mQ5EWxThA		
+%R	43974	45799		148	100	N	N	WS_Open	691092793	Level 2 -Interiors		42618										EC_Cmp_pct	EE_Rem_hr	DYkicJOll0WQhgRWwbZsqw		
+%R	42622	45799		149	100	N	N	WS_Open	691075193	Level 3 - Interiors		42618										EC_Cmp_pct	EE_Rem_hr	EQB5pXhI8USUI3kpDvejJg		
+%R	42624	45799		150	100	N	N	WS_Open	691075293	Level 1 Office and Restrooms		42618										EC_Cmp_pct	EE_Rem_hr	0Pnwi6RR+kqbVVBgEYjtDw		
+%R	43065	45799		151	100	N	N	WS_Open	691088193	L3 A2		42943										EC_Cmp_pct	EE_Rem_hr	4yH/Mp6ydk+7FGTUPsHabA		
+%R	43045	45799		152	100	N	N	WS_Open	691087493	L2 A2		42956										EC_Cmp_pct	EE_Rem_hr	moAbnDA050ysaGUqH+YZgQ		
+%R	43043	45799		153	100	N	N	WS_Open	691087393	L2 A1		42956										EC_Cmp_pct	EE_Rem_hr	PTY5xG70EEiAlVPrglLhuA		
+%R	43062	45799		154	100	N	N	WS_Open	691088093	L3 A1		42943										EC_Cmp_pct	EE_Rem_hr	LT0xqjx+t0uHW8WrGTU7xA		
+%R	44583	45799		155	100	N	N	WS_Open	691105693	Pond Construction By Owner		44575										EC_Cmp_pct	EE_Rem_hr	Bh0iAGbsTEOhjnv64M1hzQ		
+%R	44586	45799		156	100	N	N	WS_Open	691105793	BMP Installation and Certification By Owner		44575										EC_Cmp_pct	EE_Rem_hr	fVgkPWVuGU29N7e1WhYryw		
+%R	44697	45799		157	100	N	N	WS_Open	691108893	Impacts Correspondence		44575										EC_Cmp_pct	EE_Rem_hr	kYInqYUydUOf2tbe//uwsg		
+%R	44593	45799		158	100	N	N	WS_Open	691106093	Owner Over-Ex and Pad Certification By Owner		44575										EC_Cmp_pct	EE_Rem_hr	eU88hRcxvUa4OoKuP9d5Ww		
+%T	TASK
+%F	task_id	proj_id	wbs_id	clndr_id	est_wt	phys_complete_pct	rev_fdbk_flag	lock_plan_flag	auto_compute_act_flag	complete_pct_type	task_type	duration_type	review_type	status_code	task_code	task_name	rsrc_id	total_float_hr_cnt	free_float_hr_cnt	remain_drtn_hr_cnt	act_work_qty	remain_work_qty	target_work_qty	target_drtn_hr_cnt	target_equip_qty	act_equip_qty	remain_equip_qty	cstr_date	act_start_date	act_end_date	late_start_date	late_end_date	expect_end_date	early_start_date	early_end_date	restart_date	reend_date	target_start_date	target_end_date	review_end_date	rem_late_start_date	rem_late_end_date	cstr_type	priority_type	guid	tmpl_guid	cstr_date2	cstr_type2	driving_path_flag	act_this_per_work_qty	act_this_per_equip_qty	old_restart_date	old_reend_date	old_remain_drtn_hr_cnt
+%R	42923	45799	42117	45946		100.00000000				CP_Drtn	TT_Mile	DT_FixedDrtn	RV_OK	TK_Complete	33172	Proposals/Bids Due				0.0000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	2024-07-18 08:00	2024-07-18 08:00	2024-07-18 08:00								2024-07-18 08:00	2024-07-18 08:00				CS_MSO	PT_Normal	Ph4WB1ooYk6u2m19JatXJQ				N					
+%R	42924	45799	42117	45946		100.00000000				CP_Drtn	TT_Mile	DT_FixedDrtn	RV_OK	TK_Complete	33182	Interviews				0.0000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	2024-07-22 08:00	2024-07-22 08:00	2024-07-22 08:00								2024-07-22 08:00	2024-07-22 08:00				CS_MSO	PT_Normal	HHAbUTvGSkmQqKYNc0NZtg				N					
+%R	42925	45799	42117	45946		100.00000000				CP_Drtn	TT_Mile	DT_FixedDrtn	RV_OK	TK_Complete	33192	Award Contract				0.0000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	2024-07-26 08:00	2024-07-26 08:00	2024-07-26 08:00								2024-07-26 08:00	2024-07-26 08:00				CS_MSO	PT_Normal	EkFiDctvE0uEdUaHq6Eh1g				N					
+%R	42119	45799	42117	45946		100.00000000				CP_Drtn	TT_Mile	DT_FixedDrtn	RV_OK	TK_Complete	NTP	Initial Notice to Proceed - Site Not in Compliance Per Contract				0.0000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	2025-01-14 08:00	2025-01-14 08:00	2025-01-14 08:00								2025-01-14 08:00	2025-01-14 08:00				CS_MSO	PT_Normal	WEyQrwCxmE+s3O+npoYQtg				N					
+%R	42273	45799	42238	45946		100.00000000				CP_Drtn	TT_Mile	DT_FixedDrtn	RV_OK	TK_Complete	1004	Permit Approved				0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-01-21 17:00	2025-01-21 17:00	2025-01-21 17:00								2025-01-21 17:00	2025-01-21 17:00				CS_MSO	PT_Normal	o91/kWlTcU2OwaWarNFtKg				N					
+%R	42274	45799	42238	45946		100.00000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_Complete	1005	Start Construction				0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000		2025-01-22 08:00	2025-01-22 08:00								2025-01-22 08:00	2025-01-22 08:00					PT_Normal	+ZBUKeOHik69pVDU/y9vIg				N					
+%R	42275	45799	42238	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	1007	Start of Foundations		1632.0000000	1632.0000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-06 08:00	2026-01-06 08:00		2025-03-17 08:00	2025-03-17 08:00	2025-03-17 08:00		2025-03-17 08:00	2025-03-17 08:00		2026-01-06 08:00	2026-01-06 08:00		PT_Normal	eovvIfgAPEK451swViP+JA				N					
+%R	42277	45799	42238	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	1008	Start of Elevated Structure		1320.0000000	1320.0000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-06 08:00	2026-01-06 08:00		2025-05-09 08:00	2025-05-09 08:00	2025-05-09 08:00		2025-05-09 08:00	2025-05-09 08:00		2026-01-06 08:00	2026-01-06 08:00		PT_Normal	VRTQOWKRFUuNSt5WFKD+qw				N					
+%R	42278	45799	42238	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	1010	Structure Complete		888.00000000	888.00000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-06 08:00	2026-01-06 08:00		2025-07-25 17:00	2025-07-25 17:00	2025-07-25 17:00		2025-07-25 17:00	2025-07-25 17:00		2026-01-06 08:00	2026-01-06 08:00		PT_Normal	3WmC8XolRUW4sRA/rywTCw				N					
+%R	42353	45799	42238	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	1012	Stair Cores Complete to Roof		1344.0000000	1344.0000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-06 08:00	2026-01-06 08:00		2025-05-05 17:00	2025-05-05 17:00	2025-05-05 17:00		2025-05-05 17:00	2025-05-05 17:00		2026-01-06 08:00	2026-01-06 08:00		PT_Normal	VitJIuGLlUaUYIIzB0YWIw				N					
+%R	42279	45799	42238	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	1015	Exterior Work Complete		320.00000000	320.00000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-06 08:00	2026-01-06 08:00		2025-11-04 17:00	2025-11-04 17:00	2025-11-04 17:00		2025-11-04 17:00	2025-11-04 17:00		2026-01-06 08:00	2026-01-06 08:00		PT_Normal	gpc8l03bkEmZRbW2/5+11w				N					
+%R	44475	45799	44474	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1027	Contract Weather Days - 10 Days		0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-03 08:00	2025-12-16 17:00		2025-12-03 08:00	2025-12-16 17:00	2025-12-03 08:00		2025-12-03 08:00	2025-12-16 17:00		2025-12-03 08:00	2025-12-16 17:00		PT_Normal	VGz8UhRS10KAFbgUAQXXnw				N					
+%R	42280	45799	42238	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	1016	Building Dry In		728.00000000	728.00000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-06 08:00	2026-01-06 08:00		2025-08-22 17:00	2025-08-22 17:00	2025-08-22 17:00		2025-08-22 17:00	2025-08-22 17:00		2026-01-06 08:00	2026-01-06 08:00		PT_Normal	8iKwOBQz/EqPa9J2oYw8kA				N					
+%R	42264	45799	42117	45946		0.0000000000				CP_Drtn	TT_Mile	DT_FixedDrtn	RV_OK	TK_NotStart	SC	Project SC - Before Weather Impacts		0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-03 08:00	2025-12-03 08:00		2025-12-02 17:00	2025-12-02 17:00	2025-12-02 17:00		2025-12-02 17:00	2025-12-02 17:00		2025-12-03 08:00	2025-12-03 08:00		PT_Normal	sjC8C3w8/k2XOKCiiAuiYA				N					
+%R	42266	45799	42117	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	PSC	Project Substantially Complete - After Weather Impacts		0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-17 08:00	2025-12-17 08:00		2025-12-16 17:00	2025-12-16 17:00	2025-12-16 17:00		2025-12-16 17:00	2025-12-16 17:00		2025-12-17 08:00	2025-12-17 08:00		PT_Normal	lSvS1dHwEU+vMQy8IbQX7Q				N					
+%R	44162	45799	42117	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	PSC0001	Operational Setup		0.0000000000	0.0000000000	96.000000000	0.0000000000	0.0000000000	0.0000000000	96.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-17 08:00	2026-01-05 17:00		2025-12-17 08:00	2026-01-05 17:00	2025-12-17 08:00		2025-12-17 08:00	2026-01-05 17:00		2025-12-17 08:00	2026-01-05 17:00		PT_Normal	stt2OCNWFkilcQN40sWa6g				N					
+%R	44163	45799	42117	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	PSC0002	Project Open		0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-06 08:00	2026-01-06 08:00		2026-01-06 08:00	2026-01-06 08:00	2026-01-06 08:00		2026-01-06 08:00	2026-01-06 08:00		2026-01-06 08:00	2026-01-06 08:00		PT_Normal	VlCb/K4oqUyBUktB2TQoYQ				N					
+%R	44065	45799	42321	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	34952	Contracting of Early Trades				0.0000000000	0.0000000000	0.0000000000	0.0000000000	1024.0000000	0.0000000000	0.0000000000	0.0000000000		2024-07-26 08:00	2025-01-28 17:00								2024-07-26 08:00	2025-01-28 17:00					PT_Normal	yc1Vpa+rQ0SyCplyi4HpiQ				N					
+%R	42797	45799	42799	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	32932	Mobilization and Survey				0.0000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000		2025-01-22 08:00	2025-01-28 17:00								2025-01-22 08:00	2025-01-28 17:00					PT_Normal	gjqJvaYlykWnA3ygu5p3IA				N					
+%R	44657	45799	44644	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35906	Owner Approval/Direction to Grade Site Per GEC (Email - 2/3)				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-02-03 08:00	2025-02-03 08:00	2025-02-03 17:00								2025-02-03 08:00	2025-02-03 17:00				CS_MSOA	PT_Normal	1E3kKhAWOk6G2NiyIAgxlQ				N					
+%R	42763	45799	42321	45946		84.337348938				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Active	32912	Elevator (By Owner)		936.00000000	824.00000000	208.00000000	0.0000000000	0.0000000000	0.0000000000	1328.0000000	0.0000000000	0.0000000000	0.0000000000		2024-08-16 08:00		2025-08-21 08:00	2025-09-26 17:00		2025-03-07 08:00	2025-04-11 17:00	2025-03-07 08:00		2024-08-16 08:00	2025-04-11 17:00		2025-08-21 08:00	2025-09-26 17:00		PT_Normal	37aYFIuWM0+yJloQbaS66g				N					
+%R	44576	45799	44583	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35676	Pond Construction by Owner		1440.0000000	1440.0000000	240.00000000	0.0000000000	0.0000000000	0.0000000000	240.00000000	0.0000000000	0.0000000000	0.0000000000				2025-11-19 08:00	2026-01-05 17:00		2025-03-07 08:00	2025-04-17 17:00	2025-03-07 08:00		2025-03-07 08:00	2025-04-17 17:00		2025-11-19 08:00	2026-01-05 17:00		PT_Normal	VXKeUjrwp0K0839dJlNEpA				N					
+%R	44178	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35012	Excavate Footers		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-03-17 08:00	2025-03-21 17:00		2025-03-17 08:00	2025-03-21 17:00	2025-03-17 08:00		2025-03-17 08:00	2025-03-21 17:00		2025-03-17 08:00	2025-03-21 17:00		PT_Normal	iaoGiClnkES6o94sIn0B7g				N					
+%R	44184	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35003	FRPS All Grade Beams and Footers		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-03-20 08:00	2025-03-26 17:00		2025-03-20 08:00	2025-03-26 17:00	2025-03-20 08:00		2025-03-20 08:00	2025-03-26 17:00		2025-03-20 08:00	2025-03-26 17:00		PT_Normal	s1bAgmBUykK4TCX56T8jNQ				N					
+%R	44190	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35004	FRPS Stem Walls		0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-03-25 08:00	2025-04-07 17:00		2025-03-25 08:00	2025-04-07 17:00	2025-03-25 08:00		2025-03-25 08:00	2025-04-07 17:00		2025-03-25 08:00	2025-04-07 17:00		PT_Normal	85hPZboiekSPqPPi8hCDFg				N					
+%R	44202	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35023	Foundation Dampproof and Insulation - SOG Area 1 and 2		0.0000000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-04 08:00	2025-04-09 17:00		2025-04-04 08:00	2025-04-09 17:00	2025-04-04 08:00		2025-04-04 08:00	2025-04-09 17:00		2025-04-04 08:00	2025-04-09 17:00		PT_Normal	AJIW7qIpkUeokqVR9TXEQA				N					
+%R	44534	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1067	Foundation Dampproof and Insulation - SOG Area 3		80.000000000	80.000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-24 08:00	2025-04-28 17:00		2025-04-10 08:00	2025-04-14 17:00	2025-04-10 08:00		2025-04-10 08:00	2025-04-14 17:00		2025-04-24 08:00	2025-04-28 17:00		PT_Normal	AeH15b3NjkCpZPX/FOb5pQ				N					
+%R	42980	45799	43062	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33233	Layout Walls and Hold Downs		0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-11 08:00	2025-06-12 17:00		2025-06-11 08:00	2025-06-12 17:00	2025-06-11 08:00		2025-06-11 08:00	2025-06-12 17:00		2025-06-11 08:00	2025-06-12 17:00		PT_Normal	captXBMKCU2twNS+N5FpIA				N					
+%R	42976	45799	43043	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33283	Layout Walls and Hold Downs		0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-05-09 08:00	2025-05-12 17:00		2025-05-09 08:00	2025-05-12 17:00	2025-05-09 08:00		2025-05-09 08:00	2025-05-12 17:00		2025-05-09 08:00	2025-05-12 17:00		PT_Normal	o1aS+vPSi0WxfysWXJrRzQ				N					
+%R	43051	45799	43045	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33492	Layout Walls and Hold Downs		0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-05-16 08:00	2025-05-19 17:00		2025-05-16 08:00	2025-05-19 17:00	2025-05-16 08:00		2025-05-16 08:00	2025-05-19 17:00		2025-05-16 08:00	2025-05-19 17:00		PT_Normal	jecFdkT8aEGT6z6nHAK8ww				N					
+%R	43071	45799	43065	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33562	Layout Walls and Hold Downs		96.000000000	24.000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-01 08:00	2025-07-02 17:00		2025-06-13 08:00	2025-06-16 17:00	2025-06-13 08:00		2025-06-13 08:00	2025-06-16 17:00		2025-07-01 08:00	2025-07-02 17:00		PT_Normal	/yI1aT5qBUC27L3JGxP7Vw				N					
+%R	44316	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35263	Underground Plumbing Excavate, Install and Inspect		40.000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-03 08:00	2025-04-09 17:00		2025-03-27 08:00	2025-04-02 17:00	2025-03-27 08:00		2025-03-27 08:00	2025-04-02 17:00		2025-04-03 08:00	2025-04-09 17:00		PT_Normal	Mrj1dHTSU0iY9KtXzI01Ag				N					
+%R	44658	45799	44644	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35896	Grading per GEC Plan 				0.0000000000	0.0000000000	0.0000000000	0.0000000000	96.000000000	0.0000000000	0.0000000000	0.0000000000	2025-02-05 08:00	2025-02-05 08:00	2025-02-10 17:00								2025-02-05 08:00	2025-02-20 17:00				CS_MSOA	PT_Normal	mZB/ILzQJUqmihM6dFuflQ				N					
+%R	44596	45799	44583	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35668	Pond Construction Per Owner				0.0000000000	0.0000000000	0.0000000000	0.0000000000	320.00000000	0.0000000000	0.0000000000	0.0000000000		2025-01-20 08:00	2025-03-05 17:00								2025-01-09 08:00	2025-03-05 17:00					PT_Normal	MJU0tqGpHUWcTAIn8IxqgA				N					
+%R	44439	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35493	Fire Sprinkler Riser Excavate, Install and Inspect		64.000000000	64.000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-08 08:00	2025-04-09 17:00		2025-03-27 08:00	2025-03-28 17:00	2025-03-27 08:00		2025-03-27 08:00	2025-03-28 17:00		2025-04-08 08:00	2025-04-09 17:00		PT_Normal	2dcyM6xtQkqIOhqQRw/law				N					
+%R	44435	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35483	Underground Plumbing Backfill and Recompact		40.000000000	40.000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-10 08:00	2025-04-11 17:00		2025-04-03 08:00	2025-04-04 17:00	2025-04-03 08:00		2025-04-03 08:00	2025-04-04 17:00		2025-04-10 08:00	2025-04-11 17:00		PT_Normal	D6OiYj64Tky3GEShss525Q				N					
+%R	44131	45799	42321	45946		84.848487854				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Active	32922	Electric Room MDP		544.00000000	504.00000000	200.00000000	0.0000000000	0.0000000000	0.0000000000	1320.0000000	0.0000000000	0.0000000000	0.0000000000		2024-08-16 08:00		2025-06-12 08:00	2025-07-17 17:00		2025-03-07 08:00	2025-04-10 17:00	2025-03-07 08:00		2024-08-16 08:00	2025-04-10 17:00		2025-06-12 08:00	2025-07-17 17:00		PT_Normal	JEswLWhHPUK0AE/GPxPp4w				N					
+%R	44578	45799	44583	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35686	Pond Contractor Permit Pulled				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-03-06 08:00	2025-03-06 08:00	2025-03-06 17:00								2025-03-06 08:00	2025-03-06 17:00				CS_MSOA	PT_Normal	fNoB01SPKUa2NLDRZm1ZLQ				N					
+%R	42823	45799	42833	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1129	Sidewalks		248.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-26 08:00	2025-12-04 17:00		2025-10-14 08:00	2025-10-20 17:00	2025-10-14 08:00		2025-10-14 08:00	2025-10-20 17:00		2025-11-26 08:00	2025-12-04 17:00		PT_Normal	Lkj4UsZGmkKutQVqktXIjg				N					
+%R	42440	45799	43925	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1078	Storefront 		368.00000000	368.00000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-19 08:00	2026-01-05 17:00		2025-10-14 08:00	2025-10-27 17:00	2025-10-14 08:00		2025-10-14 08:00	2025-10-27 17:00		2025-12-19 08:00	2026-01-05 17:00		PT_Normal	cYOliIjaAk287qurZbttyw				N					
+%R	42828	45799	42835	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1179	Irrigation Systems		248.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-05 08:00	2025-12-11 17:00		2025-10-21 08:00	2025-10-27 17:00	2025-10-21 08:00		2025-10-21 08:00	2025-10-27 17:00		2025-12-05 08:00	2025-12-11 17:00		PT_Normal	PUv43vwrjUqR+mGkHzhQqg				N					
+%R	44735	45799	42835	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1180	Irrigation sleeving		1280.0000000	1280.0000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-05-09 08:00	2025-05-15 17:00	2025-05-09 08:00		2025-05-09 08:00	2025-05-15 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	XGg9Vgrl40KdCLF4xuLwUQ				N					
+%R	42829	45799	42835	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1189	Plantings		248.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-12 08:00	2025-12-18 17:00		2025-10-28 08:00	2025-11-03 17:00	2025-10-28 08:00		2025-10-28 08:00	2025-11-03 17:00		2025-12-12 08:00	2025-12-18 17:00		PT_Normal	/4F3xmWhA0Ke9+AcFGnNcg				N					
+%R	42948	45799	43062	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33242	Erect Bearing Walls and HSS Columns		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-13 08:00	2025-06-19 17:00		2025-06-13 08:00	2025-06-19 17:00	2025-06-13 08:00		2025-06-13 08:00	2025-06-19 17:00		2025-06-13 08:00	2025-06-19 17:00		PT_Normal	51UtepEGJEe13xtjSqbe3w				N					
+%R	42936	45799	42941	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33212	Erect Bearing Walls and HSS Columns		72.000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-18 08:00	2025-07-31 17:00		2025-07-07 08:00	2025-07-18 17:00	2025-07-07 08:00		2025-07-07 08:00	2025-07-18 17:00		2025-07-18 08:00	2025-07-31 17:00		PT_Normal	wGICGy+nrUe1d0lYkHqc8g				N					
+%R	43072	45799	43065	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33572	Erect Bearing Walls and HSS Columns		72.000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-03 08:00	2025-07-10 17:00		2025-06-20 08:00	2025-06-26 17:00	2025-06-20 08:00		2025-06-20 08:00	2025-06-26 17:00		2025-07-03 08:00	2025-07-10 17:00		PT_Normal	rCTC4D7HhkeA5JKY7SiLRA				N					
+%R	44117	45799	43000	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34982	CFMF A2		888.00000000	888.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-07-21 08:00	2025-07-25 17:00	2025-07-21 08:00		2025-07-21 08:00	2025-07-25 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	b6xnSLTcRUCAMA21/O6a+Q				N					
+%R	43052	45799	43045	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33502	Erect Bearing Walls and HSS Columns		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-05-21 08:00	2025-05-28 17:00		2025-05-21 08:00	2025-05-28 17:00	2025-05-21 08:00		2025-05-21 08:00	2025-05-28 17:00		2025-05-21 08:00	2025-05-28 17:00		PT_Normal	JCFTbjnS206apcW9tivvKw				N					
+%R	42961	45799	43043	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33292	Erect Bearing Walls and HSS Columns		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-05-14 08:00	2025-05-20 17:00		2025-05-14 08:00	2025-05-20 17:00	2025-05-14 08:00		2025-05-14 08:00	2025-05-20 17:00		2025-05-14 08:00	2025-05-20 17:00		PT_Normal	qKRqJ2zoMkeUAOfhJW3MUQ				N					
+%R	42650	45799	42644	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1111	Commissioning		0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-10 08:00	2025-11-19 17:00		2025-11-10 08:00	2025-11-19 17:00	2025-11-10 08:00		2025-11-10 08:00	2025-11-19 17:00		2025-11-10 08:00	2025-11-19 17:00		PT_Normal	vjouMwYnQ0+l1yABskaabw				N					
+%R	44713	45799	44644	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35986	Cold Weather Delay (High below freezing)				0.0000000000	0.0000000000	0.0000000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-11 08:00	2025-02-14 17:00								2025-02-11 08:00	2025-02-14 17:00					PT_Normal	7klyEKEkGkyVWyt/ANPUxg				N					
+%R	44291	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35243	Ground Prep for SOG - Area 3		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-29 08:00	2025-05-05 17:00		2025-04-29 08:00	2025-05-05 17:00	2025-04-29 08:00		2025-04-29 08:00	2025-05-05 17:00		2025-04-29 08:00	2025-05-05 17:00		PT_Normal	udU8EDX/pEuEMTfrTHdr0g				N					
+%R	44294	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35253	SOG FRPS - Area 2.SOG FRPS - Area 1 		0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-29 08:00	2025-05-08 17:00		2025-04-29 08:00	2025-05-08 17:00	2025-04-29 08:00		2025-04-29 08:00	2025-05-08 17:00		2025-04-29 08:00	2025-05-08 17:00		PT_Normal	qvFesf+ObEmgXBy8+W93xQ				N					
+%R	44288	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35233	SOG FRPS - Area 3.SOG FRPS - Area 1 		0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000				2025-05-06 08:00	2025-05-15 17:00		2025-05-06 08:00	2025-05-15 17:00	2025-05-06 08:00		2025-05-06 08:00	2025-05-15 17:00		2025-05-06 08:00	2025-05-15 17:00		PT_Normal	8TJapd6YDEauJL+AQWa65w				N					
+%R	44265	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35134	Backfill and Ground Prep - SOG Area 1 and 2		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-10 08:00	2025-04-16 17:00		2025-04-10 08:00	2025-04-16 17:00	2025-04-10 08:00		2025-04-10 08:00	2025-04-16 17:00		2025-04-10 08:00	2025-04-16 17:00		PT_Normal	oNoYULZBQkekUEyMUliBQA				N					
+%R	44698	45799	44697	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35946	Initial NTP From Owner				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-01-14 08:00	2025-01-14 08:00	2025-01-14 17:00								2025-01-14 08:00	2025-01-14 17:00				CS_MSOA	PT_Normal	C/4D3FB/9kKNTUkbccq3fA				N					
+%R	44263	45799	42412	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35183	SOG FRPS - Area 1 		0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-17 08:00	2025-04-28 17:00		2025-04-17 08:00	2025-04-28 17:00	2025-04-17 08:00		2025-04-17 08:00	2025-04-28 17:00		2025-04-17 08:00	2025-04-28 17:00		PT_Normal	Iow5dKi9uUOGHVX705FZEQ				N					
+%R	44158	45799	42321	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	34992	Owner's Enabling Contract Work				0.0000000000	0.0000000000	0.0000000000	0.0000000000	768.00000000	0.0000000000	0.0000000000	0.0000000000	2024-08-26 08:00	2024-08-26 08:00	2025-01-13 17:00								2024-08-26 08:00	2025-01-13 17:00				CS_MSO	PT_Normal	HcBcXGx+506EwuZ+XDqbfg				N					
+%R	44694	45799	44697	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35926	W.E.O. Notification of Delayed Mobilization Due to Weather				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-01-14 08:00	2025-01-14 08:00	2025-01-14 17:00								2025-01-14 08:00	2025-01-14 17:00				CS_MSOA	PT_Normal	lHHSSLbE706Smv16YpRLPA				N					
+%R	44587	45799	44586	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35706	Repair and Install BMPS By Owner (not completed by owner)				0.0000000000	0.0000000000	0.0000000000	0.0000000000	200.00000000	0.0000000000	0.0000000000	0.0000000000		2025-01-20 08:00	2025-02-12 17:00								2025-01-09 08:00	2025-02-12 17:00					PT_Normal	vc8eGdXLlUCo99Yxr0bDDw				N					
+%R	44741	45799	42833	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1130	Trash Enclosure Gates		1096.0000000	776.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-26 08:00	2026-01-02 17:00		2025-06-11 08:00	2025-06-17 17:00	2025-06-11 08:00		2025-06-11 08:00	2025-06-17 17:00		2025-12-26 08:00	2026-01-02 17:00		PT_Normal	00bYrHdpLkqtCijlY0HGAw				N					
+%R	42472	45799	42941	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1066	Decking		192.00000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-15 08:00	2025-08-28 17:00		2025-07-14 08:00	2025-07-25 17:00	2025-07-14 08:00		2025-07-14 08:00	2025-07-25 17:00		2025-08-15 08:00	2025-08-28 17:00		PT_Normal	k/8liA/xLUyka7Evvddrwg				N					
+%R	43073	45799	43065	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33582	Decking		72.000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-11 08:00	2025-07-17 17:00		2025-06-27 08:00	2025-07-03 17:00	2025-06-27 08:00		2025-06-27 08:00	2025-07-03 17:00		2025-07-11 08:00	2025-07-17 17:00		PT_Normal	BYAI+/E3w0SO93JSh4Qp7Q				N					
+%R	43030	45799	43000	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33403	Electrical Rough-In		112.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-08 08:00	2025-08-14 17:00		2025-07-21 08:00	2025-07-25 17:00	2025-07-21 08:00		2025-07-21 08:00	2025-07-25 17:00		2025-08-08 08:00	2025-08-14 17:00		PT_Normal	VzUSnkWjX0Gs0XA4OTLVgg				N					
+%R	43032	45799	42990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33404	In-Wall Blocking		1048.0000000	1048.0000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-06-20 08:00	2025-06-26 17:00	2025-06-20 08:00		2025-06-20 08:00	2025-06-26 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	U4rCVepXGUSi352jjwd2uw				N					
+%R	42616	45799	44346	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1075	Roof Install		192.00000000	0.0000000000	160.00000000	0.0000000000	0.0000000000	0.0000000000	160.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-29 08:00	2025-09-26 17:00		2025-07-28 08:00	2025-08-22 17:00	2025-07-28 08:00		2025-07-28 08:00	2025-08-22 17:00		2025-08-29 08:00	2025-09-26 17:00		PT_Normal	C4Bm5ITQsUag77aSLn4CxQ				N					
+%R	43053	45799	43045	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33512	Decking		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-05-29 08:00	2025-06-04 17:00		2025-05-29 08:00	2025-06-04 17:00	2025-05-29 08:00		2025-05-29 08:00	2025-06-04 17:00		2025-05-29 08:00	2025-06-04 17:00		PT_Normal	nbF1ylUJFUafDKCGwbaN7g				N					
+%R	42962	45799	43043	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33302	Decking		40.000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-05-29 08:00	2025-06-04 17:00		2025-05-21 08:00	2025-05-28 17:00	2025-05-21 08:00		2025-05-21 08:00	2025-05-28 17:00		2025-05-29 08:00	2025-06-04 17:00		PT_Normal	r/P4qZYG50SCc/faqFF0QA				N					
+%R	42949	45799	43062	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33252	Decking		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-20 08:00	2025-06-26 17:00		2025-06-20 08:00	2025-06-26 17:00	2025-06-20 08:00		2025-06-20 08:00	2025-06-26 17:00		2025-06-20 08:00	2025-06-26 17:00		PT_Normal	0vlRbLprU0Kx3yB0BRGh6Q				N					
+%R	44716	45799	44644	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35996	Grading Per GEC Plan Continued				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-17 08:00	2025-02-17 17:00								2025-02-17 08:00	2025-02-17 17:00					PT_Normal	f+Kw+1hU2EysgGiwfZHWtQ				N					
+%R	42651	45799	42644	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1112	Fire Alarm Programing/Testing		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-13 08:00	2025-11-19 17:00		2025-11-13 08:00	2025-11-19 17:00	2025-11-13 08:00		2025-11-13 08:00	2025-11-19 17:00		2025-11-13 08:00	2025-11-19 17:00		PT_Normal	1+KzQBbw3U+31Ocbbt80hA				N					
+%R	44746	45799	42833	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1140	Detention Pond Fencing		328.00000000	80.000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-26 08:00	2025-12-04 17:00		2025-09-30 08:00	2025-10-06 17:00	2025-09-30 08:00		2025-09-30 08:00	2025-10-06 17:00		2025-11-26 08:00	2025-12-04 17:00		PT_Normal	FUZg4Msw2Uicug2GdgfIvw				N					
+%R	43006	45799	43921	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33422	Veneer - North		112.00000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-29 08:00	2025-09-19 17:00		2025-08-11 08:00	2025-08-29 17:00	2025-08-11 08:00		2025-08-11 08:00	2025-08-29 17:00		2025-08-29 08:00	2025-09-19 17:00		PT_Normal	SSmDUvg7oE+EAawmrLUUYw				N					
+%R	43016	45799	43923	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33462	Veneer - South		248.00000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-10-22 08:00	2025-11-11 17:00		2025-09-09 08:00	2025-09-29 17:00	2025-09-09 08:00		2025-09-09 08:00	2025-09-29 17:00		2025-10-22 08:00	2025-11-11 17:00		PT_Normal	FLGXXjdh90qo+9VU9AznBw				N					
+%R	42996	45799	43925	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33382	Veneer - East		248.00000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-11-05 08:00	2025-11-25 17:00		2025-09-23 08:00	2025-10-13 17:00	2025-09-23 08:00		2025-09-23 08:00	2025-10-13 17:00		2025-11-05 08:00	2025-11-25 17:00		PT_Normal	JEeKKiRJxUmWqXyS3Tvg8A				N					
+%R	44652	45799	44643	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35846	Owner Approval/Direction To Install Stormwater BMP's (OAC Meeting)				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-02-13 08:00	2025-02-13 08:00	2025-02-13 17:00								2025-02-13 08:00	2025-02-13 17:00				CS_MSO	PT_Normal	dXbkDjSA2UOgFh9vQu0gNg				N					
+%R	43074	45799	43065	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33592	Prep Deck for pour		200.00000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-11 08:00	2025-08-13 17:00		2025-07-07 08:00	2025-07-09 17:00	2025-07-07 08:00		2025-07-07 08:00	2025-07-09 17:00		2025-08-11 08:00	2025-08-13 17:00		PT_Normal	yElrMIuXvUSYMP8ZwXI5ww				N					
+%R	42950	45799	43062	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33262	Prep Deck for pour		0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-27 08:00	2025-07-01 17:00		2025-06-27 08:00	2025-07-01 17:00	2025-06-27 08:00		2025-06-27 08:00	2025-07-01 17:00		2025-06-27 08:00	2025-07-01 17:00		PT_Normal	E9kax/ZYaEm5sdT5+Z2H4g				N					
+%R	43054	45799	43045	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33522	Prep Deck for pour		0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-05 08:00	2025-06-09 17:00		2025-06-05 08:00	2025-06-09 17:00	2025-06-05 08:00		2025-06-05 08:00	2025-06-09 17:00		2025-06-05 08:00	2025-06-09 17:00		PT_Normal	0yl0f7fgTkKB256UVW2hSA				N					
+%R	42963	45799	43043	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33312	Prep Deck for pour		40.000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-05 08:00	2025-06-09 17:00		2025-05-29 08:00	2025-06-02 17:00	2025-05-29 08:00		2025-05-29 08:00	2025-06-02 17:00		2025-06-05 08:00	2025-06-09 17:00		PT_Normal	r4b8lqyhv0GDDQCXVmYxhw				N					
+%R	44594	45799	44593	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35726	Owner Over-Ex Complete and Pad Ceritification Emaiol				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-01-08 08:00	2025-01-16 08:00	2025-01-16 17:00								2025-01-08 08:00	2025-01-08 17:00				CS_MSOA	PT_Normal	TeauRpCAYk6rPM5Br42OBw				N					
+%R	42652	45799	42644	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1113	Final Inspections		0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-20 08:00	2025-12-02 17:00		2025-11-20 08:00	2025-12-02 17:00	2025-11-20 08:00		2025-11-20 08:00	2025-12-02 17:00		2025-11-20 08:00	2025-12-02 17:00		PT_Normal	ylZjzUKbw06O60mGyR+WKg				N					
+%R	44702	45799	44697	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35956	W.E.O. Notification of Site Condition Impacting start of work				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-01-22 08:00	2025-01-22 08:00	2025-01-22 17:00								2025-01-22 08:00	2025-01-22 17:00				CS_MSOA	PT_Normal	goLY44gNF02daelOXPPOrw				N					
+%R	44743	45799	42833	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1131	Striping and Signage		320.00000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-05 08:00	2026-01-05 17:00		2025-11-04 08:00	2025-11-04 17:00	2025-11-04 08:00		2025-11-04 08:00	2025-11-04 17:00		2026-01-05 08:00	2026-01-05 17:00		PT_Normal	+R2LEW8PhUiw4ca5l0DyoQ				N					
+%R	43075	45799	43065	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33602	Pour Level 3 Deck		200.00000000	8.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-14 08:00	2025-08-14 17:00		2025-07-10 08:00	2025-07-10 17:00	2025-07-10 08:00		2025-07-10 08:00	2025-07-10 17:00		2025-08-14 08:00	2025-08-14 17:00		PT_Normal	NcqX0t/txkegs7h6nnC08Q				N					
+%R	42964	45799	43043	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33322	Pour Level 2 Deck		40.000000000	40.000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-10 08:00	2025-06-10 17:00		2025-06-03 08:00	2025-06-03 17:00	2025-06-03 08:00		2025-06-03 08:00	2025-06-03 17:00		2025-06-10 08:00	2025-06-10 17:00		PT_Normal	J0QY/m9hIUewCdMSJ140GQ				N					
+%R	43055	45799	43045	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33532	Pour Level 2 Deck		0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-10 08:00	2025-06-10 17:00		2025-06-10 08:00	2025-06-10 17:00	2025-06-10 08:00		2025-06-10 08:00	2025-06-10 17:00		2025-06-10 08:00	2025-06-10 17:00		PT_Normal	qqI278Jp50a+ayyBg2mREg				N					
+%R	42951	45799	43062	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33272	Pour Level 3 Deck		0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-02 08:00	2025-07-02 17:00		2025-07-02 08:00	2025-07-02 17:00	2025-07-02 08:00		2025-07-02 08:00	2025-07-02 17:00		2025-07-02 08:00	2025-07-02 17:00		PT_Normal	xNI1YX7c70+uaGp4LZmb+Q				N					
+%R	43014	45799	43010	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33442	CFMF A1		200.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-19 08:00	2025-06-25 17:00		2025-05-14 08:00	2025-05-20 17:00	2025-05-14 08:00		2025-05-14 08:00	2025-05-20 17:00		2025-06-19 08:00	2025-06-25 17:00		PT_Normal	jg8wxTzUIEm04LsjvjUNlg				N					
+%R	44355	45799	44346	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1076	Roof Penetrations, All Trades		864.00000000	864.00000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-31 08:00	2026-01-05 17:00		2025-07-28 08:00	2025-07-30 17:00	2025-07-28 08:00		2025-07-28 08:00	2025-07-30 17:00		2025-12-31 08:00	2026-01-05 17:00		PT_Normal	snZYQKiTEEOY0jleUqwqVQ				N					
+%R	43004	45799	43000	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33402	CFMF A1		72.000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-18 08:00	2025-07-31 17:00		2025-07-07 08:00	2025-07-18 17:00	2025-07-07 08:00		2025-07-07 08:00	2025-07-18 17:00		2025-07-18 08:00	2025-07-31 17:00		PT_Normal	vplr8wLmGk+1CuaanQjKYA				N					
+%R	42994	45799	42990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33362	CFMF A1		112.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-03 08:00	2025-07-10 17:00		2025-06-13 08:00	2025-06-19 17:00	2025-06-13 08:00		2025-06-13 08:00	2025-06-19 17:00		2025-07-03 08:00	2025-07-10 17:00		PT_Normal	Io37H+fCCkeQGjaku7zniQ				N					
+%R	44719	45799	44644	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	36006	Cold Weather Delay (High Below Freezing				0.0000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-18 08:00	2025-02-19 17:00								2025-02-18 08:00	2025-02-19 17:00					PT_Normal	ek4U6y2qp0ulJLSb18F+aw				N					
+%R	43954	45799	43946	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33842	Level 1 - JS		40.000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-01 08:00	2025-08-21 17:00		2025-07-25 08:00	2025-08-14 17:00	2025-07-25 08:00		2025-07-25 08:00	2025-08-14 17:00		2025-08-01 08:00	2025-08-21 17:00		PT_Normal	gR3VEoEBi0urSTAH2E3jsQ				N					
+%R	42653	45799	42644	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1114	WEO Overall / Final Punch List Work		152.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-19 08:00	2025-12-26 17:00		2025-11-20 08:00	2025-11-26 17:00	2025-11-20 08:00		2025-11-20 08:00	2025-11-26 17:00		2025-12-19 08:00	2025-12-26 17:00		PT_Normal	UaUljynfhE64wFzfBoejkA				N					
+%R	44061	45799	44060	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33882	Elevator Installation		112.00000000	112.00000000	240.00000000	0.0000000000	0.0000000000	0.0000000000	240.00000000	0.0000000000	0.0000000000	0.0000000000				2025-09-29 08:00	2025-11-07 17:00		2025-09-09 08:00	2025-10-20 17:00	2025-09-09 08:00		2025-09-09 08:00	2025-10-20 17:00		2025-09-29 08:00	2025-11-07 17:00		PT_Normal	ci3Lmbi3e0SMYgXJ6IwqvA				N					
+%R	44114	45799	43010	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34972	CFMF A2		200.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-06-26 08:00	2025-07-02 17:00		2025-05-21 08:00	2025-05-28 17:00	2025-05-21 08:00		2025-05-21 08:00	2025-05-28 17:00		2025-06-26 08:00	2025-07-02 17:00		PT_Normal	w2rCW+bOskKxZyw4AmTAgA				N					
+%R	44653	45799	44643	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35856	W.E. O'neil Subcontractor Agreements				0.0000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-14 08:00	2025-02-24 17:00								2025-02-14 08:00	2025-02-24 17:00					PT_Normal	OGu5iyegHEShjohDqU7DiQ				N					
+%R	44118	45799	42990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33363	CFMF A2		112.00000000	40.000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-11 08:00	2025-07-17 17:00		2025-06-20 08:00	2025-06-26 17:00	2025-06-20 08:00		2025-06-20 08:00	2025-06-26 17:00		2025-07-11 08:00	2025-07-17 17:00		PT_Normal	Z0AVp1rtvkGHhTMiO2NmnQ				N					
+%R	43026	45799	43010	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33443	Electrical Rough-in		1176.0000000	1176.0000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-05-29 08:00	2025-06-04 17:00	2025-05-29 08:00		2025-05-29 08:00	2025-06-04 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	hRUXlRcL10OseSLeE7PqPA				N					
+%R	44706	45799	44697	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35966	W.E.O. Notification of Continued Site Impacts				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-01-28 08:00	2025-01-28 08:00	2025-01-28 17:00								2025-01-28 08:00	2025-01-28 17:00				CS_MSOA	PT_Normal	LFJ/iHuz7U+UZiAb53wHnQ				N					
+%R	43005	45799	43000	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33412	Sheathing		112.00000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-15 08:00	2025-08-28 17:00		2025-07-28 08:00	2025-08-08 17:00	2025-07-28 08:00		2025-07-28 08:00	2025-08-08 17:00		2025-08-15 08:00	2025-08-28 17:00		PT_Normal	cTyv+tuysUKmnx8/7NZC2Q				N					
+%R	42995	45799	42990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33372	Sheathing		232.00000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-01 08:00	2025-08-14 17:00		2025-06-20 08:00	2025-07-03 17:00	2025-06-20 08:00		2025-06-20 08:00	2025-07-03 17:00		2025-08-01 08:00	2025-08-14 17:00		PT_Normal	LATi8Tt7Dk2wNFw+wklMKg				N					
+%R	43015	45799	43010	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33452	Sheathing		280.00000000	48.000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-18 08:00	2025-07-31 17:00		2025-05-29 08:00	2025-06-11 17:00	2025-05-29 08:00		2025-05-29 08:00	2025-06-11 17:00		2025-07-18 08:00	2025-07-31 17:00		PT_Normal	XWZz/zvqAEemSEwAyGnEmA				N					
+%R	44722	45799	44644	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	36016	Grading Per GEC Plan Continued				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-20 08:00	2025-02-20 17:00								2025-02-20 08:00	2025-02-20 17:00					PT_Normal	nOvdMxyjeUyi8BLtZCWYDw				N					
+%R	43957	45799	43946	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33852	Level 2 - JS		40.000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-22 08:00	2025-09-12 17:00		2025-08-15 08:00	2025-09-05 17:00	2025-08-15 08:00		2025-08-15 08:00	2025-09-05 17:00		2025-08-22 08:00	2025-09-12 17:00		PT_Normal	GFAUx8q1JkmoNdk2cztsaQ				N					
+%R	44654	45799	44643	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35876	BMP Install				0.0000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-25 08:00	2025-02-27 17:00								2025-02-25 08:00	2025-02-27 17:00					PT_Normal	7BzrRf8DmkmlqJ7GY9Ai8g				N					
+%R	42984	45799	42988	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33332	Veneer - West		248.00000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-10-08 08:00	2025-10-28 17:00		2025-08-25 08:00	2025-09-15 17:00	2025-08-25 08:00		2025-08-25 08:00	2025-09-15 17:00		2025-10-08 08:00	2025-10-28 17:00		PT_Normal	iF0KbBbf3UKnx32Q6dEhdw				N					
+%R	44710	45799	44697	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35976	W.E.O. Notification of Erosion Control and Pond Work Impacts				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000		2025-01-30 08:00	2025-01-30 17:00								2025-01-30 08:00	2025-01-30 17:00					PT_Normal	4ZsD9Dr/qECtO4uj48rcgg				N					
+%R	42428	45799	42642	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1073	CMU Elevator Core		0.0000000000	0.0000000000	48.000000000	0.0000000000	0.0000000000	0.0000000000	48.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-10 08:00	2025-04-17 17:00		2025-04-10 08:00	2025-04-17 17:00	2025-04-10 08:00		2025-04-10 08:00	2025-04-17 17:00		2025-04-10 08:00	2025-04-17 17:00		PT_Normal	3frPGUju2k6dOEJnYbQrPw				N					
+%R	43958	45799	43946	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33862	Level 3 - JS		0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-09-15 08:00	2025-10-03 17:00		2025-09-15 08:00	2025-10-03 17:00	2025-09-15 08:00		2025-09-15 08:00	2025-10-03 17:00		2025-09-15 08:00	2025-10-03 17:00		PT_Normal	pXKY9OdBKkCLfK2Ee1hXlw				N					
+%R	44655	45799	44643	45946		53.333332062				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Active	35886	CSU Stormwater Permitting		0.0000000000	0.0000000000	48.000000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000		2025-02-25 08:00		2025-03-07 08:00	2025-03-14 17:00		2025-03-07 08:00	2025-03-14 17:00	2025-03-07 08:00		2025-02-25 08:00	2025-03-17 17:00		2025-03-07 08:00	2025-03-14 17:00		PT_Normal	zr+RCfNsLEaqP5a6P1inEQ				N					
+%R	44334	45799	44327	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35273	Install Sewer		1456.0000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-03 08:00	2025-12-08 17:00		2025-03-17 08:00	2025-03-20 17:00	2025-03-17 08:00		2025-03-17 08:00	2025-03-20 17:00		2025-12-03 08:00	2025-12-08 17:00		PT_Normal	Kg9hTHogtU+342iddRKBZg				N					
+%R	43936	45799	42988	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34802	Storefront		528.00000000	528.00000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-19 08:00	2026-01-05 17:00		2025-09-16 08:00	2025-09-29 17:00	2025-09-16 08:00		2025-09-16 08:00	2025-09-29 17:00		2025-12-19 08:00	2026-01-05 17:00		PT_Normal	Z7umhG5ScE6yOR14WSjxOw				N					
+%R	43232	45799	43084	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33632	Interior Wall Framing - Level 1		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-03 08:00	2025-07-10 17:00		2025-07-03 08:00	2025-07-10 17:00	2025-07-03 08:00		2025-07-03 08:00	2025-07-10 17:00		2025-07-03 08:00	2025-07-10 17:00		PT_Normal	7Ad7PBPInE+ufDm9hXYrZw				N					
+%R	43996	45799	43990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34922	Paint Structure		120.00000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-09-08 08:00	2025-09-19 17:00		2025-08-15 08:00	2025-08-28 17:00	2025-08-15 08:00		2025-08-15 08:00	2025-08-28 17:00		2025-09-08 08:00	2025-09-19 17:00		PT_Normal	XfUGUGNlUEqFEl+8WZK5Kg				N					
+%R	44247	45799	42642	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35143	CMU Stair B		0.0000000000	0.0000000000	48.000000000	0.0000000000	0.0000000000	0.0000000000	48.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-18 08:00	2025-04-25 17:00		2025-04-18 08:00	2025-04-25 17:00	2025-04-18 08:00		2025-04-18 08:00	2025-04-25 17:00		2025-04-18 08:00	2025-04-25 17:00		PT_Normal	vTDgkJO8WEKwP7wa1YupHA				N					
+%R	42430	45799	42622	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1082	Paint Structure		0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-06 08:00	2025-10-17 17:00		2025-10-06 08:00	2025-10-17 17:00	2025-10-06 08:00		2025-10-06 08:00	2025-10-17 17:00		2025-10-06 08:00	2025-10-17 17:00		PT_Normal	DEggQslW0kyyYPeIWo2THA				N					
+%R	43980	45799	43974	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34862	Paint Structure		80.000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-09-22 08:00	2025-10-03 17:00		2025-09-08 08:00	2025-09-19 17:00	2025-09-08 08:00		2025-09-08 08:00	2025-09-19 17:00		2025-09-22 08:00	2025-10-03 17:00		PT_Normal	VrtIm2EiZ0axeOxvXvzPJg				N					
+%R	42654	45799	42644	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1115	Develop Owner Punch Lists		152.00000000	152.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-12-01 08:00	2025-12-05 17:00	2025-12-01 08:00		2025-12-01 08:00	2025-12-05 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	vPQbKFCHCEuGszOk3n70jg				N					
+%R	44656	45799	44643	45946		0.0000000000				CP_Drtn	TT_FinMile	DT_FixedDrtn	RV_OK	TK_NotStart	35866	CSU Stormwater Inspection		0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-03-17 08:00	2025-03-17 08:00		2025-03-17 08:00	2025-03-17 08:00	2025-03-17 08:00		2025-03-17 08:00	2025-03-17 08:00		2025-03-17 08:00	2025-03-17 08:00		PT_Normal	QIuB/RQHL0KM+pPnG8LIpQ				N					
+%R	44304	45799	44327	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33092	Install Domestic Water and Fire		1456.0000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-09 08:00	2025-12-15 17:00		2025-03-21 08:00	2025-03-27 17:00	2025-03-21 08:00		2025-03-21 08:00	2025-03-27 17:00		2025-12-09 08:00	2025-12-15 17:00		PT_Normal	ayvNzGZw1EuyEQJlWUd5FA				N					
+%R	43981	45799	43974	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34822	Flooring Trim		120.00000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-13 08:00	2025-10-24 17:00		2025-09-22 08:00	2025-10-03 17:00	2025-09-22 08:00		2025-09-22 08:00	2025-10-03 17:00		2025-10-13 08:00	2025-10-24 17:00		PT_Normal	EQD5tDI8mkSlyZQqQfdG7Q				N					
+%R	43997	45799	43990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34882	Flooring Trim		200.00000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-06 08:00	2025-10-17 17:00		2025-08-29 08:00	2025-09-12 17:00	2025-08-29 08:00		2025-08-29 08:00	2025-09-12 17:00		2025-10-06 08:00	2025-10-17 17:00		PT_Normal	EmCf2FY+1ESSUAcJjNSNMg				N					
+%R	42482	45799	42622	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1083	Flooring Trim		0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-20 08:00	2025-10-31 17:00		2025-10-20 08:00	2025-10-31 17:00	2025-10-20 08:00		2025-10-20 08:00	2025-10-31 17:00		2025-10-20 08:00	2025-10-31 17:00		PT_Normal	qRM+26EV8kGj109DWS/uqA				N					
+%R	43138	45799	43148	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33712	Mechanical Rough-In - Level 2		64.000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-01 08:00	2025-08-11 17:00		2025-07-22 08:00	2025-07-30 17:00	2025-07-22 08:00		2025-07-22 08:00	2025-07-30 17:00		2025-08-01 08:00	2025-08-11 17:00		PT_Normal	8WR6oYAyHkOn82zBaZbrWA				N					
+%R	43982	45799	43974	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34832	Lighting Trim		80.000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-06 08:00	2025-10-17 17:00		2025-09-22 08:00	2025-10-03 17:00	2025-09-22 08:00		2025-09-22 08:00	2025-10-03 17:00		2025-10-06 08:00	2025-10-17 17:00		PT_Normal	Yf2MTKzY4kaftKgwVwNKDg				N					
+%R	43185	45799	43150	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33782	Electrical Rough-In - Level 3		40.000000000	40.000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-29 08:00	2025-09-19 17:00		2025-08-22 08:00	2025-09-12 17:00	2025-08-22 08:00		2025-08-22 08:00	2025-09-12 17:00		2025-08-29 08:00	2025-09-19 17:00		PT_Normal	VIP7an9CmkirDIg3Dr6WxA				N					
+%R	43998	45799	43990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34892	Lighting Trim		120.00000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-09-22 08:00	2025-10-03 17:00		2025-08-29 08:00	2025-09-12 17:00	2025-08-29 08:00		2025-08-29 08:00	2025-09-12 17:00		2025-09-22 08:00	2025-10-03 17:00		PT_Normal	85XiDVeTsEOcHkU59Q7pzg				N					
+%R	42484	45799	42622	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1084	Lighting Trim		0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-20 08:00	2025-10-31 17:00		2025-10-20 08:00	2025-10-31 17:00	2025-10-20 08:00		2025-10-20 08:00	2025-10-31 17:00		2025-10-20 08:00	2025-10-31 17:00		PT_Normal	ctcyd7pYdUGzVAjT3vog5A				N					
+%R	43365	45799	43084	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33642	Mechanical Rough-In - Level 1		64.000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000				2025-07-23 08:00	2025-07-31 17:00		2025-07-11 08:00	2025-07-21 17:00	2025-07-11 08:00		2025-07-11 08:00	2025-07-21 17:00		2025-07-23 08:00	2025-07-31 17:00		PT_Normal	t/Wm6amc4k6slXgN3EpXUw				N					
+%R	43983	45799	43974	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34842	Mechanical Trim		120.00000000	120.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-27 08:00	2025-10-31 17:00		2025-10-06 08:00	2025-10-10 17:00	2025-10-06 08:00		2025-10-06 08:00	2025-10-10 17:00		2025-10-27 08:00	2025-10-31 17:00		PT_Normal	2ouGhwswo0yKu0uSxd3x3g				N					
+%R	42432	45799	42622	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1085	Mechanical Trim		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-03 08:00	2025-11-07 17:00		2025-11-03 08:00	2025-11-07 17:00	2025-11-03 08:00		2025-11-03 08:00	2025-11-07 17:00		2025-11-03 08:00	2025-11-07 17:00		PT_Normal	uFBGSjsY+kKXWoNX/iqvEQ				N					
+%R	43186	45799	43150	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33792	Plumbing Rough-In - Level 3		152.00000000	152.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-09-08 08:00	2025-09-12 17:00		2025-08-11 08:00	2025-08-15 17:00	2025-08-11 08:00		2025-08-11 08:00	2025-08-15 17:00		2025-09-08 08:00	2025-09-12 17:00		PT_Normal	IZ7kGwyauk6kfLKWuvbHMQ				N					
+%R	43999	45799	43990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34902	Mechanical Trim		200.00000000	80.000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-20 08:00	2025-10-24 17:00		2025-09-15 08:00	2025-09-19 17:00	2025-09-15 08:00		2025-09-15 08:00	2025-09-19 17:00		2025-10-20 08:00	2025-10-24 17:00		PT_Normal	Cazsr8eBNECfjNPKe6VI5g				N					
+%R	44250	45799	42642	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35153	CMU Stair A		0.0000000000	0.0000000000	48.000000000	0.0000000000	0.0000000000	0.0000000000	48.000000000	0.0000000000	0.0000000000	0.0000000000				2025-04-28 08:00	2025-05-05 17:00		2025-04-28 08:00	2025-05-05 17:00	2025-04-28 08:00		2025-04-28 08:00	2025-05-05 17:00		2025-04-28 08:00	2025-05-05 17:00		PT_Normal	KeXF+p7XDke1sWIdqrt6qg				N					
+%R	43187	45799	43150	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33802	Mechanical Rough-In - Level 3		128.00000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-22 08:00	2025-09-02 17:00		2025-07-31 08:00	2025-08-08 17:00	2025-07-31 08:00		2025-07-31 08:00	2025-08-08 17:00		2025-08-22 08:00	2025-09-02 17:00		PT_Normal	+ZPFR3NkI0G3kW96n4sZ6g				N					
+%R	43188	45799	43150	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33812	Fire Suppression - Level 3		0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-22 08:00	2025-09-12 17:00		2025-08-22 08:00	2025-09-12 17:00	2025-08-22 08:00		2025-08-22 08:00	2025-09-12 17:00		2025-08-22 08:00	2025-09-12 17:00		PT_Normal	Qob29Gkmukm9O9EVPFLJgQ				N					
+%R	43189	45799	43150	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33822	Fire Alarm Rough - Level 3		8.0000000000	8.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000				2025-09-04 08:00	2025-09-12 17:00		2025-09-03 08:00	2025-09-11 17:00	2025-09-03 08:00		2025-09-03 08:00	2025-09-11 17:00		2025-09-04 08:00	2025-09-12 17:00		PT_Normal	PFOwVC8PHUu1AS+kbC+E8w				N					
+%R	43366	45799	43084	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33652	Electrical Rough-In - Level 1		40.000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-07-18 08:00	2025-08-07 17:00		2025-07-11 08:00	2025-07-31 17:00	2025-07-11 08:00		2025-07-11 08:00	2025-07-31 17:00		2025-07-18 08:00	2025-08-07 17:00		PT_Normal	ZXTNixal00yGPw9ujWkK6A				N					
+%R	44335	45799	44327	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33102	Install Storm Main (Pond to STA: 2+42.32)		1456.0000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-16 08:00	2025-12-26 17:00		2025-03-28 08:00	2025-04-08 17:00	2025-03-28 08:00		2025-03-28 08:00	2025-04-08 17:00		2025-12-16 08:00	2025-12-26 17:00		PT_Normal	mfEYEXa2/UWuNQTDSk/x/w				N					
+%R	43370	45799	43084	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33672	Plumbing Rough-In - Level 1		184.00000000	16.000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-22 08:00	2025-08-28 17:00		2025-07-22 08:00	2025-07-28 17:00	2025-07-22 08:00		2025-07-22 08:00	2025-07-28 17:00		2025-08-22 08:00	2025-08-28 17:00		PT_Normal	kpG0ZhjmM0GdlI+2KjW+Dw				N					
+%R	44256	45799	42642	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35144	Steel Stair Install - Stair B		1264.0000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-11 08:00	2025-12-22 17:00		2025-04-28 08:00	2025-05-07 17:00	2025-04-28 08:00		2025-04-28 08:00	2025-05-07 17:00		2025-12-11 08:00	2025-12-22 17:00		PT_Normal	EfVCRE4dU0iNGD/UDBwJQA				N					
+%R	44000	45799	43990	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34912	Plumbing Trim		576.00000000	576.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-09-15 08:00	2025-09-19 17:00	2025-09-15 08:00		2025-09-15 08:00	2025-09-19 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	UngIyP9KxUi8Rz695RwKyg				N					
+%R	43984	45799	43974	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34852	Plumbing Trim		120.00000000	120.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-27 08:00	2025-10-31 17:00		2025-10-06 08:00	2025-10-10 17:00	2025-10-06 08:00		2025-10-06 08:00	2025-10-10 17:00		2025-10-27 08:00	2025-10-31 17:00		PT_Normal	jU7C8lbi1EuXBkgzWJjSHw				N					
+%R	42628	45799	42622	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1087	Plumbing Trim		0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-03 08:00	2025-11-07 17:00		2025-11-03 08:00	2025-11-07 17:00	2025-11-03 08:00		2025-11-03 08:00	2025-11-07 17:00		2025-11-03 08:00	2025-11-07 17:00		PT_Normal	x96mfiOFR0i5s6KpyTasnw				N					
+%R	43139	45799	43148	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33722	Electrical Rough-In - Level 2		40.000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-08 08:00	2025-08-28 17:00		2025-08-01 08:00	2025-08-21 17:00	2025-08-01 08:00		2025-08-01 08:00	2025-08-21 17:00		2025-08-08 08:00	2025-08-28 17:00		PT_Normal	yFLSbp7LuEihoa2PioiTjA				N					
+%R	44260	45799	42642	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35173	Steel Stair Install - Stair A		1264.0000000	1264.0000000	64.000000000	0.0000000000	0.0000000000	0.0000000000	64.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-23 08:00	2026-01-05 17:00		2025-05-08 08:00	2025-05-19 17:00	2025-05-08 08:00		2025-05-08 08:00	2025-05-19 17:00		2025-12-23 08:00	2026-01-05 17:00		PT_Normal	wlVe4dlAzk299+Dwy4xBZw				N					
+%R	43371	45799	43084	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33692	Fire Suppression - Level 1		0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-07-11 08:00	2025-07-31 17:00		2025-07-11 08:00	2025-07-31 17:00	2025-07-11 08:00		2025-07-11 08:00	2025-07-31 17:00		2025-07-11 08:00	2025-07-31 17:00		PT_Normal	GLF5kzl0bkOluzrVL66Hfg				N					
+%R	44253	45799	42642	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35163	Elevator Shaft Hoist beams and Spreader Tubes		1416.0000000	1416.0000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-31 08:00	2026-01-05 17:00		2025-04-18 08:00	2025-04-22 17:00	2025-04-18 08:00		2025-04-18 08:00	2025-04-22 17:00		2025-12-31 08:00	2026-01-05 17:00		PT_Normal	Os0dho/u7Ei/twqm0iebTw				N					
+%R	44336	45799	44327	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1050	Install Storm Secondary		1456.0000000	1456.0000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-04-09 08:00	2025-04-15 17:00	2025-04-09 08:00		2025-04-09 08:00	2025-04-15 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	+eAaDQl0LkCNT6yU/YLKnQ				N					
+%R	43140	45799	43148	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33732	Plumbing Rough-In - Level 2		168.00000000	16.000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-29 08:00	2025-09-05 17:00		2025-07-31 08:00	2025-08-06 17:00	2025-07-31 08:00		2025-07-31 08:00	2025-08-06 17:00		2025-08-29 08:00	2025-09-05 17:00		PT_Normal	stEIuJV8C0i+YRJMwnpdqA				N					
+%R	43718	45799	43084	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33702	Fire Alarm Rough - Level 1		48.000000000	40.000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000	80.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-11 08:00	2025-08-22 17:00		2025-08-01 08:00	2025-08-14 17:00	2025-08-01 08:00		2025-08-01 08:00	2025-08-14 17:00		2025-08-11 08:00	2025-08-22 17:00		PT_Normal	razMMsqCmU+MGrDtIBMgIg				N					
+%R	44337	45799	44328	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	1053	Electrical Main Conduit and Transformer Prep (PRECONSTRUCTION)				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	2025-02-17 08:00	2025-02-17 08:00	2025-02-17 17:00								2025-02-17 08:00	2025-02-17 17:00				CS_MSOA	PT_Normal	nS0S/Ivig0K2GbQ5d2mm5Q				N					
+%R	43142	45799	43148	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33742	Fire Suppression - Level 2		0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000	120.00000000	0.0000000000	0.0000000000	0.0000000000				2025-08-01 08:00	2025-08-21 17:00		2025-08-01 08:00	2025-08-21 17:00	2025-08-01 08:00		2025-08-01 08:00	2025-08-21 17:00		2025-08-01 08:00	2025-08-21 17:00		PT_Normal	23OpYt2L9Ue6PcBQXnjKgg				N					
+%R	44338	45799	44328	45946		83.333335876				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Active	1054	Transformer Installation (By CSU - Lead Time Scheduling Included)		1048.0000000	936.00000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	96.000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-21 08:00		2025-09-11 08:00	2025-09-19 17:00		2025-03-07 08:00	2025-03-17 17:00	2025-03-07 08:00		2025-02-21 08:00	2025-03-10 17:00		2025-09-11 08:00	2025-09-19 17:00		PT_Normal	LMP2PU1bHkyoLjeJDF4Gyg				N					
+%R	43143	45799	43148	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	33752	Fire Alarm Rough - Level 2		8.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000				2025-08-25 08:00	2025-09-03 17:00		2025-08-22 08:00	2025-09-02 17:00	2025-08-22 08:00		2025-08-22 08:00	2025-09-02 17:00		2025-08-25 08:00	2025-09-03 17:00		PT_Normal	gvOaF8yQOk+Y01f04vWrBA				N					
+%R	44351	45799	44328	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	1055	CSU Electrical Inspection				0.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-18 08:00	2025-02-18 17:00								2025-02-18 08:00	2025-02-18 17:00					PT_Normal	7Z8Mam2biUKus5UjiIzg/w				N					
+%R	44412	45799	44328	45946		100.00000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_Complete	35433	Electrical Trench Backfill and Recompaction				0.0000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000		2025-02-19 08:00	2025-02-20 17:00								2025-02-19 08:00	2025-02-20 17:00					PT_Normal	XdkxpmXBO0a/t5HwmQ+qAw				N					
+%R	44323	45799	44328	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35283	Electrical Main to Building		112.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-09-22 08:00	2025-09-26 17:00		2025-09-02 08:00	2025-09-08 17:00	2025-09-02 08:00		2025-09-02 08:00	2025-09-08 17:00		2025-09-22 08:00	2025-09-26 17:00		PT_Normal	a6p1NRqg5UubZS3+g/jxxw				N					
+%R	44022	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	34932	Drywall - Office		368.00000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000	56.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-21 08:00	2025-10-29 17:00		2025-08-15 08:00	2025-08-25 17:00	2025-08-15 08:00		2025-08-15 08:00	2025-08-25 17:00		2025-10-21 08:00	2025-10-29 17:00		PT_Normal	8kcwiHSVh0i3Z714Gu5pPQ				N					
+%R	44368	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35313	Survey - Trash Enclosure		1056.0000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-03 08:00	2025-11-03 17:00		2025-04-28 08:00	2025-04-28 17:00	2025-04-28 08:00		2025-04-28 08:00	2025-04-28 17:00		2025-11-03 08:00	2025-11-03 17:00		PT_Normal	A5BHEF5aWkqj+O3hqUq5Lw				N					
+%R	42446	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1095	Millwork - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-06 08:00	2025-11-12 17:00		2025-09-03 08:00	2025-09-09 17:00	2025-09-03 08:00		2025-09-03 08:00	2025-09-09 17:00		2025-11-06 08:00	2025-11-12 17:00		PT_Normal	HSv5+ieYpEKkkt+EBk3DbA				N					
+%R	44370	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35323	Excavate - Trash Enclosure		1056.0000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-04 08:00	2025-11-04 17:00		2025-04-29 08:00	2025-04-29 17:00	2025-04-29 08:00		2025-04-29 08:00	2025-04-29 17:00		2025-11-04 08:00	2025-11-04 17:00		PT_Normal	UNWaDlgUikut6cH5xqqn2g				N					
+%R	42448	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1096	Flooring - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-13 08:00	2025-11-19 17:00		2025-09-10 08:00	2025-09-16 17:00	2025-09-10 08:00		2025-09-10 08:00	2025-09-16 17:00		2025-11-13 08:00	2025-11-19 17:00		PT_Normal	Kbz3xYcx0kiCEzEoQqqjdw				N					
+%R	44372	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35333	FRPS Footer - Trash Enclosure		1056.0000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-05 08:00	2025-11-07 17:00		2025-04-30 08:00	2025-05-02 17:00	2025-04-30 08:00		2025-04-30 08:00	2025-05-02 17:00		2025-11-05 08:00	2025-11-07 17:00		PT_Normal	6OJixu3FZEC9pkUDvQBZyw				N					
+%R	42450	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1097	Prime & Paint 1st Coat - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-20 08:00	2025-11-26 17:00		2025-09-17 08:00	2025-09-23 17:00	2025-09-17 08:00		2025-09-17 08:00	2025-09-23 17:00		2025-11-20 08:00	2025-11-26 17:00		PT_Normal	sRostwS48Uycn/vD/qnNOQ				N					
+%R	44374	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35343	FRPS Stem Wall - Trash Enclosure		1056.0000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-10 08:00	2025-11-12 17:00		2025-05-05 08:00	2025-05-07 17:00	2025-05-05 08:00		2025-05-05 08:00	2025-05-07 17:00		2025-11-10 08:00	2025-11-12 17:00		PT_Normal	jyNDAfIUAkWA/hkjaOIq2A				N					
+%R	44376	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35353	Backfill and compact - Trash Enclosure		1056.0000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-13 08:00	2025-11-13 17:00		2025-05-08 08:00	2025-05-08 17:00	2025-05-08 08:00		2025-05-08 08:00	2025-05-08 17:00		2025-11-13 08:00	2025-11-13 17:00		PT_Normal	qMAK6xx1GUOr8uxxHjXkEA				N					
+%R	42454	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1099	Install Appliances - Office		424.00000000	424.00000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2026-01-02 08:00	2026-01-05 17:00		2025-10-15 08:00	2025-10-16 17:00	2025-10-15 08:00		2025-10-15 08:00	2025-10-16 17:00		2026-01-02 08:00	2026-01-05 17:00		PT_Normal	mHJqxuMZ2Uun7LO47pio7g				N					
+%R	44378	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35363	Survey - Grid Line K, South		1056.0000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-14 08:00	2025-11-14 17:00		2025-05-09 08:00	2025-05-09 17:00	2025-05-09 08:00		2025-05-09 08:00	2025-05-09 17:00		2025-11-14 08:00	2025-11-14 17:00		PT_Normal	XxRbXZJPG0KHS6G1lFp99A				N					
+%R	42456	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1100	Light Fixtures - Office		520.00000000	520.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-09-24 08:00	2025-09-30 17:00	2025-09-24 08:00		2025-09-24 08:00	2025-09-30 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	aQ69ei8kLEev4HYgWQJiHg				N					
+%R	44380	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35373	Finish Grade - Grid Line K, South		1056.0000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-17 08:00	2025-11-19 17:00		2025-05-12 08:00	2025-05-14 17:00	2025-05-12 08:00		2025-05-12 08:00	2025-05-14 17:00		2025-11-17 08:00	2025-11-19 17:00		PT_Normal	1aYfJcCeJE+7FAIXEO+Kzg				N					
+%R	44382	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35383	FRPS Curb and gutter  - Grid Line K, South		1056.0000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000				2025-11-20 08:00	2025-11-25 17:00		2025-05-15 08:00	2025-05-20 17:00	2025-05-15 08:00		2025-05-15 08:00	2025-05-20 17:00		2025-11-20 08:00	2025-11-25 17:00		PT_Normal	V9wJ5ux1IEmjFwemXpLvHg				N					
+%R	44405	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35384	FRPS Sidewalk and Ballards - Grid Line K, South		1232.0000000	1232.0000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-31 08:00	2026-01-05 17:00		2025-05-21 08:00	2025-05-23 17:00	2025-05-21 08:00		2025-05-21 08:00	2025-05-23 17:00		2025-12-31 08:00	2026-01-05 17:00		PT_Normal	Prt1x+Z0NUq7fKqZyZokIg				N					
+%R	42636	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1103	Mechanical Trim Out - Office		520.00000000	520.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-09-24 08:00	2025-09-30 17:00	2025-09-24 08:00		2025-09-24 08:00	2025-09-30 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	L1WbG/f5jU2XXJqBMnbaEA				N					
+%R	44384	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35393	Survey - Grid Line K, North		1096.0000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000	8.0000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-05 08:00	2025-12-05 17:00		2025-05-21 08:00	2025-05-21 17:00	2025-05-21 08:00		2025-05-21 08:00	2025-05-21 17:00		2025-12-05 08:00	2025-12-05 17:00		PT_Normal	RU5Yn2fyyE2dpgHWkcomYA				N					
+%R	42634	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1104	Electrical Trim Out - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-01 08:00	2025-12-05 17:00		2025-09-24 08:00	2025-09-30 17:00	2025-09-24 08:00		2025-09-24 08:00	2025-09-30 17:00		2025-12-01 08:00	2025-12-05 17:00		PT_Normal	jGCAiYO72kucxQa94eiNyQ				N					
+%R	42462	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1105	Plumbing Trim Out - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-08 08:00	2025-12-12 17:00		2025-10-01 08:00	2025-10-07 17:00	2025-10-01 08:00		2025-10-01 08:00	2025-10-07 17:00		2025-12-08 08:00	2025-12-12 17:00		PT_Normal	bHppifu7KU+ZT79qaWASzQ				N					
+%R	44386	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35403	Finish Grade - Grid Line K, North		1096.0000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-08 08:00	2025-12-09 17:00		2025-05-22 08:00	2025-05-23 17:00	2025-05-22 08:00		2025-05-22 08:00	2025-05-23 17:00		2025-12-08 08:00	2025-12-09 17:00		PT_Normal	0Zw8tru470yKAlYR1p25iA				N					
+%R	42508	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1106	Doors & Hardware  - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-10-30 08:00	2025-11-05 17:00		2025-08-26 08:00	2025-09-02 17:00	2025-08-26 08:00		2025-08-26 08:00	2025-09-02 17:00		2025-10-30 08:00	2025-11-05 17:00		PT_Normal	blzpcJvVv0ylIxf4DoIXEw				N					
+%R	42464	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1107	Final Coat Paint - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-15 08:00	2025-12-19 17:00		2025-10-08 08:00	2025-10-14 17:00	2025-10-08 08:00		2025-10-08 08:00	2025-10-14 17:00		2025-12-15 08:00	2025-12-19 17:00		PT_Normal	2/yxKV0LGE2Mc60DDNMeYA				N					
+%R	44388	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35413	FRPS Curb, Gutter and Trash Enclosure Slab - Grid Line K, North		1096.0000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000	32.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-10 08:00	2025-12-15 17:00		2025-05-27 08:00	2025-05-30 17:00	2025-05-27 08:00		2025-05-27 08:00	2025-05-30 17:00		2025-12-10 08:00	2025-12-15 17:00		PT_Normal	QFA7GOShW0yZ5QxrU8hV3Q				N					
+%R	44407	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35414	FRPS Sidewalk and Ballards - Grid Line K, North		1096.0000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000	24.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-16 08:00	2025-12-18 17:00		2025-06-02 08:00	2025-06-04 17:00	2025-06-02 08:00		2025-06-02 08:00	2025-06-04 17:00		2025-12-16 08:00	2025-12-18 17:00		PT_Normal	Y3QUTeBbIk6sQ1yigj5mSg				N					
+%R	42466	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1108	Final Clean - Office		368.00000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-22 08:00	2025-12-29 17:00		2025-10-15 08:00	2025-10-21 17:00	2025-10-15 08:00		2025-10-15 08:00	2025-10-21 17:00		2025-12-22 08:00	2025-12-29 17:00		PT_Normal	EFGWWLXQVUa5cYUqMhJd1w				N					
+%R	44390	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	35423	Asphalt Bottom Mat		1096.0000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-19 08:00	2025-12-22 17:00		2025-06-05 08:00	2025-06-06 17:00	2025-06-05 08:00		2025-06-05 08:00	2025-06-06 17:00		2025-12-19 08:00	2025-12-22 17:00		PT_Normal	BUV6LPwUG0ykFtXbEMczwQ				N					
+%R	42468	45799	42624	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	1109	Punch List Work - Office		368.00000000	368.00000000	40.000000000	0.0000000000	0.0000000000	0.0000000000	40.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-29 08:00	2026-01-05 17:00		2025-10-21 08:00	2025-10-27 17:00	2025-10-21 08:00		2025-10-21 08:00	2025-10-27 17:00		2025-12-29 08:00	2026-01-05 17:00		PT_Normal	YlFy1rwP20aMd7lZT9AzRA				N					
+%R	44732	45799	44367	45946		0.0000000000				CP_Drtn	TT_Task	DT_FixedDrtn	RV_OK	TK_NotStart	36026	Asphalt Patch and Top Mat		1096.0000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000	16.000000000	0.0000000000	0.0000000000	0.0000000000				2025-12-23 08:00	2025-12-24 17:00		2025-06-09 08:00	2025-06-10 17:00	2025-06-09 08:00		2025-06-09 08:00	2025-06-10 17:00		2025-12-23 08:00	2025-12-24 17:00		PT_Normal	s9r4yahSwUWW6SxrwGSKyA				N					
+%T	TASKACTV
+%F	task_id	actv_code_type_id	actv_code_id	proj_id
+%R	42119	45806	45830	42119
+%R	42273	45806	45828	42273
+%R	42274	45806	45903	42274
+%R	42275	45806	45903	42275
+%R	42277	45806	45903	42277
+%R	42278	45806	45903	42278
+%R	42353	45806	45903	42353
+%R	42279	45806	45903	42279
+%R	42280	45806	45903	42280
+%R	42264	45806	45903	42264
+%R	42266	45806	45903	42266
+%R	44162	45806	45830	44162
+%R	44163	45806	45830	44163
+%R	44065	45806	45903	44065
+%R	42797	45806	45903	42797
+%R	42763	45806	45890	42763
+%R	44178	45806	45836	44178
+%R	44184	45806	45842	44184
+%R	44190	45806	45842	44190
+%R	44202	45806	45850	44202
+%R	44534	45806	45850	44534
+%R	42980	45806	45866	42980
+%R	42976	45806	45866	42976
+%R	43051	45806	45866	43051
+%R	43071	45806	45866	43071
+%R	44131	45806	45871	44131
+%R	42823	45806	45896	42823
+%R	42440	45806	45862	42440
+%R	42828	45806	45898	42828
+%R	42829	45806	45898	42829
+%R	42948	45806	45866	42948
+%R	42936	45806	45866	42936
+%R	43072	45806	45866	43072
+%R	44117	45806	45855	44117
+%R	43052	45806	45866	43052
+%R	42961	45806	45866	42961
+%R	42650	45806	45869	42650
+%R	44158	45806	45830	44158
+%R	42472	45806	45866	42472
+%R	43073	45806	45866	43073
+%R	43030	45806	45871	43030
+%R	43032	45806	45903	43032
+%R	42616	45806	45858	42616
+%R	43053	45806	45866	43053
+%R	42962	45806	45866	42962
+%R	42949	45806	45866	42949
+%R	42651	45806	45871	42651
+%R	43006	45806	45864	43006
+%R	43016	45806	45864	43016
+%R	42996	45806	45864	42996
+%R	43074	45806	45847	43074
+%R	42950	45806	45847	42950
+%R	43054	45806	45847	43054
+%R	42963	45806	45847	42963
+%R	42652	45806	45831	42652
+%R	43075	45806	45848	43075
+%R	42964	45806	45848	42964
+%R	43055	45806	45848	43055
+%R	42951	45806	45848	42951
+%R	43014	45806	45855	43014
+%R	43004	45806	45855	43004
+%R	42994	45806	45855	42994
+%R	43954	45806	45830	43954
+%R	42653	45806	45903	42653
+%R	44061	45806	45890	44061
+%R	44114	45806	45855	44114
+%R	44118	45806	45855	44118
+%R	43026	45806	45871	43026
+%R	43005	45806	45887	43005
+%R	42995	45806	45887	42995
+%R	43015	45806	45887	43015
+%R	43957	45806	45830	43957
+%R	42984	45806	45864	42984
+%R	42428	45806	45860	42428
+%R	43958	45806	45830	43958
+%R	44334	45806	45839	44334
+%R	43936	45806	45862	43936
+%R	43232	45806	45866	43232
+%R	43996	45806	45882	43996
+%R	42430	45806	45882	42430
+%R	43980	45806	45882	43980
+%R	42654	45806	45830	42654
+%R	43981	45806	45880	43981
+%R	43997	45806	45880	43997
+%R	42482	45806	45880	42482
+%R	43138	45806	45869	43138
+%R	43982	45806	45871	43982
+%R	43185	45806	45871	43185
+%R	43998	45806	45871	43998
+%R	42484	45806	45871	42484
+%R	43365	45806	45869	43365
+%R	43983	45806	45869	43983
+%R	42432	45806	45869	42432
+%R	43186	45806	45870	43186
+%R	43999	45806	45869	43999
+%R	43187	45806	45869	43187
+%R	43188	45806	45874	43188
+%R	43189	45806	45895	43189
+%R	43366	45806	45871	43366
+%R	43370	45806	45870	43370
+%R	44000	45806	45870	44000
+%R	43984	45806	45870	43984
+%R	42628	45806	45870	42628
+%R	43139	45806	45871	43139
+%R	43371	45806	45874	43371
+%R	43140	45806	45870	43140
+%R	43718	45806	45895	43718
+%R	43142	45806	45874	43142
+%R	43143	45806	45895	43143
+%R	44022	45806	45875	44022
+%R	42446	45806	45884	42446
+%R	42448	45806	45880	42448
+%R	42450	45806	45882	42450
+%R	42454	45806	45925	42454
+%R	42456	45806	45871	42456
+%R	42636	45806	45869	42636
+%R	42634	45806	45871	42634
+%R	42462	45806	45870	42462
+%R	42508	45806	45886	42508
+%R	42464	45806	45882	42464
+%R	42466	45806	45893	42466
+%R	42468	45806	45903	42468
+%T	MEMOTYPE
+%F	memo_type_id	seq_num	eps_flag	proj_flag	task_flag	memo_type
+%R	45797	12345	Y	Y	Y	Notes
+%T	TASKPRED
+%F	task_pred_id	task_id	pred_task_id	proj_id	pred_proj_id	pred_type	lag_hr_cnt
+%R	44077	42652	42923	45799	45799	PR_FS	0.0000000000
+%R	44078	42652	42924	45799	45799	PR_FS	0.0000000000
+%R	44067	44065	42925	45799	45799	PR_FS	0.0000000000
+%R	42928	42797	42119	45799	45799	PR_FS	0.0000000000
+%R	44069	42274	42119	45799	45799	PR_FS	0.0000000000
+%R	44076	42273	42119	45799	45799	PR_FS	16.000000000
+%R	44671	42797	42273	45799	45799	PR_FS	0.0000000000
+%R	44478	42266	44475	45799	45799	PR_FS	0.0000000000
+%R	44476	42266	42264	45799	45799	PR_FS	0.0000000000
+%R	44477	44475	42264	45799	45799	PR_FS	0.0000000000
+%R	44165	44162	42266	45799	45799	PR_FS	0.0000000000
+%R	44164	44163	44162	45799	45799	PR_FS	0.0000000000
+%R	44066	42763	44065	45799	45799	PR_FS	0.0000000000
+%R	44132	44131	44065	45799	45799	PR_FS	0.0000000000
+%R	44314	42274	42797	45799	45799	PR_SS	0.0000000000
+%R	44342	44334	42797	45799	45799	PR_FS	0.0000000000
+%R	44505	42275	42797	45799	45799	PR_SS	0.0000000000
+%R	44507	44178	42797	45799	45799	PR_SS	0.0000000000
+%R	44772	44337	42797	45799	45799	PR_FS	0.0000000000
+%R	44768	44658	44657	45799	45799	PR_FS	0.0000000000
+%R	44068	44061	42763	45799	45799	PR_FS	0.0000000000
+%R	44508	44184	44178	45799	45799	PR_SS	24.000000000
+%R	44523	44291	44178	45799	45799	PR_FS	0.0000000000
+%R	44604	42275	44178	45799	45799	PR_SS	0.0000000000
+%R	44509	44190	44184	45799	45799	PR_SS	24.000000000
+%R	44529	44316	44184	45799	45799	PR_FS	0.0000000000
+%R	44537	44439	44184	45799	45799	PR_FS	0.0000000000
+%R	44521	44202	44190	45799	45799	PR_FS	-16.000000000
+%R	44531	44263	44190	45799	45799	PR_FS	0.0000000000
+%R	44540	42428	44190	45799	45799	PR_FS	0.0000000000
+%R	44525	42428	44202	45799	45799	PR_FS	0.0000000000
+%R	44535	44534	44202	45799	45799	PR_FS	0.0000000000
+%R	44536	44265	44202	45799	45799	PR_FS	0.0000000000
+%R	44758	44294	44534	45799	45799	PR_FS	0.0000000000
+%R	42981	42948	42980	45799	45799	PR_SS	16.000000000
+%R	43082	43071	42980	45799	45799	PR_FS	0.0000000000
+%R	42978	42961	42976	45799	45799	PR_SS	24.000000000
+%R	43081	43051	42976	45799	45799	PR_FS	0.0000000000
+%R	44071	42277	42976	45799	45799	PR_SS	0.0000000000
+%R	43056	43052	43051	45799	45799	PR_SS	24.000000000
+%R	43076	43072	43071	45799	45799	PR_SS	16.000000000
+%R	44436	44435	44316	45799	45799	PR_FS	0.0000000000
+%R	44664	44654	44658	45799	45799	PR_FS	0.0000000000
+%R	44714	44713	44658	45799	45799	PR_FS	0.0000000000
+%R	44598	44578	44596	45799	45799	PR_FS	0.0000000000
+%R	44729	44265	44439	45799	45799	PR_FS	0.0000000000
+%R	44730	44265	44435	45799	45799	PR_SS	0.0000000000
+%R	44156	43366	44131	45799	45799	PR_FS	0.0000000000
+%R	44580	44576	44578	45799	45799	PR_FS	0.0000000000
+%R	44752	42828	42823	45799	45799	PR_FS	0.0000000000
+%R	44739	42829	42828	45799	45799	PR_FS	0.0000000000
+%R	44056	42653	42829	45799	45799	PR_FS	0.0000000000
+%R	44074	42279	42829	45799	45799	PR_FS	0.0000000000
+%R	44750	44743	42829	45799	45799	PR_FS	0.0000000000
+%R	42952	42949	42948	45799	45799	PR_SS	40.000000000
+%R	43080	43072	42948	45799	45799	PR_FS	0.0000000000
+%R	44124	43004	42948	45799	45799	PR_SS	0.0000000000
+%R	44144	42994	42948	45799	45799	PR_SS	0.0000000000
+%R	42937	42472	42936	45799	45799	PR_SS	40.000000000
+%R	44145	43004	42936	45799	45799	PR_SS	0.0000000000
+%R	44149	44117	42936	45799	45799	PR_SS	48.000000000
+%R	43077	43073	43072	45799	45799	PR_SS	40.000000000
+%R	44125	44117	43072	45799	45799	PR_SS	0.0000000000
+%R	44148	44118	43072	45799	45799	PR_SS	0.0000000000
+%R	43057	43053	43052	45799	45799	PR_SS	40.000000000
+%R	43063	42948	43052	45799	45799	PR_FS	0.0000000000
+%R	44123	44114	43052	45799	45799	PR_SS	0.0000000000
+%R	42965	42962	42961	45799	45799	PR_SS	40.000000000
+%R	43060	43052	42961	45799	45799	PR_FS	0.0000000000
+%R	44122	43014	42961	45799	45799	PR_SS	0.0000000000
+%R	42655	42651	42650	45799	45799	PR_FS	-40.000000000
+%R	44717	44716	44713	45799	45799	PR_FS	0.0000000000
+%R	44303	44288	44291	45799	45799	PR_FS	0.0000000000
+%R	44494	44288	44294	45799	45799	PR_FS	-32.000000000
+%R	44762	42976	44294	45799	45799	PR_FS	0.0000000000
+%R	44763	43051	44288	45799	45799	PR_FS	0.0000000000
+%R	44267	44263	44265	45799	45799	PR_FS	0.0000000000
+%R	44759	44294	44263	45799	45799	PR_FS	0.0000000000
+%R	44159	42797	44158	45799	45799	PR_FS	0.0000000000
+%R	44605	42119	44158	45799	45799	PR_FS	0.0000000000
+%R	44753	44743	44741	45799	45799	PR_FS	0.0000000000
+%R	44072	42278	42472	45799	45799	PR_FS	0.0000000000
+%R	44152	42616	42472	45799	45799	PR_FS	0.0000000000
+%R	44356	44355	42472	45799	45799	PR_FS	0.0000000000
+%R	43078	43074	43073	45799	45799	PR_SS	40.000000000
+%R	44101	42936	43073	45799	45799	PR_FS	0.0000000000
+%R	43036	43005	43030	45799	45799	PR_FS	0.0000000000
+%R	44062	44061	42616	45799	45799	PR_FS	0.0000000000
+%R	44075	42280	42616	45799	45799	PR_FS	0.0000000000
+%R	43058	43054	43053	45799	45799	PR_SS	40.000000000
+%R	44102	42948	43053	45799	45799	PR_FS	0.0000000000
+%R	42966	42963	42962	45799	45799	PR_SS	40.000000000
+%R	42953	42950	42949	45799	45799	PR_SS	40.000000000
+%R	44720	44719	44716	45799	45799	PR_FS	0.0000000000
+%R	42656	42653	42651	45799	45799	PR_FS	0.0000000000
+%R	42657	42652	42651	45799	45799	PR_FS	0.0000000000
+%R	44751	42828	44746	45799	45799	PR_FS	0.0000000000
+%R	44358	44323	43006	45799	45799	PR_FS	0.0000000000
+%R	44361	42984	43006	45799	45799	PR_SS	80.000000000
+%R	44766	42823	43006	45799	45799	PR_FS	0.0000000000
+%R	44363	42996	43016	45799	45799	PR_SS	80.000000000
+%R	44748	44746	43016	45799	45799	PR_FS	0.0000000000
+%R	44767	42823	43016	45799	45799	PR_FS	0.0000000000
+%R	43934	42440	42996	45799	45799	PR_FS	0.0000000000
+%R	44738	42828	42996	45799	45799	PR_FS	0.0000000000
+%R	44765	42823	42996	45799	45799	PR_FS	0.0000000000
+%R	44659	44653	44652	45799	45799	PR_FS	0.0000000000
+%R	44660	44587	44652	45799	45799	PR_SF	0.0000000000
+%R	43079	43075	43074	45799	45799	PR_FS	0.0000000000
+%R	42954	42951	42950	45799	45799	PR_FS	0.0000000000
+%R	43059	43055	43054	45799	45799	PR_FS	0.0000000000
+%R	42967	42964	42963	45799	45799	PR_FS	0.0000000000
+%R	44597	44596	44594	45799	45799	PR_FS	0.0000000000
+%R	44599	44587	44594	45799	45799	PR_FS	0.0000000000
+%R	42691	42264	42652	45799	45799	PR_FS	0.0000000000
+%R	44754	42279	44743	45799	45799	PR_FS	0.0000000000
+%R	44086	42472	43075	45799	45799	PR_FS	0.0000000000
+%R	42968	42948	42964	45799	45799	PR_FS	0.0000000000
+%R	42982	42980	42964	45799	45799	PR_FS	0.0000000000
+%R	44087	42951	43055	45799	45799	PR_FS	0.0000000000
+%R	44321	42980	43055	45799	45799	PR_FS	0.0000000000
+%R	42969	42936	42951	45799	45799	PR_FS	0.0000000000
+%R	44357	43366	42951	45799	45799	PR_FS	0.0000000000
+%R	44491	43232	42951	45799	45799	PR_FS	0.0000000000
+%R	44492	43365	42951	45799	45799	PR_FS	0.0000000000
+%R	44493	43371	42951	45799	45799	PR_FS	0.0000000000
+%R	44119	44114	43014	45799	45799	PR_FS	0.0000000000
+%R	43007	43005	43004	45799	45799	PR_FS	0.0000000000
+%R	43033	43030	43004	45799	45799	PR_FS	0.0000000000
+%R	43939	43138	43004	45799	45799	PR_FS	0.0000000000
+%R	44120	44117	43004	45799	45799	PR_FS	0.0000000000
+%R	42997	42995	42994	45799	45799	PR_FS	0.0000000000
+%R	43940	43187	42994	45799	45799	PR_FS	0.0000000000
+%R	44121	44118	42994	45799	45799	PR_FS	0.0000000000
+%R	44723	44722	44719	45799	45799	PR_FS	0.0000000000
+%R	43959	43957	43954	45799	45799	PR_FS	0.0000000000
+%R	44038	44022	43954	45799	45799	PR_FS	0.0000000000
+%R	44039	43996	43954	45799	45799	PR_FS	0.0000000000
+%R	42658	42654	42653	45799	45799	PR_FS	0.0000000000
+%R	44063	42650	44061	45799	45799	PR_FS	0.0000000000
+%R	44142	42994	44114	45799	45799	PR_FS	0.0000000000
+%R	44146	43026	44114	45799	45799	PR_FS	0.0000000000
+%R	44147	43015	44114	45799	45799	PR_FS	0.0000000000
+%R	44661	44654	44653	45799	45799	PR_FS	0.0000000000
+%R	44662	44655	44653	45799	45799	PR_FS	0.0000000000
+%R	44143	43004	44118	45799	45799	PR_FS	0.0000000000
+%R	44359	43006	43005	45799	45799	PR_FS	0.0000000000
+%R	44756	42280	43005	45799	45799	PR_FS	0.0000000000
+%R	44151	43005	42995	45799	45799	PR_FS	0.0000000000
+%R	44153	43032	42995	45799	45799	PR_SS	0.0000000000
+%R	44755	42280	42995	45799	45799	PR_FS	0.0000000000
+%R	44150	42995	43015	45799	45799	PR_FS	0.0000000000
+%R	44757	42280	43015	45799	45799	PR_FS	0.0000000000
+%R	44770	44656	44722	45799	45799	PR_FS	0.0000000000
+%R	43960	43958	43957	45799	45799	PR_FS	0.0000000000
+%R	44040	43980	43957	45799	45799	PR_FS	0.0000000000
+%R	44663	44656	44654	45799	45799	PR_FS	0.0000000000
+%R	43937	43936	42984	45799	45799	PR_FS	0.0000000000
+%R	44362	43016	42984	45799	45799	PR_SS	80.000000000
+%R	44764	42823	42984	45799	45799	PR_FS	0.0000000000
+%R	44769	44657	44710	45799	45799	PR_FS	0.0000000000
+%R	44771	44652	44710	45799	45799	PR_FS	0.0000000000
+%R	42970	42961	42428	45799	45799	PR_SS	64.000000000
+%R	44248	44247	42428	45799	45799	PR_FS	0.0000000000
+%R	44254	44253	42428	45799	45799	PR_FS	0.0000000000
+%R	44041	42430	43958	45799	45799	PR_FS	0.0000000000
+%R	44665	44656	44655	45799	45799	PR_FS	0.0000000000
+%R	44308	44304	44334	45799	45799	PR_FS	0.0000000000
+%R	43368	43365	43232	45799	45799	PR_FS	0.0000000000
+%R	43369	43366	43232	45799	45799	PR_FS	0.0000000000
+%R	43372	43371	43232	45799	45799	PR_FS	0.0000000000
+%R	44011	43980	43996	45799	45799	PR_FS	0.0000000000
+%R	44013	43997	43996	45799	45799	PR_SS	80.000000000
+%R	44014	43998	43996	45799	45799	PR_SS	80.000000000
+%R	44257	44256	44247	45799	45799	PR_FS	0.0000000000
+%R	44305	44250	44247	45799	45799	PR_FS	0.0000000000
+%R	44402	44368	44247	45799	45799	PR_FS	0.0000000000
+%R	44017	42482	42430	45799	45799	PR_SS	80.000000000
+%R	44018	42484	42430	45799	45799	PR_SS	80.000000000
+%R	44012	42430	43980	45799	45799	PR_FS	0.0000000000
+%R	44015	43981	43980	45799	45799	PR_SS	80.000000000
+%R	44016	43982	43980	45799	45799	PR_SS	80.000000000
+%R	44666	44178	44656	45799	45799	PR_SS	0.0000000000
+%R	44667	44334	44656	45799	45799	PR_FS	0.0000000000
+%R	44339	44335	44304	45799	45799	PR_FS	0.0000000000
+%R	43987	43984	43981	45799	45799	PR_FS	0.0000000000
+%R	44002	43999	43997	45799	45799	PR_FS	0.0000000000
+%R	44003	44000	43997	45799	45799	PR_FS	0.0000000000
+%R	43972	42628	42482	45799	45799	PR_FS	0.0000000000
+%R	43388	43140	43138	45799	45799	PR_FS	0.0000000000
+%R	43390	43143	43138	45799	45799	PR_FS	0.0000000000
+%R	43941	43142	43138	45799	45799	PR_SS	0.0000000000
+%R	43953	43187	43138	45799	45799	PR_FS	0.0000000000
+%R	44051	43983	43982	45799	45799	PR_SS	80.000000000
+%R	44135	42484	43982	45799	45799	PR_FS	0.0000000000
+%R	44057	43189	43185	45799	45799	PR_SS	0.0000000000
+%R	44129	43958	43185	45799	45799	PR_SS	80.000000000
+%R	44004	43999	43998	45799	45799	PR_FS	0.0000000000
+%R	44133	42484	43998	45799	45799	PR_FS	0.0000000000
+%R	44136	43982	43998	45799	45799	PR_FS	0.0000000000
+%R	44052	42432	42484	45799	45799	PR_SS	80.000000000
+%R	44055	42650	42484	45799	45799	PR_FS	0.0000000000
+%R	43373	43370	43365	45799	45799	PR_FS	0.0000000000
+%R	43374	43718	43365	45799	45799	PR_FS	0.0000000000
+%R	43951	43138	43365	45799	45799	PR_FS	0.0000000000
+%R	43963	43370	43365	45799	45799	PR_FF	32.000000000
+%R	44097	42432	43983	45799	45799	PR_FS	0.0000000000
+%R	44053	42650	42432	45799	45799	PR_FS	0.0000000000
+%R	44094	43958	43186	45799	45799	PR_FS	0.0000000000
+%R	44095	43984	43999	45799	45799	PR_FS	0.0000000000
+%R	44301	44260	44250	45799	45799	PR_FS	0.0000000000
+%R	44311	44288	44250	45799	45799	PR_FS	0.0000000000
+%R	44312	44291	44250	45799	45799	PR_FF	0.0000000000
+%R	44502	42353	44250	45799	45799	PR_FS	0.0000000000
+%R	43399	43186	43187	45799	45799	PR_FS	0.0000000000
+%R	43400	43189	43187	45799	45799	PR_FS	0.0000000000
+%R	43942	43188	43187	45799	45799	PR_SS	0.0000000000
+%R	44092	43958	43188	45799	45799	PR_FS	0.0000000000
+%R	44093	43958	43189	45799	45799	PR_FS	0.0000000000
+%R	43931	43139	43366	45799	45799	PR_FS	0.0000000000
+%R	43961	43954	43366	45799	45799	PR_FS	-40.000000000
+%R	43962	43718	43366	45799	45799	PR_SS	0.0000000000
+%R	43966	43718	43366	45799	45799	PR_SS	40.000000000
+%R	44340	44336	44335	45799	45799	PR_FS	0.0000000000
+%R	44091	43140	43370	45799	45799	PR_FS	0.0000000000
+%R	44261	44260	44256	45799	45799	PR_FS	0.0000000000
+%R	44096	42628	43984	45799	45799	PR_FS	0.0000000000
+%R	44054	42650	42628	45799	45799	PR_FS	0.0000000000
+%R	43932	43185	43139	45799	45799	PR_FS	0.0000000000
+%R	44128	43957	43139	45799	45799	PR_SS	80.000000000
+%R	43378	43718	43371	45799	45799	PR_FS	0.0000000000
+%R	43948	43142	43371	45799	45799	PR_FS	0.0000000000
+%R	43567	43186	43140	45799	45799	PR_FS	0.0000000000
+%R	43965	43143	43718	45799	45799	PR_FS	0.0000000000
+%R	44352	44351	44337	45799	45799	PR_FS	0.0000000000
+%R	43393	43143	43142	45799	45799	PR_FS	0.0000000000
+%R	43949	43188	43142	45799	45799	PR_FS	0.0000000000
+%R	44324	44323	44338	45799	45799	PR_FS	0.0000000000
+%R	43571	43189	43143	45799	45799	PR_FS	0.0000000000
+%R	44413	44412	44351	45799	45799	PR_FS	0.0000000000
+%R	44415	44338	44412	45799	45799	PR_FS	0.0000000000
+%R	44364	44061	44323	45799	45799	PR_FS	0.0000000000
+%R	44025	42446	44022	45799	45799	PR_FS	0.0000000000
+%R	44033	42508	44022	45799	45799	PR_FS	0.0000000000
+%R	44391	44370	44368	45799	45799	PR_FS	0.0000000000
+%R	44019	42448	42446	45799	45799	PR_FS	0.0000000000
+%R	44392	44372	44370	45799	45799	PR_FS	0.0000000000
+%R	44020	42450	42448	45799	45799	PR_FS	0.0000000000
+%R	44393	44374	44372	45799	45799	PR_FS	0.0000000000
+%R	44028	42636	42450	45799	45799	PR_FS	0.0000000000
+%R	44030	42456	42450	45799	45799	PR_FS	0.0000000000
+%R	44031	42634	42450	45799	45799	PR_FS	0.0000000000
+%R	44394	44376	44374	45799	45799	PR_FS	0.0000000000
+%R	44395	44378	44376	45799	45799	PR_FS	0.0000000000
+%R	44737	44735	44376	45799	45799	PR_FS	0.0000000000
+%R	44396	44380	44378	45799	45799	PR_FS	0.0000000000
+%R	44397	44382	44380	45799	45799	PR_FS	0.0000000000
+%R	44398	44384	44382	45799	45799	PR_FS	0.0000000000
+%R	44410	44405	44382	45799	45799	PR_FS	0.0000000000
+%R	44749	42823	44382	45799	45799	PR_FS	0.0000000000
+%R	44399	44386	44384	45799	45799	PR_FS	0.0000000000
+%R	44032	42462	42634	45799	45799	PR_FS	0.0000000000
+%R	44035	42464	42462	45799	45799	PR_FS	0.0000000000
+%R	44400	44388	44386	45799	45799	PR_FS	0.0000000000
+%R	44034	42446	42508	45799	45799	PR_FS	0.0000000000
+%R	44036	42466	42464	45799	45799	PR_FS	0.0000000000
+%R	44127	42454	42464	45799	45799	PR_FS	0.0000000000
+%R	44401	44390	44388	45799	45799	PR_FS	0.0000000000
+%R	44408	44407	44388	45799	45799	PR_FS	0.0000000000
+%R	44409	44390	44407	45799	45799	PR_FS	0.0000000000
+%R	44037	42468	42466	45799	45799	PR_FF	32.000000000
+%R	44733	44732	44390	45799	45799	PR_FS	0.0000000000
+%R	44747	44741	44732	45799	45799	PR_FS	0.0000000000
+%E

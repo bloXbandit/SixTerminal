@@ -13,6 +13,11 @@ __pycache__/
 *.xlsx
 *.csv
 
+# Allow schedule files in project buckets
+!copilot_web/projects/**/*.xer
+!copilot_web/projects/**/*.mpp
+!copilot_web/projects/**/*.pdf
+
 # Configuration (contains API keys)
 config.json
 

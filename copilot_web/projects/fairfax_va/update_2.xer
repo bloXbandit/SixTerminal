@@ -1,0 +1,1808 @@
+ERMHDR	8.0	2025-11-03	Project	eantico	Emily Antico	dbxDatabaseNoName	Project Management	USD
+%T	CURRTYPE
+%F	curr_id	decimal_digit_cnt	curr_symbol	decimal_symbol	digit_group_symbol	pos_curr_fmt_type	neg_curr_fmt_type	curr_type	curr_short_name	group_digit_cnt	base_exch_rate
+%R	1	2	$	.	,	#1.1	(#1.1)	Dollar	USD	3	1
+%R	10	2	$	.	,	#1.1	(#1.1)	Argentine Peso	ARS	3	3.077
+%R	11	2	A$	.	,	#1.1	(#1.1)	Australian Dollar	AUST	3	1.208
+%R	13	2	R$	.	,	#1.1	(#1.1)	Brazilian Real	BRL	3	2.014
+%R	14	2	£	.	,	#1.1	(#1.1)	British Pound	U.K.	3	0.501762
+%R	15	2	CA$	.	,	#1.1	(#1.1)	Canadian Dollar	CAD	3	1.10573
+%R	16	2	Y	.	,	#1.1	(#1.1)	Chinese Yuan	CNY	3	7.694
+%R	17	2	€	.	,	#1.1	(#1.1)	EURO	EUR	3	0.739088
+%R	20	2	HK$	.	,	#1.1	(#1.1)	Hong Kong Dollar	HKD	3	7.81967
+%R	21	2	Rs	.	,	#1.1	(#1.1)	Indian Rupee	INR	3	40.67
+%R	23	2	¥	.	,	#1.1	(#1.1)	Japanese Yen	JPY	3	120.167
+%R	24	2	K	.	,	#1.1	(#1.1)	Korean Won	KRW	3	924.743
+%R	25	2	N$	.	,	#1.1	(#1.1)	Mexican Peso	MXN	3	10.7938
+%R	26	2	R	.	,	#1.1	(#1.1)	Russian Rouble	RUB	3	25.8085
+%R	28	2	Sk	.	,	#1.1	(#1.1)	Swedish Krona	SEK	3	6.80579
+%R	29	2	kr	.	,	#1.1	(#1.1)	Swiss Franc	CHF	3	1.21864
+%R	30	2	NIS	.	,	#1.1	(#1.1)	Israel Shekel	ILS	3	3.96384
+%T	FINTMPL
+%F	fintmpl_id	fintmpl_name	default_flag
+%R	1	Calendar	Y
+%T	OBS
+%F	obs_id	parent_obs_id	guid	seq_num	obs_name	obs_descr
+%R	565			0	AEGIS	<HTML><BODY></BODY></HT
+%T	PROJECT
+%F	proj_id	fy_start_month_num	rsrc_self_add_flag	allow_complete_flag	rsrc_multi_assign_flag	checkout_flag	project_flag	step_complete_flag	cost_qty_recalc_flag	batch_sum_flag	name_sep_char	def_complete_pct_type	proj_short_name	acct_id	orig_proj_id	source_proj_id	base_type_id	clndr_id	sum_base_proj_id	task_code_base	task_code_step	priority_num	wbs_max_sum_level	strgy_priority_num	last_checksum	critical_drtn_hr_cnt	def_cost_per_qty	last_recalc_date	plan_start_date	plan_end_date	scd_end_date	add_date	last_tasksum_date	fcst_start_date	def_duration_type	task_code_prefix	guid	def_qty_type	add_by_name	web_local_root_path	proj_url	def_rate_type	add_act_remain_flag	act_this_per_link_flag	def_task_type	act_pct_link_flag	critical_path_type	task_code_prefix_flag	def_rollup_dates_flag	use_project_baseline_flag	rem_target_link_flag	reset_planned_flag	allow_neg_act_flag	sum_assign_level	last_fin_dates_id	last_baseline_update_date	cr_external_key	apply_actuals_date	fintmpl_id	last_schedule_date	location_id	loaded_scope_level	export_flag	new_fin_dates_id	baselines_to_export	baseline_names_to_export	next_data_date	close_period_flag	sum_refresh_date	trsrcsum_loaded	sumtask_loaded
+%R	1255	1	Y	Y	Y	N	Y	N	N	Y	.	CP_Drtn	PSFVA-UP02					2352		1000	10	10				0	0.0000	2025-10-31 17:00	2025-04-01 08:00		2026-09-15 17:00	2025-11-03 10:31			DT_FixedDUR2	A	OhpxDJ16QemZkDWiOKO1qw	QT_Hour	eantico			COST_PER_QTY	N	Y	TT_Task	Y	CT_TotFloat	Y	Y	Y	Y	N	N	SL_Taskrsrc					1			7	Y								
+%T	CALENDAR
+%F	clndr_id	default_flag	clndr_name	proj_id	base_clndr_id	last_chng_date	clndr_type	day_hr_cnt	week_hr_cnt	month_hr_cnt	year_hr_cnt	rsrc_private	clndr_data
+%R	772	N	G7			2016-09-27 00:00	CA_Base	8	56	172	2000	N	(0||CalendarData()(  (0||DaysOfWeek()(    (0||1()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||2()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||3()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||4()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||5()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||6()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||7()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))))  (0||VIEW(ShowTotal|Y)())  (0||Exceptions()())))
+%R	2352	N	5 Day	1255		2025-10-10 00:00	CA_Project	8	40	172	2000	N	(0||CalendarData()(  (0||DaysOfWeek()(    (0||1()())    (0||2()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||3()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||4()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||5()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||6()(      (0||0(s|08:00|f|12:00)())      (0||1(s|13:00|f|17:00)())))    (0||7()())))  (0||VIEW(ShowTotal|Y)())  (0||Exceptions()(    (0||0(d|44525)())    (0||1(d|44526)())    (0||2(d|44554)())    (0||3(d|44561)())))))
+%R	2353	N	Standard	1255			CA_Project	8	40	172	2000	N	(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()())))
+%T	SCHEDOPTIONS
+%F	schedoptions_id	proj_id	sched_outer_depend_type	sched_open_critical_flag	sched_lag_early_start_flag	sched_retained_logic	sched_setplantoforecast	sched_float_type	sched_calendar_on_relationship_lag	sched_use_expect_end_flag	sched_progress_override	level_float_thrs_cnt	level_outer_assign_flag	level_outer_assign_priority	level_over_alloc_pct	level_within_float_flag	level_keep_sched_date_flag	level_all_rsrc_flag	sched_use_project_end_date_for_float	enable_multiple_longest_path_calc	limit_multiple_longest_path_calc	max_multiple_longest_path	use_total_float_multiple_longest_paths	key_activity_for_multiple_longest_paths	LevelPriorityList
+%R	1	1255	SD_Both	N	Y	Y	N	FT_FF	rcal_Successor	N	N	0	N		0	N	Y	Y	Y	Y	Y	1	N	178225	
+%T	PROJWBS
+%F	wbs_id	proj_id	obs_id	seq_num	est_wt	proj_node_flag	sum_data_flag	status_code	wbs_short_name	wbs_name	phase_id	parent_wbs_id	ev_user_pct	ev_etc_user_value	orig_cost	indep_remain_total_cost	ann_dscnt_rate_pct	dscnt_period_type	indep_remain_work_qty	anticip_start_date	anticip_end_date	ev_compute_type	ev_etc_compute_type	guid	tmpl_guid	plan_open_state
+%R	17832	1255	565	100	1	Y	N	WS_Open	PSFVA-UP02	Public Storage Fairfax VA - OCT 2025		17508			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	/jXTsWGxRPyZ6Ke94VgXJA		
+%R	17833	1255	565	1	1	N	N	WS_Open	1	Public Storage Fairfax VA		17832			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	3FXxtjoxRiehr7aHFm5qZg		
+%R	17834	1255	565	2	1	N	N	WS_Open	1	Preconstruction		17833			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	QCT9NGi0SB+ttPwRLUW9+Q		
+%R	17835	1255	565	1	1	N	N	WS_Open	1	Procurement		17834			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	M3/js8vcSzOvaKPhypH/wg		
+%R	17836	1255	565	0	1	N	N	WS_Open	2	Long Lead Items		17835			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	QGNfeKQwSKOC4Kj3+vt5QA		
+%R	17837	1255	565	3	1	N	N	WS_Open	2	Construction		17833			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	j8vkoSMTT/6FV9aLPzEavw		
+%R	17838	1255	565	2	1	N	N	WS_Open	2	Site Work		17837			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	PSbweJBDSGazEnrPusaMFQ		
+%R	17839	1255	565	1	1	N	N	WS_Open	1	Site Work - Main Building		17838			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	yw8lSPWWSUKdHdDfMKj76Q		
+%R	17840	1255	565	3	1	N	N	WS_Open	3	Site Work - Office		17838	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	fm6fxZ0NRdauJo9A4tAi8Q		
+%R	17841	1255	565	102	1	N	N	WS_Open	1	Main Building		17837			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	n9v/ZNxmRlWcdkIt7sSInw		
+%R	17842	1255	565	1	1	N	N	WS_Open	1	Substructure		17841			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	9slvJq7lRdaNqI7FYG7eBw		
+%R	17843	1255	565	8	1	N	N	WS_Open	2	Exterior Finishes		17841			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	F/VW5KYfRoSCstvvpaFv7A		
+%R	17844	1255	565	3	1	N	N	WS_Open	9	Superstructure		17841	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	n8h3l9mUQzqGd+kxDhFnlQ		
+%R	17845	1255	565	1	1	N	N	WS_Open	1	First Floor Superstructure		17844	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	ZYCPG5BRQqC0UIz7Sh5jxg		
+%R	17846	1255	565	101	1	N	N	WS_Open	2	Second Floor Superstructure		17844	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	7AyL4QNAQGChTAV9FZJf+g	1NSegXZBIk+wleKjVWNNmg	
+%R	17847	1255	565	201	1	N	N	WS_Open	3	Third Floor Superstructure		17844	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	MQpzZslXRfSMi9flGB1wew		
+%R	17848	1255	565	301	1	N	N	WS_Open	6	Fourth Floor Superstructure		17844	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	WUdYffldQWiVd5qJxaIrAw		
+%R	17849	1255	565	302	1	N	N	WS_Open	4	Fifth Floor Superstructure		17844	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	HDyiljjvRuG23S3uf44alw		
+%R	17850	1255	565	7	1	N	N	WS_Open	3	Interior Finishes		17841	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	Cab1XXROTV6DkJpgCQEM3A		
+%R	17851	1255	565	101	1	N	N	WS_Open	1	First Floor Interior Finishes		17850			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	XfDkbLbCT+iw/00peF5S2g		
+%R	17852	1255	565	201	1	N	N	WS_Open	2	Second Floor Interior Finishes		17850			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	loejobBwQI6hKco40vP1tQ		
+%R	17853	1255	565	301	1	N	N	WS_Open	3	Third Floor Interior Finishes		17850			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	Ldkqku4IRwK+mH0aD3Q5kg		
+%R	17854	1255	565	401	1	N	N	WS_Open	4	Fourth Floor Interior Finishes		17850			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	MBbfW5YzQ02E8AeJCkPYMQ		
+%R	17855	1255	565	501	1	N	N	WS_Open	5	Fifth Floor Interior Finishes		17850			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	rEwHFcJRTvieEg31Piziqw		
+%R	17856	1255	565	0	1	N	N	WS_Open	6	Elevator		17850			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	kT725AW8TUapQ7mgyFrT5g		
+%R	17857	1255	565	601	1	N	N	WS_Open	7	Switchgear Room		17850			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	GF6XOr4QSmaq/5JVm1r0xw		
+%R	17858	1255	565	1	1	N	N	WS_Open	8	Stair Shafts		17850	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	OHu3G295RsqDgfbNrZZ92A		
+%R	17859	1255	565	108	1	N	N	WS_Open	5	Roofing		17841	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	W26JOLIFRRyPmZjoG1CsNg		
+%R	17860	1255	565	203	1	N	N	WS_Open	3	Office Building		17837			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	5QzInLP1Rg2WQeO7Z2X5jg		
+%R	17861	1255	565	1	1	N	N	WS_Open	1	Structure - Office		17860			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	3niTVJ6AQuuqxmTr7YlxSw		
+%R	17862	1255	565	101	1	N	N	WS_Open	2	Interior Finishes - Office		17860	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	j0EPx0i3QSapZV/jbVszqA		
+%R	17863	1255	565	201	1	N	N	WS_Open	3	Exterior Finishes - Office		17860	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	xh49PgxQQxGSBIIcZZdivA		
+%R	17864	1255	565	103	1	N	N	WS_Open	4	Final Inspections & Close Out		17833			0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	4Zp/DZ3yQVmkcEHGkBRJEQ		
+%R	17865	1255	565	1	1	N	N	WS_Open	1	Office Building		17864	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	UAJwo4r6Sy6LSWoDZy4Lyg		
+%R	17866	1255	565	101	1	N	N	WS_Open	2	Main Building		17864	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	g5+YKlEwQ5GGnqynG4iB+g		
+%R	17867	1255	565	1	1	N	N	WS_Open	3	Milestones		17833	0	0	0.0000	0.0000						EC_Cmp_pct	EE_Rem_hr	i1NJGzX5TSCqA6ODctfhEw		
+%T	ACTVTYPE
+%F	actv_code_type_id	actv_short_len	seq_num	actv_code_type	proj_id	wbs_id	actv_code_type_scope	export_flag
+%R	1576	6	1	1	1255		AS_Project	
+%R	1577	12	2	2	1255		AS_Project	
+%R	1578	4	3	3	1255		AS_Project	
+%R	1579	8	4	4	1255		AS_Project	
+%R	1580	9	5	5	1255		AS_Project	
+%R	1581	9	6	6	1255		AS_Project	
+%T	TASK
+%F	task_id	proj_id	wbs_id	clndr_id	phys_complete_pct	rev_fdbk_flag	est_wt	lock_plan_flag	auto_compute_act_flag	complete_pct_type	task_type	duration_type	status_code	task_code	task_name	rsrc_id	total_float_hr_cnt	free_float_hr_cnt	remain_drtn_hr_cnt	act_work_qty	remain_work_qty	target_work_qty	target_drtn_hr_cnt	target_equip_qty	act_equip_qty	remain_equip_qty	cstr_date	act_start_date	act_end_date	late_start_date	late_end_date	expect_end_date	early_start_date	early_end_date	restart_date	reend_date	target_start_date	target_end_date	rem_late_start_date	rem_late_end_date	cstr_type	priority_type	suspend_date	resume_date	float_path	float_path_order	guid	tmpl_guid	cstr_date2	cstr_type2	driving_path_flag	act_this_per_work_qty	act_this_per_equip_qty	external_early_start_date	external_late_end_date	create_date	update_date	create_user	update_user	location_id	crt_path_num
+%R	181279	1255	17835	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1000	Precon Construction				0	0	0	0	8	0	0	0		2025-05-05 08:00	2025-05-05 17:00	2026-09-15 17:00	2026-09-15 17:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-05 08:00	2025-05-05 17:00				PT_Normal					pLEtLkZOQVu0J1jkYSVOjg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181280	1255	17835	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	PROC-1010	Contractor Procurement		0	0	40	0	0	0	480	0	0	0		2025-05-06 08:00		2025-11-03 08:00	2025-11-07 17:00		2025-11-03 08:00	2025-11-07 17:00	2025-11-03 08:00	2025-11-07 17:00	2025-05-06 08:00	2025-07-28 17:00	2025-11-03 08:00	2025-11-07 17:00		PT_Normal					FwZdAvmST7GrJhB5xG4/eg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181281	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1050	Light Fixtures Submittal				0	0	0	0	160	0	0	0	2025-08-04 00:00	2025-08-04 08:00	2025-08-29 17:00	2026-05-20 08:00	2026-05-20 08:00		2025-11-07 17:00	2025-11-07 17:00			2025-08-04 08:00	2025-08-29 17:00			CS_MSOA	PT_Normal					FsHj46FeQ1mwK5lv6u2qUA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181282	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1040	Switchgear Submittal				0	0	0	0	120	0	0	0	2025-07-31 00:00	2025-07-31 08:00	2025-08-20 17:00	2026-04-29 08:00	2026-04-29 08:00		2025-11-07 17:00	2025-11-07 17:00			2025-07-31 08:00	2025-08-20 17:00			CS_MSOA	PT_Normal					GktYQpqVSVyMIZKnY3oTfg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181283	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	PROC-1100	Elevator Fabrication		464	312	560	0	0	0	560	0	0	0				2026-01-29 08:00	2026-05-06 17:00		2025-11-10 08:00	2026-02-13 17:00	2025-11-10 08:00	2026-02-13 17:00	2025-11-10 08:00	2026-02-13 17:00	2026-01-29 08:00	2026-05-06 17:00		PT_Normal					qUs1fd9kQ4KZ05ZvqWw/Xg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181284	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1020	Elevator Submittal				0	0	0	0	184	0	0	0	2025-06-30 00:00	2025-06-12 08:00	2025-07-14 17:00	2026-01-29 08:00	2026-01-29 08:00		2025-11-07 17:00	2025-11-07 17:00			2025-06-12 08:00	2025-07-14 17:00			CS_MSOA	PT_Normal					vsL0upVDQdKYKI3WlxZv3g				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181285	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	PROC-1150	Fire Pump Fabrication		1136	80	240	0	0	0	240	0	0	0				2026-06-18 08:00	2026-07-29 17:00		2025-12-02 08:00	2026-01-12 17:00	2025-12-02 08:00	2026-01-12 17:00	2025-12-02 08:00	2026-01-12 17:00	2026-06-18 08:00	2026-07-29 17:00		PT_Normal					hNLOmO2uTV2HsKbOVprE5A				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181286	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	PROC-1090	Fire Pump Submittal		1136	0	128	0	0	0	320	0	0	0	2025-09-01 00:00	2025-10-27 08:00		2026-05-27 08:00	2026-06-17 17:00		2025-11-10 08:00	2025-12-01 17:00	2025-11-10 08:00	2025-12-01 17:00	2025-09-29 08:00	2025-11-21 17:00	2026-05-27 08:00	2026-06-17 17:00	CS_MSOA	PT_Normal					8Y2C3f+sTPqWbLMxEHLohQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181287	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1060	Switchgear Fabrication				0	0	0	0	240	0	0	0		2025-08-21 08:00	2025-09-30 17:00	2026-04-29 08:00	2026-04-29 08:00		2025-11-07 17:00	2025-11-07 17:00			2025-08-21 08:00	2025-10-01 17:00				PT_Normal					LCQpt4AXRH6kI5qNOItXNw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181288	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1070	Light Fixtures Fabrication				0	0	0	0	160	0	0	0		2025-09-01 08:00	2025-09-25 17:00	2026-05-20 08:00	2026-05-20 08:00		2025-11-07 17:00	2025-11-07 17:00			2025-09-01 08:00	2025-09-26 17:00				PT_Normal					UuWcpHCgTtKUTeOAVCulHw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181289	1255	17836	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1110	HVAC Equipment Submittal				0	0	0	0	160	0	0	0		2025-09-15 08:00	2025-09-30 17:00	2026-01-14 08:00	2026-01-14 08:00		2025-11-07 17:00	2025-11-07 17:00			2025-10-15 08:00	2025-11-11 17:00				PT_Normal					+YLIPHwTQh+r7CNjGGdbNA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181290	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	PROC-1130	HVAC Equipment Fabrication		376	48	400	0	0	0	560	0	0	0		2025-10-20 08:00		2026-01-14 08:00	2026-03-24 17:00		2025-11-10 08:00	2026-01-16 17:00	2025-11-10 08:00	2026-01-16 17:00	2025-12-15 08:00	2026-03-20 17:00	2026-01-14 08:00	2026-03-24 17:00		PT_Normal					iE9imYGpST6c1xulsQ8USw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181291	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1030	Brick Submittal and Fabrication				0	0	0	0	480	0	0	0	2025-07-01 00:00	2025-07-01 08:00	2025-09-19 17:00	2025-12-18 08:00	2025-12-18 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-07-01 08:00	2025-09-22 17:00			CS_MSOA	PT_Normal					DHI/RkK7Suyuqcsh9mafUw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181292	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	PROC-1080	Glass Field Measurement and Fabrication - Office		0	0	280	0	0	0	360	0	0	0		2025-09-15 08:00		2025-11-03 08:00	2025-12-19 17:00		2025-11-03 08:00	2025-12-19 17:00	2025-11-03 08:00	2025-12-19 17:00	2025-09-15 08:00	2025-11-14 17:00	2025-11-03 08:00	2025-12-19 17:00		PT_Normal					jTC7KJ0wTE+1r0v3uXnhtw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181293	1255	17836	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	PROC-1120	Ferguson Tank Submittal				0	0	0	0	160	0	0	0		2025-07-29 08:00	2025-10-15 17:00	2026-02-12 08:00	2026-02-12 08:00		2025-11-07 17:00	2025-11-07 17:00			2025-11-17 08:00	2025-12-12 17:00				PT_Normal					1TDxqSWPS9ObPqAvnxEDsw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181294	1255	17836	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	PROC-1140	Ferguson Tank Fabrication		544	0	80	0	0	0	120	0	0	0		2025-10-27 08:00		2026-02-12 08:00	2026-02-25 17:00		2025-11-10 08:00	2025-11-21 17:00	2025-11-10 08:00	2025-11-21 17:00	2025-11-17 08:00	2025-12-05 17:00	2026-02-12 08:00	2026-02-25 17:00		PT_Normal					uRc6vTI1Tf+CCkzLeNY8sw	XMUiCvPCGEOPGF0zRY966A			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181295	1255	17838	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-1020	Mobilization				0	0	0	0	8	0	0	0	2025-05-05 00:00	2025-05-05 08:00	2025-05-05 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-05 08:00	2025-05-05 17:00			CS_MSOA	PT_Normal					O80CnpmET9WUhJoxNI24+g				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181296	1255	17838	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-1000	Erosion Control Phase I				0	0	0	0	32	0	0	0		2025-05-06 08:00	2025-05-09 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-06 08:00	2025-05-09 17:00				PT_Normal					VYDC4D9RTyiVfqNFR7d9kA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181297	1255	17838	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-1010	Stormwater Management Ponds		544	120	80	0	0	0	80	0	0	0				2026-02-26 08:00	2026-03-11 17:00		2025-11-24 08:00	2025-12-05 17:00	2025-11-24 08:00	2025-12-05 17:00	2025-11-24 08:00	2025-12-05 17:00	2026-02-26 08:00	2026-03-11 17:00		PT_Normal					or+OXdvwRQmwWAX3uBdqyQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181298	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-MB-1030	Building Pad Delivery - Main Building				0	0	0	0	280	0	0	0	2025-07-25 17:00	2025-06-09 08:00	2025-07-25 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-06-09 08:00	2025-07-25 17:00			CS_MEOA	PT_Normal					AV0fP4f6SGiEoyi0cVZ+vA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181299	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1060	Sanitary Sewer - Main Building		424	0	80	0	0	0	80	0	0	0				2026-02-26 08:00	2026-03-11 17:00		2025-12-15 08:00	2025-12-26 17:00	2025-12-15 08:00	2025-12-26 17:00	2025-12-15 08:00	2025-12-26 17:00	2026-02-26 08:00	2026-03-11 17:00		PT_Normal					yvyWw/PSQ/mjubOE2GYcVA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181300	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1050	Storm Structures and Pipe - Main Building		424	0	240	0	0	0	240	0	0	0				2026-01-15 08:00	2026-02-25 17:00		2025-11-03 08:00	2025-12-12 17:00	2025-11-03 08:00	2025-12-12 17:00	2025-11-03 08:00	2025-12-12 17:00	2026-01-15 08:00	2026-02-25 17:00		PT_Normal					96NnIIIeS7SN7t+z63tlgA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181301	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1100	Curb and Gutter - Main Building		192	0	56	0	0	0	56	0	0	0				2026-06-25 08:00	2026-07-03 17:00		2026-05-22 08:00	2026-06-01 17:00	2026-05-22 08:00	2026-06-01 17:00	2026-05-22 08:00	2026-06-01 17:00	2026-06-25 08:00	2026-07-03 17:00		PT_Normal					NzgB1FiRTYme6O1LT/G9vw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181302	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1120	Stone Base Parking Lot - Main Building		192	192	80	0	0	0	80	0	0	0				2026-07-06 08:00	2026-07-17 17:00		2026-06-02 08:00	2026-06-15 17:00	2026-06-02 08:00	2026-06-15 17:00	2026-06-02 08:00	2026-06-15 17:00	2026-07-06 08:00	2026-07-17 17:00		PT_Normal					/IiVW+eWSNmzjGo7RfP5kg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181303	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1080	Sidewalk - Main Building		0	0	40	0	0	0	40	0	0	0				2026-07-13 08:00	2026-07-17 17:00		2026-07-13 08:00	2026-07-17 17:00	2026-07-13 08:00	2026-07-17 17:00	2026-07-13 08:00	2026-07-17 17:00	2026-07-13 08:00	2026-07-17 17:00		PT_Normal					SABag0KbT2+5+yypchmBGw				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181304	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1090	Landscape - Main Building		0	0	80	0	0	0	80	0	0	0				2026-08-03 08:00	2026-08-14 17:00		2026-08-03 08:00	2026-08-14 17:00	2026-08-03 08:00	2026-08-14 17:00	2026-08-03 08:00	2026-08-14 17:00	2026-08-03 08:00	2026-08-14 17:00		PT_Normal					n7xVqNafRK+AiHd6uAKJyA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181305	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1070	Fine Grading - Main Building		424	424	120	0	0	0	120	0	0	0				2026-03-12 08:00	2026-04-01 17:00		2025-12-29 08:00	2026-01-16 17:00	2025-12-29 08:00	2026-01-16 17:00	2025-12-29 08:00	2026-01-16 17:00	2026-03-12 08:00	2026-04-01 17:00		PT_Normal					DQk9YUrbSMmizXA9wQ2WqA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181306	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1130	Paving (Includes SHA Work) - Main Building		0	0	80	0	0	0	80	0	0	0				2026-07-20 08:00	2026-07-31 17:00		2026-07-20 08:00	2026-07-31 17:00	2026-07-20 08:00	2026-07-31 17:00	2026-07-20 08:00	2026-07-31 17:00	2026-07-20 08:00	2026-07-31 17:00		PT_Normal					HPvDON5sTs6ocVXVfdXcwg				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181307	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-MB-1040	Domestic & Fire Water Online - Main Building				0	0	0	0	216	0	0	0		2025-07-28 08:00	2025-09-02 17:00	2026-01-15 08:00	2026-01-15 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-07-28 08:00	2025-09-02 17:00				PT_Normal					MM7EVFKoSeWiVulJ/3j0Lg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181308	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-MB-1140	Line Striping - Main Building		64	64	16	0	0	0	16	0	0	0				2026-08-13 08:00	2026-08-14 17:00		2026-08-03 08:00	2026-08-04 17:00	2026-08-03 08:00	2026-08-04 17:00	2026-08-03 08:00	2026-08-04 17:00	2026-08-13 08:00	2026-08-14 17:00		PT_Normal					vl4DIa8lT/axv9q/IKA8MA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181309	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-MB-1010	Demo/Clear Site - Main Building				0	0	0	0	80	0	0	0		2025-05-12 08:00	2025-05-23 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-12 08:00	2025-05-23 17:00				PT_Normal					w/JytuPPR/uHFmbPLCbVWQ				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181310	1255	17839	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-MB-1020	Rough Grading - Main Building				0	0	0	0	80	0	0	0		2025-05-26 08:00	2025-06-06 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-26 08:00	2025-06-06 17:00				PT_Normal					bXam8TMgRZSR2tDVU2ATPA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181311	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-OFF-1020	Building Pad Delivery - Office Building				0	0	0	0	280	0	0	0	2025-07-25 17:00	2025-06-09 00:00	2025-07-25 17:00	2025-11-27 08:00	2025-11-27 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-06-09 08:00	2025-07-25 17:00			CS_MEOA	PT_Normal					LuKDe38wQjaB2B4E2fZDIA	USiEQNGPQo+KJCQ87biUnQ			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181312	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1090	Curb and Gutter - Office Building		176	0	8	0	0	0	8	0	0	0				2025-12-24 08:00	2025-12-24 17:00		2025-11-24 08:00	2025-11-24 17:00	2025-11-24 08:00	2025-11-24 17:00	2025-11-24 08:00	2025-11-24 17:00	2025-12-24 08:00	2025-12-24 17:00		PT_Normal					rdYblJdzQJuYV7gE58IJUA	8w7fOtatR2WKaPw9iYRhQg			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181313	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1110	Stone Base Parking Lot - Office Building		184	8	8	0	0	0	8	0	0	0				2025-12-26 08:00	2025-12-26 17:00		2025-11-25 08:00	2025-11-25 17:00	2025-11-25 08:00	2025-11-25 17:00	2025-11-25 08:00	2025-11-25 17:00	2025-12-26 08:00	2025-12-26 17:00		PT_Normal					RGQzM5iFRTqSEt3IvZCV/A	i+uuFynjRUWVBlsWZTDuFg			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181314	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1070	Sidewalk - Office Building		176	0	16	0	0	0	16	0	0	0				2025-12-25 08:00	2025-12-26 17:00		2025-11-25 08:00	2025-11-26 17:00	2025-11-25 08:00	2025-11-26 17:00	2025-11-25 08:00	2025-11-26 17:00	2025-12-25 08:00	2025-12-26 17:00		PT_Normal					48fTak7qQJC/HChmQM4lPw	XemUXPB8Tnq+Z3eg0ntrcA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181315	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1080	Landscape - Office Building		296	248	8	0	0	0	8	0	0	0				2026-01-08 08:00	2026-01-08 17:00		2025-11-18 08:00	2025-11-18 17:00	2025-11-18 08:00	2025-11-18 17:00	2025-11-18 08:00	2025-11-18 17:00	2026-01-08 08:00	2026-01-08 17:00		PT_Normal					7covahMkRSqnU3lKzUR32Q	WKaQyLfoT+yxdwHaCSF/BA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181316	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1060	Fine Grading - Office Building		208	0	48	0	0	0	48	0	0	0				2025-12-16 08:00	2025-12-23 17:00		2025-11-10 08:00	2025-11-17 17:00	2025-11-10 08:00	2025-11-17 17:00	2025-11-10 08:00	2025-11-17 17:00	2025-12-16 08:00	2025-12-23 17:00		PT_Normal					JJ5v0EB8SXyAJgomZKWOzQ	S0MwAKcARdSYrY5I6T7gsQ			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181317	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1100	Misc Exterior Items (Vehicle Gate Operator) - Office Building		208	160	24	0	0	0	24	0	0	0				2026-01-06 08:00	2026-01-08 17:00		2025-12-01 08:00	2025-12-03 17:00	2025-12-01 08:00	2025-12-03 17:00	2025-12-01 08:00	2025-12-03 17:00	2026-01-06 08:00	2026-01-08 17:00		PT_Normal					vzfRt/YRT+iSubXrfSUemg	dq2O6NuJToGJKxiXCUgAPA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181318	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1120	Paving - Office Building		176	0	16	0	0	0	16	0	0	0				2025-12-29 08:00	2025-12-30 17:00		2025-11-27 08:00	2025-11-28 17:00	2025-11-27 08:00	2025-11-28 17:00	2025-11-27 08:00	2025-11-28 17:00	2025-12-29 08:00	2025-12-30 17:00		PT_Normal					Zwc/LG4lQhOU7fQntkTCgw	EFARqnHtTxiu4kEZoIj78Q			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181319	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1130	Line Striping - Office Building		176	176	8	0	0	0	8	0	0	0				2025-12-31 08:00	2025-12-31 17:00		2025-12-01 08:00	2025-12-01 17:00	2025-12-01 08:00	2025-12-01 17:00	2025-12-01 08:00	2025-12-01 17:00	2025-12-31 08:00	2025-12-31 17:00		PT_Normal					+uuSeN7dR6eONarmNpskug	4Xz/SmstQx+DeRWQVAiE3g			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181320	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-OFF-1000	Demo/Clear Site - Office Building				0	0	0	0	80	0	0	0		2025-05-12 08:00	2025-05-23 17:00	2025-11-27 08:00	2025-11-27 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-12 08:00	2025-05-23 17:00				PT_Normal					f3e+COr0S1aS2L3P1UHdpw	LDql7jOsRg+6bpDMyyPmWA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181321	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	SITE-OFF-1010	Rough Grading - Office Building				0	0	0	0	80	0	0	0		2025-05-26 08:00	2025-06-06 17:00	2025-11-27 08:00	2025-11-27 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-26 08:00	2025-06-06 17:00				PT_Normal					M0+ldcHARVq7zo0qQIkpBw	yTxZ/hP5ReihyNkSxw3RWA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181322	1255	17840	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	SITE-OFF-1030	Domestic & Fire Water Online - Office Building		176	0	80	0	0	0	80	0	0	0				2025-12-10 08:00	2025-12-23 17:00		2025-11-10 08:00	2025-11-21 17:00	2025-11-10 08:00	2025-11-21 17:00	2025-11-10 08:00	2025-11-21 17:00	2025-12-10 08:00	2025-12-23 17:00		PT_Normal					S3BzyXE/Ti2D2C2ZiVGaQw	ZTMsE/3hSXGCzmH6hVOnnw			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181323	1255	17842	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-MB-1000	UG Electric Rough In				0	0	0	0	80	0	0	0	2025-08-04 00:00	2025-08-04 08:00	2025-08-27 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-08-04 08:00	2025-08-15 17:00			CS_MSOA	PT_Normal					YEgYae7kTnSEwupYruzTpg				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181324	1255	17842	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-MB-1020	Prep/Pour SOG 1/2				0	0	0	0	96	0	0	0	2025-09-10 17:00	2025-08-27 08:00	2025-09-10 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-08-27 08:00	2025-09-11 17:00			CS_MEOA	PT_Normal					xoRFT0qgQbSXAH+QAEud0g				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181325	1255	17842	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-MB-1030	Prep/Pour SOG 2/2				0	0	0	0	144	0	0	0	2025-09-22 17:00	2025-08-29 08:00	2025-09-22 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-08-29 08:00	2025-09-23 17:00			CS_MEOA	PT_Normal					+E/9Ew0UT5uavU6PzBJ6Cg				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181326	1255	17842	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-1040	Foundation Waterproofing		552	72	40	0	0	0	40	0	0	0				2026-02-25 08:00	2026-03-03 17:00		2025-11-20 08:00	2025-11-26 17:00	2025-11-20 08:00	2025-11-26 17:00	2025-11-20 08:00	2025-11-26 17:00	2026-02-25 08:00	2026-03-03 17:00		PT_Normal					xMCEUfwKQ5ijB9EY6dXhgA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181327	1255	17842	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-MB-1010	UG Plumbing Roughin				0	0	0	0	64	0	0	0		2025-08-18 08:00	2025-08-27 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-08-18 08:00	2025-08-27 17:00				PT_Normal					ItOsSFsWT7ujpDTsBUyg7w				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181328	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1050	Exterior Sheathing - 2nd Floor		688	576	48	0	0	0	48	0	0	0				2026-04-14 08:00	2026-04-21 17:00		2025-12-15 08:00	2025-12-22 17:00	2025-12-15 08:00	2025-12-22 17:00	2025-12-15 08:00	2025-12-22 17:00	2026-04-14 08:00	2026-04-21 17:00		PT_Normal					OBKocpDASXekmxnEA2N3eg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181329	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1050	Exterior Sheathing - 3rd Floor		624	400	48	0	0	0	48	0	0	0				2026-05-08 08:00	2026-05-15 17:00		2026-01-20 08:00	2026-01-27 17:00	2026-01-20 08:00	2026-01-27 17:00	2026-01-20 08:00	2026-01-27 17:00	2026-05-08 08:00	2026-05-15 17:00		PT_Normal					5k/h3gLjTHm/c8Sm1Fe00Q				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181330	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1040	Exterior Sheathing - 4th Floor		576	240	48	0	0	0	48	0	0	0				2026-06-01 08:00	2026-06-08 17:00		2026-02-19 08:00	2026-02-26 17:00	2026-02-19 08:00	2026-02-26 17:00	2026-02-19 08:00	2026-02-26 17:00	2026-06-01 08:00	2026-06-08 17:00		PT_Normal					XWhCY0lQT2agYWbJbIWktw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181331	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1030	Exterior Sheathing - 5th Floor		0	0	48	0	0	0	48	0	0	0				2026-03-25 08:00	2026-04-01 17:00		2026-03-25 08:00	2026-04-01 17:00	2026-03-25 08:00	2026-04-01 17:00	2026-03-25 08:00	2026-04-01 17:00	2026-03-25 08:00	2026-04-01 17:00		PT_Normal			1	14	oGjYgveJQUueo2JSCySuew				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181332	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1050	Brick South Elevation		0	0	144	0	0	0	144	0	0	0				2026-06-17 08:00	2026-07-10 17:00		2026-06-17 08:00	2026-07-10 17:00	2026-06-17 08:00	2026-07-10 17:00	2026-06-17 08:00	2026-07-10 17:00	2026-06-17 08:00	2026-07-10 17:00		PT_Normal			1	18	34IQf25FQGOixie/2vEk1A				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181333	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1100	Stucco South Elevation		32	32	48	0	0	0	48	0	0	0				2026-06-15 08:00	2026-06-22 17:00		2026-06-09 08:00	2026-06-16 17:00	2026-06-09 08:00	2026-06-16 17:00	2026-06-09 08:00	2026-06-16 17:00	2026-06-15 08:00	2026-06-22 17:00		PT_Normal					DKwGipUgRhqYJ/vi9zVwag				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181334	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1120	Swing Doors/ Automatic Sliding Entrance		72	72	32	0	0	0	32	0	0	0				2026-07-24 08:00	2026-07-29 17:00		2026-07-13 08:00	2026-07-16 17:00	2026-07-13 08:00	2026-07-16 17:00	2026-07-13 08:00	2026-07-16 17:00	2026-07-24 08:00	2026-07-29 17:00		PT_Normal					Ylip6LjYSrG9LhgjXKF9BA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181335	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1130	Storefront		0	0	160	0	0	0	160	0	0	0				2026-06-23 08:00	2026-07-20 17:00		2026-06-23 08:00	2026-07-20 17:00	2026-06-23 08:00	2026-07-20 17:00	2026-06-23 08:00	2026-07-20 17:00	2026-06-23 08:00	2026-07-20 17:00		PT_Normal			1	19	ge1OTf25RgGR+FCcxEO1mw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181336	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1150	Canopies		0	0	56	0	0	0	56	0	0	0				2026-07-21 08:00	2026-07-29 17:00		2026-07-21 08:00	2026-07-29 17:00	2026-07-21 08:00	2026-07-29 17:00	2026-07-21 08:00	2026-07-29 17:00	2026-07-21 08:00	2026-07-29 17:00		PT_Normal			1	20	tem04epMSvSp7RVN/xq2iw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181337	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1090	Glass North Elevation		264	0	56	0	0	0	56	0	0	0				2026-07-01 08:00	2026-07-09 17:00		2026-05-15 08:00	2026-05-25 17:00	2026-05-15 08:00	2026-05-25 17:00	2026-05-15 08:00	2026-05-25 17:00	2026-07-01 08:00	2026-07-09 17:00		PT_Normal					cpR36NeCQWe+Uq8RwNvICg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181338	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1030	Brick East Elevation		0	0	144	0	0	0	144	0	0	0				2026-05-22 08:00	2026-06-16 17:00		2026-05-22 08:00	2026-06-16 17:00	2026-05-22 08:00	2026-06-16 17:00	2026-05-22 08:00	2026-06-16 17:00	2026-05-22 08:00	2026-06-16 17:00		PT_Normal			1	17	D9JfNxUzRoSJYi9DSbttbA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181339	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1020	Brick North Elevation		0	0	144	0	0	0	144	0	0	0				2026-04-28 08:00	2026-05-21 17:00		2026-04-28 08:00	2026-05-21 17:00	2026-04-28 08:00	2026-05-21 17:00	2026-04-28 08:00	2026-05-21 17:00	2026-04-28 08:00	2026-05-21 17:00		PT_Normal			1	16	F2UO9qqHRz2iD2YrahJCZA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181340	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1000	Brick West Elevation		0	0	144	0	0	0	144	0	0	0				2026-04-02 08:00	2026-04-27 17:00		2026-04-02 08:00	2026-04-27 17:00	2026-04-02 08:00	2026-04-27 17:00	2026-04-02 08:00	2026-04-27 17:00	2026-04-02 08:00	2026-04-27 17:00		PT_Normal			1	15	JytweGJ0QxiWtCETsJAv+g				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181341	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1080	Stucco East Elevation		32	0	48	0	0	0	48	0	0	0				2026-06-05 08:00	2026-06-12 17:00		2026-06-01 08:00	2026-06-08 17:00	2026-06-01 08:00	2026-06-08 17:00	2026-06-01 08:00	2026-06-08 17:00	2026-06-05 08:00	2026-06-12 17:00		PT_Normal					vCDkoxUsR1aKsirj24KT9w				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181342	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1060	Stucco North Elevation		32	0	48	0	0	0	48	0	0	0				2026-05-28 08:00	2026-06-04 17:00		2026-05-22 08:00	2026-05-29 17:00	2026-05-22 08:00	2026-05-29 17:00	2026-05-22 08:00	2026-05-29 17:00	2026-05-28 08:00	2026-06-04 17:00		PT_Normal					OsqXAP5jThaNKsTQTAmyEg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181343	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1040	Stucco West Elevation		128	0	48	0	0	0	48	0	0	0				2026-05-20 08:00	2026-05-27 17:00		2026-04-28 08:00	2026-05-05 17:00	2026-04-28 08:00	2026-05-05 17:00	2026-04-28 08:00	2026-05-05 17:00	2026-05-20 08:00	2026-05-27 17:00		PT_Normal					OAZ9jxccR5GX7gvjtjK57Q				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181344	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1070	Glass West Elevation		264	0	56	0	0	0	56	0	0	0				2026-06-22 08:00	2026-06-30 17:00		2026-05-06 08:00	2026-05-14 17:00	2026-05-06 08:00	2026-05-14 17:00	2026-05-06 08:00	2026-05-14 17:00	2026-06-22 08:00	2026-06-30 17:00		PT_Normal					jkfDmb6YSreks2KPHWA0EA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181345	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1140	Glass South Elevation		264	264	56	0	0	0	56	0	0	0				2026-07-21 08:00	2026-07-29 17:00		2026-06-04 08:00	2026-06-12 17:00	2026-06-04 08:00	2026-06-12 17:00	2026-06-04 08:00	2026-06-12 17:00	2026-07-21 08:00	2026-07-29 17:00		PT_Normal					FT8OedgYRFC5li1TITgaZA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181346	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-EXT-1110	Glass East Elevation		264	0	56	0	0	0	56	0	0	0				2026-07-10 08:00	2026-07-20 17:00		2026-05-26 08:00	2026-06-03 17:00	2026-05-26 08:00	2026-06-03 17:00	2026-05-26 08:00	2026-06-03 17:00	2026-07-10 08:00	2026-07-20 17:00		PT_Normal					FXiy2jSISU6yjTMHFF/PSA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181347	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1250	Exterior Sheathing - 1st Floor		552	0	48	0	0	0	48	0	0	0				2026-02-17 08:00	2026-02-24 17:00		2025-11-12 08:00	2025-11-19 17:00	2025-11-12 08:00	2025-11-19 17:00	2025-11-12 08:00	2025-11-19 17:00	2026-02-17 08:00	2026-02-24 17:00		PT_Normal					7xPu6NmPTs+lFx4sXmg+wg	sutBq45KQoKt3deRxQ7uJg			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181348	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1260	Perimeter Waterproofing West Elevation		0	0	32	0	0	0	32	0	0	0				2026-03-27 08:00	2026-04-01 17:00		2026-03-27 08:00	2026-04-01 17:00	2026-03-27 08:00	2026-04-01 17:00	2026-03-27 08:00	2026-04-01 17:00	2026-03-27 08:00	2026-04-01 17:00		PT_Normal					KADyqEXIRdmLVO0TiiDc4g	yc8JYUHDjky/iw9OeCNMgg			Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181349	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1280	Perimeter Waterproofing North Elevation		112	0	32	0	0	0	32	0	0	0				2026-04-22 08:00	2026-04-27 17:00		2026-04-02 08:00	2026-04-07 17:00	2026-04-02 08:00	2026-04-07 17:00	2026-04-02 08:00	2026-04-07 17:00	2026-04-22 08:00	2026-04-27 17:00		PT_Normal					pPpJuWc6RPSoyp/Ts00wjQ	vBWngdwxgkG1NiI09vxUjQ			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181350	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1290	Perimeter Waterproofing East Elevation		224	0	32	0	0	0	32	0	0	0				2026-05-18 08:00	2026-05-21 17:00		2026-04-08 08:00	2026-04-13 17:00	2026-04-08 08:00	2026-04-13 17:00	2026-04-08 08:00	2026-04-13 17:00	2026-05-18 08:00	2026-05-21 17:00		PT_Normal					lhaS/YIlQCWX/8A02v6esw	WoqX4tdM5E2zQKMgoddQBg			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181351	1255	17843	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1300	Perimeter Waterproofing South Elevation		320	288	32	0	0	0	32	0	0	0				2026-06-09 08:00	2026-06-12 17:00		2026-04-14 08:00	2026-04-17 17:00	2026-04-14 08:00	2026-04-17 17:00	2026-04-14 08:00	2026-04-17 17:00	2026-06-09 08:00	2026-06-12 17:00		PT_Normal					zDZxdI8wRr6YZm2yeyXkaA	WoqX4tdM5E2zQKMgoddQBg			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181352	1255	17845	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-MB-L1-1040	Structural Steel Columns & Beams - 1st Floor				0	0	0	0	144	0	0	0		2025-09-29 08:00	2025-10-28 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-11-03 08:00	2025-11-26 17:00				PT_Normal					Gz8mjNwhSh2+RYZD8bu45g				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181353	1255	17845	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-MB-L1-1060	Metal Decking - 2nd floor				0	0	0	0	32	0	0	0		2025-10-23 08:00	2025-10-28 17:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-11-27 08:00	2025-12-02 17:00				PT_Normal					/H5UvBVKRg+1o2SFoAeXyA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181354	1255	17845	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	CON-MB-L1-1070	Prep/Pour SOD - 2nd Floor		0	0	8	0	0	0	64	0	0	0		2025-10-29 08:00		2025-11-03 08:00	2025-11-03 17:00		2025-11-03 08:00	2025-11-03 17:00	2025-11-03 08:00	2025-11-03 17:00	2025-12-03 08:00	2025-12-12 17:00	2025-11-03 08:00	2025-11-03 17:00		PT_Normal			1	1	61wljBHtTMCKkbyu//3F5Q				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181355	1255	17845	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	CON-MB-L1-1090	Exterior & Interior Framing - 1st Floor		552	0	48	0	0	0	80	0	0	0		2025-10-28 08:00		2026-02-09 08:00	2026-02-16 17:00		2025-11-04 08:00	2025-11-11 17:00	2025-11-04 08:00	2025-11-11 17:00	2025-11-04 08:00	2025-11-17 17:00	2026-02-09 08:00	2026-02-16 17:00		PT_Normal					g8InunxVQY2NjPrhb0ZKIQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181356	1255	17846	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1000	Structural Steel Columns & Beams - 2nd Floor		0	0	112	0	0	0	112	0	0	0				2025-11-04 08:00	2025-11-21 17:00		2025-11-04 08:00	2025-11-21 17:00	2025-11-04 08:00	2025-11-21 17:00	2025-11-04 08:00	2025-11-21 17:00	2025-11-04 08:00	2025-11-21 17:00		PT_Normal			1	2	G+xMY993TvGuOSv2NeL9Sg				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181357	1255	17846	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1010	Metal Decking 3rd Floor		0	0	32	0	0	0	32	0	0	0				2025-11-24 08:00	2025-11-27 17:00		2025-11-24 08:00	2025-11-27 17:00	2025-11-24 08:00	2025-11-27 17:00	2025-11-24 08:00	2025-11-27 17:00	2025-11-24 08:00	2025-11-27 17:00		PT_Normal			1	3	JJyDbU4cS3O3K7R9TzZhTA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181358	1255	17846	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1020	Prep/Pour SOD - 3rd floor		0	0	64	0	0	0	64	0	0	0				2025-11-28 08:00	2025-12-09 17:00		2025-11-28 08:00	2025-12-09 17:00	2025-11-28 08:00	2025-12-09 17:00	2025-11-28 08:00	2025-12-09 17:00	2025-11-28 08:00	2025-12-09 17:00		PT_Normal			1	4	RFiCnq85RaO4pB2sPifLdQ				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181359	1255	17846	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1040	Exterior & Interior Framing - 2nd Floor		480	0	80	0	0	0	80	0	0	0				2026-03-04 08:00	2026-03-17 17:00		2025-12-10 08:00	2025-12-23 17:00	2025-12-10 08:00	2025-12-23 17:00	2025-12-10 08:00	2025-12-23 17:00	2026-03-04 08:00	2026-03-17 17:00		PT_Normal					UiKkCIY8Rc6ttaO7MH9ggA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181360	1255	17847	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1000	Structural Steel Columns & Beams - 3rd Floor		0	0	112	0	0	0	112	0	0	0				2025-12-10 08:00	2025-12-29 17:00		2025-12-10 08:00	2025-12-29 17:00	2025-12-10 08:00	2025-12-29 17:00	2025-12-10 08:00	2025-12-29 17:00	2025-12-10 08:00	2025-12-29 17:00		PT_Normal			1	5	erV5keRDSLqQ/wx5eNvPvA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181361	1255	17847	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1010	Metal Decking - 4th Floor		0	0	32	0	0	0	32	0	0	0				2025-12-30 08:00	2026-01-02 17:00		2025-12-30 08:00	2026-01-02 17:00	2025-12-30 08:00	2026-01-02 17:00	2025-12-30 08:00	2026-01-02 17:00	2025-12-30 08:00	2026-01-02 17:00		PT_Normal			1	6	MIcxm8sUTVyW0bnTlfDUBw				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181362	1255	17847	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1020	Prep & Pour SOD - 4th Floor		0	0	64	0	0	0	64	0	0	0				2026-01-05 08:00	2026-01-14 17:00		2026-01-05 08:00	2026-01-14 17:00	2026-01-05 08:00	2026-01-14 17:00	2026-01-05 08:00	2026-01-14 17:00	2026-01-05 08:00	2026-01-14 17:00		PT_Normal			1	7	5Fn8afSaSvCbg05VBx/w5Q				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181363	1255	17847	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1040	Exterior & Interior Framing - 3rd Floor		504	0	80	0	0	0	80	0	0	0				2026-04-14 08:00	2026-04-27 17:00		2026-01-15 08:00	2026-01-28 17:00	2026-01-15 08:00	2026-01-28 17:00	2026-01-15 08:00	2026-01-28 17:00	2026-04-14 08:00	2026-04-27 17:00		PT_Normal					l/VR4ER/S0KPPeyQODMc5w				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181364	1255	17848	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1000	Structural Steel Columns & Beams - 4th Floor		0	0	112	0	0	0	112	0	0	0				2026-01-15 08:00	2026-02-03 17:00		2026-01-15 08:00	2026-02-03 17:00	2026-01-15 08:00	2026-02-03 17:00	2026-01-15 08:00	2026-02-03 17:00	2026-01-15 08:00	2026-02-03 17:00		PT_Normal			1	8	ZVitWl7mTKiFCddKGVAytg				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181365	1255	17848	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1010	Metal Decking - 5th Floor		0	0	32	0	0	0	32	0	0	0				2026-02-04 08:00	2026-02-09 17:00		2026-02-04 08:00	2026-02-09 17:00	2026-02-04 08:00	2026-02-09 17:00	2026-02-04 08:00	2026-02-09 17:00	2026-02-04 08:00	2026-02-09 17:00		PT_Normal			1	9	mF+mHG8USEmIyhBpvKGN/A				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181366	1255	17848	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1020	Prep & Pour SOD - 5th Floor		0	0	32	0	0	0	32	0	0	0				2026-02-10 08:00	2026-02-13 17:00		2026-02-10 08:00	2026-02-13 17:00	2026-02-10 08:00	2026-02-13 17:00	2026-02-10 08:00	2026-02-13 17:00	2026-02-10 08:00	2026-02-13 17:00		PT_Normal			1	10	g2O2T4n4Qau/zigOvIjFkA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181367	1255	17848	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1030	Exterior & Interior Framing - 4th Floor		456	0	80	0	0	0	80	0	0	0				2026-05-06 08:00	2026-05-19 17:00		2026-02-16 08:00	2026-02-27 17:00	2026-02-16 08:00	2026-02-27 17:00	2026-02-16 08:00	2026-02-27 17:00	2026-05-06 08:00	2026-05-19 17:00		PT_Normal					OMymXFwHTziYjrcz+jpCHQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181368	1255	17849	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1000	Structural Steel Columns & Beams - 5th Floor		0	0	112	0	0	0	112	0	0	0				2026-02-16 08:00	2026-03-05 17:00		2026-02-16 08:00	2026-03-05 17:00	2026-02-16 08:00	2026-03-05 17:00	2026-02-16 08:00	2026-03-05 17:00	2026-02-16 08:00	2026-03-05 17:00		PT_Normal			1	11	XUUmJPDYTBaqLYMBSxLRQA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181369	1255	17849	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1010	Framing & Metal Decking - Roof		0	0	80	0	0	0	80	0	0	0				2026-03-06 08:00	2026-03-19 17:00		2026-03-06 08:00	2026-03-19 17:00	2026-03-06 08:00	2026-03-19 17:00	2026-03-06 08:00	2026-03-19 17:00	2026-03-06 08:00	2026-03-19 17:00		PT_Normal			1	12	vV0ijMFYSVi/N6z3J2iKFA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181370	1255	17849	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1050	Exterior & Interior Framing - 5th Floor		0	0	80	0	0	0	80	0	0	0				2026-03-20 08:00	2026-04-02 17:00		2026-03-20 08:00	2026-04-02 17:00	2026-03-20 08:00	2026-04-02 17:00	2026-03-20 08:00	2026-04-02 17:00	2026-03-20 08:00	2026-04-02 17:00		PT_Normal			1	13	tMoygB/lRoCtpTJOpvX7Iw				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181371	1255	17850	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-2000	Grind/Seal Floors (Full Building)		144	0	80	0	0	0	80	0	0	0				2026-07-16 08:00	2026-07-29 17:00		2026-06-22 08:00	2026-07-03 17:00	2026-06-22 08:00	2026-07-03 17:00	2026-06-22 08:00	2026-07-03 17:00	2026-07-16 08:00	2026-07-29 17:00		PT_Normal					U1I7EgmrSuyvk6Bhh2p7RQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181372	1255	17850	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-2010	Final Cleaning (Full Building)		184	184	120	0	0	0	120	0	0	0				2026-07-27 08:00	2026-08-14 17:00		2026-06-24 08:00	2026-07-14 17:00	2026-06-24 08:00	2026-07-14 17:00	2026-06-24 08:00	2026-07-14 17:00	2026-07-27 08:00	2026-08-14 17:00		PT_Normal					Yo8vrII9QvKK3ycZ0PAWXQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181373	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1140	OH & Wall Plumbing Rough In - 1st Floor		456	56	24	0	0	0	24	0	0	0				2026-04-16 08:00	2026-04-20 17:00		2026-01-27 08:00	2026-01-29 17:00	2026-01-27 08:00	2026-01-29 17:00	2026-01-27 08:00	2026-01-29 17:00	2026-04-16 08:00	2026-04-20 17:00		PT_Normal					vOi4/bGMRzW2g4qPCXyh2Q				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181374	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1150	Electric & Low Voltage OH & Wall Rough In - 1st Floor		400	0	80	0	0	0	80	0	0	0				2026-04-07 08:00	2026-04-20 17:00		2026-01-27 08:00	2026-02-09 17:00	2026-01-27 08:00	2026-02-09 17:00	2026-01-27 08:00	2026-02-09 17:00	2026-04-07 08:00	2026-04-20 17:00		PT_Normal					sNSSTnZDSo65i4ezCQ06Qw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181375	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1160	HVAC Rough In - 1st Floor		456	56	24	0	0	0	24	0	0	0				2026-04-16 08:00	2026-04-20 17:00		2026-01-27 08:00	2026-01-29 17:00	2026-01-27 08:00	2026-01-29 17:00	2026-01-27 08:00	2026-01-29 17:00	2026-04-16 08:00	2026-04-20 17:00		PT_Normal					nLgBqG26QOmjZ/ItjFsnGg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181376	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1180	OH & Wall MEP Inspections - 1st Floor		400	176	16	0	0	0	16	0	0	0				2026-04-21 08:00	2026-04-22 17:00		2026-02-10 08:00	2026-02-11 17:00	2026-02-10 08:00	2026-02-11 17:00	2026-02-10 08:00	2026-02-11 17:00	2026-04-21 08:00	2026-04-22 17:00		PT_Normal					LuPsLPdYSTOeRXAjWEeZdA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181377	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1190	Hang & Finish Drywall - 1st Floor		616	0	56	0	0	0	56	0	0	0				2026-07-28 08:00	2026-08-05 17:00		2026-04-10 08:00	2026-04-20 17:00	2026-04-10 08:00	2026-04-20 17:00	2026-04-10 08:00	2026-04-20 17:00	2026-07-28 08:00	2026-08-05 17:00		PT_Normal					GiiS+ISjRpa1GYN/ksWwQA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181378	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1200	Doors & HW - 1st Floor		832	832	16	0	0	0	16	0	0	0				2026-09-14 08:00	2026-09-15 17:00		2026-04-21 08:00	2026-04-22 17:00	2026-04-21 08:00	2026-04-22 17:00	2026-04-21 08:00	2026-04-22 17:00	2026-09-14 08:00	2026-09-15 17:00		PT_Normal					QMkH/9JFT1+nHsBrHjfTkA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181379	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1210	Prep/Paint Walls & Ceilings - 1st Floor		616	0	16	0	0	0	16	0	0	0				2026-08-06 08:00	2026-08-07 17:00		2026-04-21 08:00	2026-04-22 17:00	2026-04-21 08:00	2026-04-22 17:00	2026-04-21 08:00	2026-04-22 17:00	2026-08-06 08:00	2026-08-07 17:00		PT_Normal					7gY+9YsXQtmUj3ESmursyA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181380	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1170	Sprinkler Rough In - 1st Floor		1056	1056	80	0	0	0	80	0	0	0				2026-07-30 08:00	2026-08-12 17:00		2026-01-27 08:00	2026-02-09 17:00	2026-01-27 08:00	2026-02-09 17:00	2026-01-27 08:00	2026-02-09 17:00	2026-07-30 08:00	2026-08-12 17:00		PT_Normal					x6hdT32sSmSXjYpK5Qrbpw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181381	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1220	Plumbing Fixtures - 1st Floor		640	640	16	0	0	0	16	0	0	0				2026-08-13 08:00	2026-08-14 17:00		2026-04-23 08:00	2026-04-24 17:00	2026-04-23 08:00	2026-04-24 17:00	2026-04-23 08:00	2026-04-24 17:00	2026-08-13 08:00	2026-08-14 17:00		PT_Normal					k9cxBzMES4+M6mqMFcbbnQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181382	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1130	Fire Proofing Structural Steel - 1st Floor		224	0	64	0	0	0	64	0	0	0				2026-02-24 08:00	2026-03-05 17:00		2026-01-15 08:00	2026-01-26 17:00	2026-01-15 08:00	2026-01-26 17:00	2026-01-15 08:00	2026-01-26 17:00	2026-02-24 08:00	2026-03-05 17:00		PT_Normal					M+lpreixTtOqgYN++6e4Kw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181383	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1230	Diffusers - 1st Floor		616	616	40	0	0	0	40	0	0	0				2026-08-10 08:00	2026-08-14 17:00		2026-04-23 08:00	2026-04-29 17:00	2026-04-23 08:00	2026-04-29 17:00	2026-04-23 08:00	2026-04-29 17:00	2026-08-10 08:00	2026-08-14 17:00		PT_Normal					jAqGDBzfTjWKaHdgz2xVNQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181384	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1240	Light Fixtures - 1st Floor		616	616	40	0	0	0	40	0	0	0				2026-08-10 08:00	2026-08-14 17:00		2026-04-23 08:00	2026-04-29 17:00	2026-04-23 08:00	2026-04-29 17:00	2026-04-23 08:00	2026-04-29 17:00	2026-08-10 08:00	2026-08-14 17:00		PT_Normal					q3PpEF3mQJaqllpBIhrvVA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181385	1255	17851	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L1-1270	Janus Wall Panels - 1st Floor		224	0	120	0	0	0	120	0	0	0				2026-04-23 08:00	2026-05-13 17:00		2026-03-16 08:00	2026-04-03 17:00	2026-03-16 08:00	2026-04-03 17:00	2026-03-16 08:00	2026-04-03 17:00	2026-04-23 08:00	2026-05-13 17:00		PT_Normal					CAYkunxgQEW0AWIZplWWJQ	ZZLfk7kYQZ2rxNhcSSAkMA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181386	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1100	Electric OH & Wall Rough In - 2nd Floor		224	0	80	0	0	0	80	0	0	0				2026-03-18 08:00	2026-03-31 17:00		2026-02-06 08:00	2026-02-19 17:00	2026-02-06 08:00	2026-02-19 17:00	2026-02-06 08:00	2026-02-19 17:00	2026-03-18 08:00	2026-03-31 17:00		PT_Normal					YrH5HspSQ0WTq7p1Dw03lg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181387	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1110	HVAC Rough In - 2nd Floor		264	40	40	0	0	0	40	0	0	0				2026-03-25 08:00	2026-03-31 17:00		2026-02-06 08:00	2026-02-12 17:00	2026-02-06 08:00	2026-02-12 17:00	2026-02-06 08:00	2026-02-12 17:00	2026-03-25 08:00	2026-03-31 17:00		PT_Normal					6P7dpamzQTWzd2pvtWZ1QA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181388	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1140	OH & Wall MEP Inspections - 2nd Floor		224	0	8	0	0	0	8	0	0	0				2026-04-01 08:00	2026-04-01 17:00		2026-02-20 08:00	2026-02-20 17:00	2026-02-20 08:00	2026-02-20 17:00	2026-02-20 08:00	2026-02-20 17:00	2026-04-01 08:00	2026-04-01 17:00		PT_Normal					NIZaUTrBTNeWjgefiKqyrg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181389	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1080	Prep/Paint Walls - 2nd Floor		1312	1312	16	0	0	0	16	0	0	0				2026-08-13 08:00	2026-08-14 17:00		2025-12-26 08:00	2025-12-29 17:00	2025-12-26 08:00	2025-12-29 17:00	2025-12-26 08:00	2025-12-29 17:00	2026-08-13 08:00	2026-08-14 17:00		PT_Normal					hN7xHlMYQyqJdic+ACW9Jw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181390	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1060	Doors & HW - 2nd Floor		1312	0	16	0	0	0	16	0	0	0				2026-08-11 08:00	2026-08-12 17:00		2025-12-24 08:00	2025-12-25 17:00	2025-12-24 08:00	2025-12-25 17:00	2025-12-24 08:00	2025-12-25 17:00	2026-08-11 08:00	2026-08-12 17:00		PT_Normal					4a2yGhX1THyPPAQv6vlEeQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181391	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1120	Sprinkler Rough In - 2nd Floor		992	992	80	0	0	0	80	0	0	0				2026-07-30 08:00	2026-08-12 17:00		2026-02-06 08:00	2026-02-19 17:00	2026-02-06 08:00	2026-02-19 17:00	2026-02-06 08:00	2026-02-19 17:00	2026-07-30 08:00	2026-08-12 17:00		PT_Normal					6BHYdi/ZQpKI8XMG55uPnA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181392	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1070	Janus Wall Panels - 2nd Floor		224	0	120	0	0	0	120	0	0	0				2026-04-02 08:00	2026-04-22 17:00		2026-02-23 08:00	2026-03-13 17:00	2026-02-23 08:00	2026-03-13 17:00	2026-02-23 08:00	2026-03-13 17:00	2026-04-02 08:00	2026-04-22 17:00		PT_Normal					rrxHOdVKStW671sEC0k10g				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181393	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1150	Diffusers - 2nd Floor		1136	1136	40	0	0	0	40	0	0	0				2026-09-09 08:00	2026-09-15 17:00		2026-02-23 08:00	2026-02-27 17:00	2026-02-23 08:00	2026-02-27 17:00	2026-02-23 08:00	2026-02-27 17:00	2026-09-09 08:00	2026-09-15 17:00		PT_Normal					p1Csr9r5QdyoL0gFw/02/w				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181394	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1090	Fireproofing Structural Steel - 2nd Floor		224	0	64	0	0	0	64	0	0	0				2026-03-06 08:00	2026-03-17 17:00		2026-01-27 08:00	2026-02-05 17:00	2026-01-27 08:00	2026-02-05 17:00	2026-01-27 08:00	2026-02-05 17:00	2026-03-06 08:00	2026-03-17 17:00		PT_Normal					nohG+WWwQnGnbWHSdevmIQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181395	1255	17852	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L2-1160	Light Fixtures - 2nd Floor		1136	1136	40	0	0	0	40	0	0	0				2026-09-09 08:00	2026-09-15 17:00		2026-02-23 08:00	2026-02-27 17:00	2026-02-23 08:00	2026-02-27 17:00	2026-02-23 08:00	2026-02-27 17:00	2026-09-09 08:00	2026-09-15 17:00		PT_Normal					T9VWgRKDTiStQI8YegU/cw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181396	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1140	Prep/Paint Walls & Ceilings - 3rd Floor		592	0	24	0	0	0	24	0	0	0				2026-08-03 08:00	2026-08-05 17:00		2026-04-21 08:00	2026-04-23 17:00	2026-04-21 08:00	2026-04-23 17:00	2026-04-21 08:00	2026-04-23 17:00	2026-08-03 08:00	2026-08-05 17:00		PT_Normal					Ku1AJ2KjQGqQTyMkiExkcA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181397	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1160	Plumbing Fixtures - 3rd Floor		600	600	32	0	0	0	32	0	0	0				2026-08-07 08:00	2026-08-12 17:00		2026-04-24 08:00	2026-04-29 17:00	2026-04-24 08:00	2026-04-29 17:00	2026-04-24 08:00	2026-04-29 17:00	2026-08-07 08:00	2026-08-12 17:00		PT_Normal					T3h+XefjS3K7LKVFSRJ1GA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181398	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1150	Janus Wall Panels - 3rd Floor		224	80	120	0	0	0	120	0	0	0				2026-05-14 08:00	2026-06-03 17:00		2026-04-06 08:00	2026-04-24 17:00	2026-04-06 08:00	2026-04-24 17:00	2026-04-06 08:00	2026-04-24 17:00	2026-05-14 08:00	2026-06-03 17:00		PT_Normal					8HZCRbgYQ5q8VgeKWHhCsA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181399	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1070	OH & Wall Plumbing Rough In - 3rd Floor		448	56	24	0	0	0	24	0	0	0				2026-05-07 08:00	2026-05-11 17:00		2026-02-18 08:00	2026-02-20 17:00	2026-02-18 08:00	2026-02-20 17:00	2026-02-18 08:00	2026-02-20 17:00	2026-05-07 08:00	2026-05-11 17:00		PT_Normal					CGqZYtuUS+CSsxmrN5BKAw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181400	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1080	Electric & Low Voltage OH & Wall Rough In - 3rd Floor		392	0	80	0	0	0	80	0	0	0				2026-04-28 08:00	2026-05-11 17:00		2026-02-18 08:00	2026-03-03 17:00	2026-02-18 08:00	2026-03-03 17:00	2026-02-18 08:00	2026-03-03 17:00	2026-04-28 08:00	2026-05-11 17:00		PT_Normal					NIfcCJ+sSruF0Jz7ceWrvw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181401	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1120	OH & Wall MEP Inspections - 3rd Floor		392	168	16	0	0	0	16	0	0	0				2026-05-12 08:00	2026-05-13 17:00		2026-03-04 08:00	2026-03-05 17:00	2026-03-04 08:00	2026-03-05 17:00	2026-03-04 08:00	2026-03-05 17:00	2026-05-12 08:00	2026-05-13 17:00		PT_Normal					0fb7h9IIQYG5iiU6OQWUnQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181402	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1130	Hang/Finish Drywall - 3rd Floor		592	0	56	0	0	0	56	0	0	0				2026-07-23 08:00	2026-07-31 17:00		2026-04-10 08:00	2026-04-20 17:00	2026-04-10 08:00	2026-04-20 17:00	2026-04-10 08:00	2026-04-20 17:00	2026-07-23 08:00	2026-07-31 17:00		PT_Normal					SqrEkhpXT5e/dEYJ4K8rnw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181403	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1090	HVAC Rough In - 3rd Floor		432	40	40	0	0	0	40	0	0	0				2026-05-05 08:00	2026-05-11 17:00		2026-02-18 08:00	2026-02-24 17:00	2026-02-18 08:00	2026-02-24 17:00	2026-02-18 08:00	2026-02-24 17:00	2026-05-05 08:00	2026-05-11 17:00		PT_Normal					+zdIU7mOTgeu97XKzCLIpw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181404	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1100	Sprinkler Rough In - 3rd Floor		928	928	80	0	0	0	80	0	0	0				2026-07-30 08:00	2026-08-12 17:00		2026-02-18 08:00	2026-03-03 17:00	2026-02-18 08:00	2026-03-03 17:00	2026-02-18 08:00	2026-03-03 17:00	2026-07-30 08:00	2026-08-12 17:00		PT_Normal					FChguw9iQ2a6OTBBq9uwVw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181405	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1060	Fire Proofing Structural Steel - 3rd Floor		392	0	64	0	0	0	64	0	0	0				2026-04-16 08:00	2026-04-27 17:00		2026-02-06 08:00	2026-02-17 17:00	2026-02-06 08:00	2026-02-17 17:00	2026-02-06 08:00	2026-02-17 17:00	2026-04-16 08:00	2026-04-27 17:00		PT_Normal					a6rjQCEbT06DwvPAEUwA6g				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181406	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1170	Diffusers - 3rd Floor		592	592	40	0	0	0	40	0	0	0				2026-08-06 08:00	2026-08-12 17:00		2026-04-24 08:00	2026-04-30 17:00	2026-04-24 08:00	2026-04-30 17:00	2026-04-24 08:00	2026-04-30 17:00	2026-08-06 08:00	2026-08-12 17:00		PT_Normal					x/EMRaj6RKaDw0kav73ldA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181407	1255	17853	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L3-1180	Light Fixtures - 3rd Floor		592	592	40	0	0	0	40	0	0	0				2026-08-06 08:00	2026-08-12 17:00		2026-04-24 08:00	2026-04-30 17:00	2026-04-24 08:00	2026-04-30 17:00	2026-04-24 08:00	2026-04-30 17:00	2026-08-06 08:00	2026-08-12 17:00		PT_Normal					GxZ4ByrXSYSY4YPWin+chw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181408	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1140	Janus Wall Panels - 4th Floor		144	0	120	0	0	0	120	0	0	0				2026-06-04 08:00	2026-06-24 17:00		2026-05-11 08:00	2026-05-29 17:00	2026-05-11 08:00	2026-05-29 17:00	2026-05-11 08:00	2026-05-29 17:00	2026-06-04 08:00	2026-06-24 17:00		PT_Normal					b3FHJnxqTv6eTUInwz4Hhw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181409	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1050	Fire Proofing Structural Steel - 4th Floor		144	0	64	0	0	0	64	0	0	0				2026-05-06 08:00	2026-05-15 17:00		2026-04-10 08:00	2026-04-21 17:00	2026-04-10 08:00	2026-04-21 17:00	2026-04-10 08:00	2026-04-21 17:00	2026-05-06 08:00	2026-05-15 17:00		PT_Normal					ztCns+s9Sx2zrDK87fvPqA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181410	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1060	Electric OH & Wall Rough In - 4th Floor		144	0	80	0	0	0	80	0	0	0				2026-05-20 08:00	2026-06-02 17:00		2026-04-24 08:00	2026-05-07 17:00	2026-04-24 08:00	2026-05-07 17:00	2026-04-24 08:00	2026-05-07 17:00	2026-05-20 08:00	2026-06-02 17:00		PT_Normal					7xawflnhRIulEK98+OCRhw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181411	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1070	HVAC Rough In - 4th Floor		184	40	40	0	0	0	40	0	0	0				2026-05-27 08:00	2026-06-02 17:00		2026-04-24 08:00	2026-04-30 17:00	2026-04-24 08:00	2026-04-30 17:00	2026-04-24 08:00	2026-04-30 17:00	2026-05-27 08:00	2026-06-02 17:00		PT_Normal					twzT7f3yR26tDdA76vAEqQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181412	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1100	OH & Wall MEP Inspections - 4th Floor		144	0	8	0	0	0	8	0	0	0				2026-06-03 08:00	2026-06-03 17:00		2026-05-08 08:00	2026-05-08 17:00	2026-05-08 08:00	2026-05-08 17:00	2026-05-08 08:00	2026-05-08 17:00	2026-06-03 08:00	2026-06-03 17:00		PT_Normal					PgPysBHLSmenjsKbzh7PcQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181413	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1110	Prep/Paint Walls - 4th Floor		528	528	16	0	0	0	16	0	0	0				2026-08-11 08:00	2026-08-12 17:00		2026-05-11 08:00	2026-05-12 17:00	2026-05-11 08:00	2026-05-12 17:00	2026-05-11 08:00	2026-05-12 17:00	2026-08-11 08:00	2026-08-12 17:00		PT_Normal					pD17N5UrQqO7cL4irMTkNA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181414	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1080	Sprinkler Rough In - 4th Floor		552	552	80	0	0	0	80	0	0	0				2026-07-30 08:00	2026-08-12 17:00		2026-04-24 08:00	2026-05-07 17:00	2026-04-24 08:00	2026-05-07 17:00	2026-04-24 08:00	2026-05-07 17:00	2026-07-30 08:00	2026-08-12 17:00		PT_Normal					4CsIBLl9SUmbfsMNGoggWw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181415	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1120	Diffusers - 4th Floor		504	504	40	0	0	0	40	0	0	0				2026-08-06 08:00	2026-08-12 17:00		2026-05-11 08:00	2026-05-15 17:00	2026-05-11 08:00	2026-05-15 17:00	2026-05-11 08:00	2026-05-15 17:00	2026-08-06 08:00	2026-08-12 17:00		PT_Normal					Oa9wfaJrS0uXGEYtvbFIqw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181416	1255	17854	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L4-1130	Light Fixtures - 4th Floor		504	504	40	0	0	0	40	0	0	0				2026-08-06 08:00	2026-08-12 17:00		2026-05-11 08:00	2026-05-15 17:00	2026-05-11 08:00	2026-05-15 17:00	2026-05-11 08:00	2026-05-15 17:00	2026-08-06 08:00	2026-08-12 17:00		PT_Normal					joYn3ogaQ4a1BIjvVs6/aw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181417	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1130	Prep/Paint Walls - 5th Floor		584	0	16	0	0	0	16	0	0	0				2026-09-08 08:00	2026-09-09 17:00		2026-05-28 08:00	2026-05-29 17:00	2026-05-28 08:00	2026-05-29 17:00	2026-05-28 08:00	2026-05-29 17:00	2026-09-08 08:00	2026-09-09 17:00		PT_Normal					OwEpOJAcSSGjK0oOjemNeA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181418	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1140	Plumbing Fixtures - 5th Floor		584	584	32	0	0	0	32	0	0	0				2026-09-10 08:00	2026-09-15 17:00		2026-06-01 08:00	2026-06-04 17:00	2026-06-01 08:00	2026-06-04 17:00	2026-06-01 08:00	2026-06-04 17:00	2026-09-10 08:00	2026-09-15 17:00		PT_Normal					J6M0lS9/QWGumwqEOOag4w				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181419	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1170	Janus Wall Panels - 5th Floor		144	0	120	0	0	0	120	0	0	0				2026-06-25 08:00	2026-07-15 17:00		2026-06-01 08:00	2026-06-19 17:00	2026-06-01 08:00	2026-06-19 17:00	2026-06-01 08:00	2026-06-19 17:00	2026-06-25 08:00	2026-07-15 17:00		PT_Normal					GMW19zD0TLehq0q51jNYCQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181420	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1040	Fire Proofing Structural Steel - 5th Floor		160	0	64	0	0	0	64	0	0	0				2026-05-20 08:00	2026-05-29 17:00		2026-04-22 08:00	2026-05-01 17:00	2026-04-22 08:00	2026-05-01 17:00	2026-04-22 08:00	2026-05-01 17:00	2026-05-20 08:00	2026-05-29 17:00		PT_Normal					qLSdAHo6SeSZkNBe2oYr8A				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181421	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1060	Electric & Low Voltage OH & Wall Rough In - 5th Floor		160	0	80	0	0	0	80	0	0	0				2026-06-01 08:00	2026-06-12 17:00		2026-05-04 08:00	2026-05-15 17:00	2026-05-04 08:00	2026-05-15 17:00	2026-05-04 08:00	2026-05-15 17:00	2026-06-01 08:00	2026-06-12 17:00		PT_Normal					cDMYkkuERpmLqKRydRFY+w				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181422	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1070	OH & Wall Plumbing Rough In - 5th Floor		216	56	24	0	0	0	24	0	0	0				2026-06-10 08:00	2026-06-12 17:00		2026-05-04 08:00	2026-05-06 17:00	2026-05-04 08:00	2026-05-06 17:00	2026-05-04 08:00	2026-05-06 17:00	2026-06-10 08:00	2026-06-12 17:00		PT_Normal					1O3u/gEhRh+qDJ8xFCnoNA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181423	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1080	HVAC Rough In - 5th Floor		200	40	40	0	0	0	40	0	0	0				2026-06-08 08:00	2026-06-12 17:00		2026-05-04 08:00	2026-05-08 17:00	2026-05-04 08:00	2026-05-08 17:00	2026-05-04 08:00	2026-05-08 17:00	2026-06-08 08:00	2026-06-12 17:00		PT_Normal					ipQQLXnARdOxewCPFEImdA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181424	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1110	OH & Wall MEP Inspections - 5th Floor		160	0	8	0	0	0	8	0	0	0				2026-06-15 08:00	2026-06-15 17:00		2026-05-18 08:00	2026-05-18 17:00	2026-05-18 08:00	2026-05-18 17:00	2026-05-18 08:00	2026-05-18 17:00	2026-06-15 08:00	2026-06-15 17:00		PT_Normal					t/x4JbSYQkO6Dkh8ht+EFQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181425	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1120	Hang/Finish Drywall - 5th Floor		160	0	56	0	0	0	56	0	0	0				2026-06-16 08:00	2026-06-24 17:00		2026-05-19 08:00	2026-05-27 17:00	2026-05-19 08:00	2026-05-27 17:00	2026-05-19 08:00	2026-05-27 17:00	2026-06-16 08:00	2026-06-24 17:00		PT_Normal					bL0CoOP8RVCgqoT3Io7U7Q				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181426	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1090	Sprinkler Rough In - 5th Floor		504	504	80	0	0	0	80	0	0	0				2026-07-30 08:00	2026-08-12 17:00		2026-05-04 08:00	2026-05-15 17:00	2026-05-04 08:00	2026-05-15 17:00	2026-05-04 08:00	2026-05-15 17:00	2026-07-30 08:00	2026-08-12 17:00		PT_Normal					DHONfuzLTXqQWKNZ88Z6eg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181427	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1150	Diffusers - 5th Floor		608	608	8	0	0	0	8	0	0	0				2026-09-15 08:00	2026-09-15 17:00		2026-06-01 08:00	2026-06-01 17:00	2026-06-01 08:00	2026-06-01 17:00	2026-06-01 08:00	2026-06-01 17:00	2026-09-15 08:00	2026-09-15 17:00		PT_Normal					N17XrqOjTSKoDZsHhUeK3g				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181428	1255	17855	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1160	Light Fixtures - 5th Floor		608	608	8	0	0	0	8	0	0	0				2026-09-15 08:00	2026-09-15 17:00		2026-06-01 08:00	2026-06-01 17:00	2026-06-01 08:00	2026-06-01 17:00	2026-06-01 08:00	2026-06-01 17:00	2026-09-15 08:00	2026-09-15 17:00		PT_Normal					4boZaBO8SPWnnWFIhbWilA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181429	1255	17856	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-ELEV-1000	Elevator 3 CMU Shaft				0	0	0	0	96	0	0	0		2025-09-15 08:00	2025-09-30 17:00	2026-04-17 08:00	2026-04-17 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-09-15 08:00	2025-09-30 17:00				PT_Normal					vy4n0fd4SmCGkSaj2g2YEA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181430	1255	17856	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-ELEV-1010	Elevator 1/2 CMU Shaft		952	800	112	0	0	0	112	0	0	0				2026-04-17 08:00	2026-05-06 17:00		2025-11-03 08:00	2025-11-20 17:00	2025-11-03 08:00	2025-11-20 17:00	2025-11-03 08:00	2025-11-20 17:00	2026-04-17 08:00	2026-05-06 17:00		PT_Normal					MKzfx7lTR6S4CTzEszbmyQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181431	1255	17856	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-ELEV-1020	Elevator Install		152	152	520	0	0	0	520	0	0	0				2026-05-07 08:00	2026-08-05 17:00		2026-04-10 08:00	2026-07-09 17:00	2026-04-10 08:00	2026-07-09 17:00	2026-04-10 08:00	2026-07-09 17:00	2026-05-07 08:00	2026-08-05 17:00		PT_Normal					MiV7yxXkTeqQ6LGPcBG+iA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181432	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1020	Switchgear Lights and Power		720	0	120	0	0	0	120	0	0	0				2026-05-20 08:00	2026-06-09 17:00		2026-01-14 08:00	2026-02-03 17:00	2026-01-14 08:00	2026-02-03 17:00	2026-01-14 08:00	2026-02-03 17:00	2026-05-20 08:00	2026-06-09 17:00		PT_Normal					CYlK26bLS6GngHnyzAxdYg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181433	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1010	Install Switchgear Equipment		720	0	120	0	0	0	120	0	0	0				2026-04-29 08:00	2026-05-19 17:00		2025-12-24 08:00	2026-01-13 17:00	2025-12-24 08:00	2026-01-13 17:00	2025-12-24 08:00	2026-01-13 17:00	2026-04-29 08:00	2026-05-19 17:00		PT_Normal					lp6HVMZoTI2cs/S/L/k/Cg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181434	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1000	Switchgear Room Enclosure		720	0	80	0	0	0	80	0	0	0				2026-04-15 08:00	2026-04-28 17:00		2025-12-10 08:00	2025-12-23 17:00	2025-12-10 08:00	2025-12-23 17:00	2025-12-10 08:00	2025-12-23 17:00	2026-04-15 08:00	2026-04-28 17:00		PT_Normal					E8RDna8ZSiS+7FFPA5F0IA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181435	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1040	Dominion Primary		720	0	160	0	0	0	160	0	0	0				2026-06-11 08:00	2026-07-08 17:00		2026-02-05 08:00	2026-03-04 17:00	2026-02-05 08:00	2026-03-04 17:00	2026-02-05 08:00	2026-03-04 17:00	2026-06-11 08:00	2026-07-08 17:00		PT_Normal					wO6OPvR9SvW2uaSjjSeaYg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181436	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1050	Dominion Transformer		720	0	40	0	0	0	40	0	0	0				2026-07-09 08:00	2026-07-15 17:00		2026-03-05 08:00	2026-03-11 17:00	2026-03-05 08:00	2026-03-11 17:00	2026-03-05 08:00	2026-03-11 17:00	2026-07-09 08:00	2026-07-15 17:00		PT_Normal					9KP8mkSNQwGP6g18yR02hg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181437	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1030	City Inspection		720	0	8	0	0	0	8	0	0	0				2026-06-10 08:00	2026-06-10 17:00		2026-02-04 08:00	2026-02-04 17:00	2026-02-04 08:00	2026-02-04 17:00	2026-02-04 08:00	2026-02-04 17:00	2026-06-10 08:00	2026-06-10 17:00		PT_Normal					YT7adol9T5G2tsNyedfMOw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181438	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1070	Power Activation		720	0	40	0	0	0	40	0	0	0				2026-07-23 08:00	2026-07-29 17:00		2026-03-19 08:00	2026-03-25 17:00	2026-03-19 08:00	2026-03-25 17:00	2026-03-19 08:00	2026-03-25 17:00	2026-07-23 08:00	2026-07-29 17:00		PT_Normal					/Ag6u8CaQeGrntoEqks/Zw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181439	1255	17857	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-POW-1060	Dominion Secondary		720	0	40	0	0	0	40	0	0	0				2026-07-16 08:00	2026-07-22 17:00		2026-03-12 08:00	2026-03-18 17:00	2026-03-12 08:00	2026-03-18 17:00	2026-03-12 08:00	2026-03-18 17:00	2026-07-16 08:00	2026-07-22 17:00		PT_Normal					PVlHkB35Q8yZF+Zkmx7KZA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181440	1255	17858	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-STAIR-1000	Stair Tower B CMU				0	0	0	0	200	0	0	0		2025-09-15 08:00	2025-10-24 17:00	2026-07-14 08:00	2026-07-14 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-09-15 08:00	2025-10-17 17:00				PT_Normal					OXgbt9VsTJC53lJjrQwYFA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181441	1255	17858	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-STAIR-1010	Stair Tower A CMU				0	0	0	0	80	0	0	0		2025-10-03 08:00	2025-10-17 17:00	2026-07-14 08:00	2026-07-14 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-11-03 08:00	2025-11-14 17:00				PT_Normal					qpUXKKl4TS+drz2fOXkEcQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181442	1255	17858	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-STAIR-1040	Prep/Paint - Stairs		1528	1528	16	0	0	0	16	0	0	0				2026-08-13 08:00	2026-08-14 17:00		2025-11-19 08:00	2025-11-20 17:00	2025-11-19 08:00	2025-11-20 17:00	2025-11-19 08:00	2025-11-20 17:00	2026-08-13 08:00	2026-08-14 17:00		PT_Normal					/eNeFDnoRVq9byOVuunvRQ	7PFXB9ksQYGETWv33NMomw			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181443	1255	17858	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-STAIR-1030	Doors & HW - Stairs		1448	0	16	0	0	0	16	0	0	0				2026-07-28 08:00	2026-07-29 17:00		2025-11-17 08:00	2025-11-18 17:00	2025-11-17 08:00	2025-11-18 17:00	2025-11-17 08:00	2025-11-18 17:00	2026-07-28 08:00	2026-07-29 17:00		PT_Normal					i8Zmy8GcSFSlD6GYHgmcrQ	BuhgUDrFQ+WCW/R1Okra6g			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181444	1255	17858	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-STAIR-1020	Stair Stringers and Pans		1448	0	80	0	0	0	80	0	0	0				2026-07-14 08:00	2026-07-27 17:00		2025-11-03 08:00	2025-11-14 17:00	2025-11-03 08:00	2025-11-14 17:00	2025-11-03 08:00	2025-11-14 17:00	2026-07-14 08:00	2026-07-27 17:00		PT_Normal					m5P2k32KSbmi9bI+6Gt/wA	R3dc1fG+QyaHhBKVx07eJg			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181445	1255	17859	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-MB-L5-1020	Roof Insulation & TPO		144	0	120	0	0	0	120	0	0	0				2026-04-15 08:00	2026-05-05 17:00		2026-03-20 08:00	2026-04-09 17:00	2026-03-20 08:00	2026-04-09 17:00	2026-03-20 08:00	2026-04-09 17:00	2026-04-15 08:00	2026-05-05 17:00		PT_Normal					uYyr1OeiTP2U52mmMs0Ocw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181446	1255	17861	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-OFF-1010	Structural Steel - Office Building				0	0	0	0	16	0	0	0		2025-09-30 08:00	2025-09-30 17:00	2025-12-01 08:00	2025-12-01 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-09-30 08:00	2025-10-01 17:00				PT_Normal					7vG8qOg1TQ6DnkHOlhtfvg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181447	1255	17861	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-OFF-1030	Interior/Exterior Framing - Office Building				0	0	0	0	64	0	0	0		2025-10-10 08:00	2025-10-22 17:00	2025-12-01 08:00	2025-12-01 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-11-03 08:00	2025-11-12 17:00				PT_Normal					SVxOb3xQSB+NF4JmEC+VoQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181448	1255	17861	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Active	CON-OFF-1020	Foundation Waterproofing - Office Building		144	0	16	0	0	0	16	0	0	0		2025-10-31 08:00		2025-11-27 08:00	2025-11-28 17:00		2025-11-03 08:00	2025-11-04 17:00	2025-11-03 08:00	2025-11-04 17:00	2025-11-03 08:00	2025-11-04 17:00	2025-11-27 08:00	2025-11-28 17:00		PT_Normal					yK/H2m3yQmqGd6Za6BPbSA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181449	1255	17861	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-OFF-1050	Roof Decking - Office Building				0	0	0	0	8	0	0	0		2025-10-27 08:00	2025-10-27 17:00	2025-12-01 08:00	2025-12-01 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-11-04 08:00	2025-11-04 17:00				PT_Normal					D5LlIzAzQOqMB8Vq6+MI/w				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181450	1255	17861	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-OFF-1070	Framing Inspection - Office Building				0	0	0	0	8	0	0	0		2025-10-22 08:00	2025-10-22 17:00	2025-12-01 08:00	2025-12-01 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-11-03 08:00	2025-11-03 17:00				PT_Normal					B9Sb2ySkSES+t88IbF3ExA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181451	1255	17861	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-OFF-1000	Prep/Pour SOG - Office Building				0	0	0	0	40	0	0	0		2025-07-21 08:00	2025-07-22 17:00	2025-11-27 08:00	2025-11-27 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-09-30 08:00	2025-10-06 17:00				PT_Normal					TX+vWotOSP6PVGoE94XjDQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181452	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1100	Hang/Finish Drywall - Office Building		144	0	24	0	0	0	24	0	0	0				2025-12-05 08:00	2025-12-09 17:00		2025-11-11 08:00	2025-11-13 17:00	2025-11-11 08:00	2025-11-13 17:00	2025-11-11 08:00	2025-11-13 17:00	2025-12-05 08:00	2025-12-09 17:00		PT_Normal					B7wipNThS++fLDrtBHFcAQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181453	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1090	MEP Inspections - Office Building		144	0	8	0	0	0	8	0	0	0				2025-12-04 08:00	2025-12-04 17:00		2025-11-10 08:00	2025-11-10 17:00	2025-11-10 08:00	2025-11-10 17:00	2025-11-10 08:00	2025-11-10 17:00	2025-12-04 08:00	2025-12-04 17:00		PT_Normal					bNlUV7CFSCih949HuQb4ew				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181454	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1080	MEP Rough In - Office Building		144	0	24	0	0	0	24	0	0	0				2025-12-01 08:00	2025-12-03 17:00		2025-11-05 08:00	2025-11-07 17:00	2025-11-05 08:00	2025-11-07 17:00	2025-11-05 08:00	2025-11-07 17:00	2025-12-01 08:00	2025-12-03 17:00		PT_Normal					KKE6FjA4RI2H1tNTgEDQ3A				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181455	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1110	Doors, Frames & Hardware - Office Building		144	0	16	0	0	0	16	0	0	0				2025-12-10 08:00	2025-12-11 17:00		2025-11-14 08:00	2025-11-17 17:00	2025-11-14 08:00	2025-11-17 17:00	2025-11-14 08:00	2025-11-17 17:00	2025-12-10 08:00	2025-12-11 17:00		PT_Normal					WdKGOrHbRsSe8T5zou5TMA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181456	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1120	Prep/Paint Walls - Office Building		144	0	16	0	0	0	16	0	0	0				2025-12-12 08:00	2025-12-15 17:00		2025-11-18 08:00	2025-11-19 17:00	2025-11-18 08:00	2025-11-19 17:00	2025-11-18 08:00	2025-11-19 17:00	2025-12-12 08:00	2025-12-15 17:00		PT_Normal					AEx70r9KTgGrVJzNV43yXw				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181457	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1140	MEP Finishes, Fixtures, Accessories - Office Building		144	144	16	0	0	0	16	0	0	0				2025-12-23 08:00	2025-12-24 17:00		2025-11-27 08:00	2025-11-28 17:00	2025-11-27 08:00	2025-11-28 17:00	2025-11-27 08:00	2025-11-28 17:00	2025-12-23 08:00	2025-12-24 17:00		PT_Normal					com8JMZdSfGqpFZ2GIDZAQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181458	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1150	Millwork - Office Building		176	144	16	0	0	0	16	0	0	0				2025-12-29 08:00	2025-12-30 17:00		2025-11-27 08:00	2025-11-28 17:00	2025-11-27 08:00	2025-11-28 17:00	2025-11-27 08:00	2025-11-28 17:00	2025-12-29 08:00	2025-12-30 17:00		PT_Normal					49Q2FOP1QgOLQLQQkw5psA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181459	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1220	Final Cleaning - Office Building		32	32	8	0	0	0	8	0	0	0				2025-12-31 08:00	2025-12-31 17:00		2025-12-25 08:00	2025-12-25 17:00	2025-12-25 08:00	2025-12-25 17:00	2025-12-25 08:00	2025-12-25 17:00	2025-12-31 08:00	2025-12-31 17:00		PT_Normal					XCPwpsmVSNSTfyKJceIMmQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181460	1255	17862	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1130	Flooring - Office Building		144	0	40	0	0	0	40	0	0	0				2025-12-16 08:00	2025-12-22 17:00		2025-11-20 08:00	2025-11-26 17:00	2025-11-20 08:00	2025-11-26 17:00	2025-11-20 08:00	2025-11-26 17:00	2025-12-16 08:00	2025-12-22 17:00		PT_Normal					qE8IXnAiSG2Bq9yj6FP/xg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181461	1255	17863	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1160	Store Front & Windows - Office Building		0	0	24	0	0	0	24	0	0	0				2025-12-22 08:00	2025-12-24 17:00		2025-12-22 08:00	2025-12-24 17:00	2025-12-22 08:00	2025-12-24 17:00	2025-12-22 08:00	2025-12-24 17:00	2025-12-22 08:00	2025-12-24 17:00		PT_Normal					46Jn3quIR8SqURSyHZFVuQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181462	1255	17863	2352	100	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_Complete	CON-OFF-1040	Roofing - Office Building				0	0	0	0	16	0	0	0	2025-10-07 17:00	2025-10-29 08:00	2025-10-29 17:00	2025-12-01 08:00	2025-12-01 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-11-05 08:00	2025-11-06 17:00			CS_MEOA	PT_Normal					Omwqe1/KSfC8SPb3jjxHvg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181463	1255	17863	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1170	Brick Facade - Office Building		240	64	40	0	0	0	40	0	0	0				2025-12-18 08:00	2025-12-24 17:00		2025-11-06 08:00	2025-11-12 17:00	2025-11-06 08:00	2025-11-12 17:00	2025-11-06 08:00	2025-11-12 17:00	2025-12-18 08:00	2025-12-24 17:00		PT_Normal					tzU2AxOYSU2GhMYMgaq8qg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181464	1255	17863	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CON-OFF-1060	Exterior Sheathing/Waterproofing - Office Building		240	0	24	0	0	0	24	0	0	0				2025-12-15 08:00	2025-12-17 17:00		2025-11-03 08:00	2025-11-05 17:00	2025-11-03 08:00	2025-11-05 17:00	2025-11-03 08:00	2025-11-05 17:00	2025-12-15 08:00	2025-12-17 17:00		PT_Normal					cujwqb16RJOlc53UfVX+fA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181465	1255	17865	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-OFF-1030	Final Building Inspections - Office Building		0	0	40	0	0	0	40	0	0	0				2025-12-25 08:00	2025-12-31 17:00		2025-12-25 08:00	2025-12-31 17:00	2025-12-25 08:00	2025-12-31 17:00	2025-12-25 08:00	2025-12-31 17:00	2025-12-25 08:00	2025-12-31 17:00		PT_Normal					qOns6a/dTL+d9V9AT7YsVA	2Sgpf9lzSzi/LvizIgVa7Q			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181466	1255	17865	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-OFF-1040	Punch List Walk - Office Building		48	0	16	0	0	0	16	0	0	0				2026-01-09 08:00	2026-01-12 17:00		2026-01-01 08:00	2026-01-02 17:00	2026-01-01 08:00	2026-01-02 17:00	2026-01-01 08:00	2026-01-02 17:00	2026-01-09 08:00	2026-01-12 17:00		PT_Normal					SAt3ZJ/NR2qsGbHseNB2Wg	xLBNbO90Su+aaKwlDkyAJA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181467	1255	17865	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-OFF-1050	Punch List Corrections - Office Building		48	1296	120	0	0	0	120	0	0	0	2026-02-02 17:00			2026-01-13 08:00	2026-02-02 17:00		2026-01-05 08:00	2026-01-23 17:00	2026-01-05 08:00	2026-01-23 17:00	2026-01-05 08:00	2026-01-23 17:00	2026-01-13 08:00	2026-02-02 17:00	CS_MEOB	PT_Normal					IMIaydg6RIqwrJIUBCY+dA	DjOeUEwUS3WfPtTV5exHNA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181468	1255	17865	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-OFF-1000	Office Temporary Occupancy		0	1464	8	0	0	0	8	0	0	0	2026-01-01 17:00			2026-01-01 08:00	2026-01-01 17:00		2026-01-01 08:00	2026-01-01 17:00	2026-01-01 08:00	2026-01-01 17:00	2026-01-01 08:00	2026-01-01 17:00	2026-01-01 08:00	2026-01-01 17:00	CS_MEOB	PT_Normal					eZLUOaBBSs6HQcRe8nW4/w	1hCfWaS/PEKoNxLZv1RoHA			N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181469	1255	17866	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-MB-1000	Fire Alarm Inspection		0	0	40	0	0	0	40	0	0	0				2026-07-30 08:00	2026-08-05 17:00		2026-07-30 08:00	2026-08-05 17:00	2026-07-30 08:00	2026-08-05 17:00	2026-07-30 08:00	2026-08-05 17:00	2026-07-30 08:00	2026-08-05 17:00		PT_Normal			1	21	cmC+CU+yRu2dvNWAjH/8mQ				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181470	1255	17866	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-MB-1010	State Inspection for Elevators		0	0	40	0	0	0	40	0	0	0				2026-08-06 08:00	2026-08-12 17:00		2026-08-06 08:00	2026-08-12 17:00	2026-08-06 08:00	2026-08-12 17:00	2026-08-06 08:00	2026-08-12 17:00	2026-08-06 08:00	2026-08-12 17:00		PT_Normal			1	22	iKLp1F4ERwW5FYmD0T/xuA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181471	1255	17866	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-MB-1020	Final Building Inspections		0	0	40	0	0	0	40	0	0	0				2026-08-13 08:00	2026-08-19 17:00		2026-08-13 08:00	2026-08-19 17:00	2026-08-13 08:00	2026-08-19 17:00	2026-08-13 08:00	2026-08-19 17:00	2026-08-13 08:00	2026-08-19 17:00		PT_Normal			1	23	3xDtrTv0TF25ozlUANM0xg				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181472	1255	17866	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-MB-1040	Punch List Walk - Main Building		0	0	16	0	0	0	16	0	0	0				2026-08-17 08:00	2026-08-18 17:00		2026-08-17 08:00	2026-08-18 17:00	2026-08-17 08:00	2026-08-18 17:00	2026-08-17 08:00	2026-08-18 17:00	2026-08-17 08:00	2026-08-18 17:00		PT_Normal					JGDJIF61QTybKi8O+vcZBA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181473	1255	17866	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	CLO-MB-1050	Punch List Corrections - Main Building		0	0	120	0	0	0	120	0	0	0				2026-08-19 08:00	2026-09-08 17:00		2026-08-19 08:00	2026-09-08 17:00	2026-08-19 08:00	2026-09-08 17:00	2026-08-19 08:00	2026-09-08 17:00	2026-08-19 08:00	2026-09-08 17:00		PT_Normal					w39YlVd6Qwy9yGJHX9obwA				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181474	1255	17867	2352	0	N	1	N	N	CP_Drtn	TT_Mile	DT_FixedDrtn	TK_Complete	MIL-1000	Notice to Proceed (05.05.25)				0	0	0	0	0	0	0	0		2025-05-05 08:00	2025-05-05 08:00	2025-11-03 08:00	2025-11-03 08:00		2025-10-31 17:00	2025-10-31 17:00			2025-05-05 08:00	2025-05-05 08:00				PT_Normal					1uSyZSVKQ3aPKZX3PMj6Cg				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181475	1255	17867	2352	0	N	1	N	N	CP_Drtn	TT_Mile	DT_FixedDrtn	TK_NotStart	MIL-1020	Permanent Power		720	720	0	0	0	0	0	0	0	0				2026-07-30 08:00	2026-07-30 08:00		2026-03-26 08:00	2026-03-26 08:00	2026-03-26 08:00	2026-03-26 08:00	2026-03-26 08:00	2026-03-26 08:00	2026-07-30 08:00	2026-07-30 08:00		PT_Normal					0yA+xM+yRf2WcDuvt2/HMA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181476	1255	17867	2352	0	N	1	N	N	CP_Drtn	TT_FinMile	DT_FixedDrtn	TK_NotStart	MIL-1010	Weathertight - Main Building		376	0	0	0	0	0	0	0	0	0				2026-06-15 17:00	2026-06-15 17:00		2026-04-09 17:00	2026-04-09 17:00	2026-04-09 17:00	2026-04-09 17:00	2026-04-09 17:00	2026-04-09 17:00	2026-06-15 17:00	2026-06-15 17:00		PT_Normal					v5BSZM91TK+vAyvDjEDeGA				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181477	1255	17867	772	0	N	1	N	N	CP_Drtn	TT_FinMile	DT_FixedDrtn	TK_NotStart	MIL-1030	Substantial Completion (08.19.26)		0	160	0	0	0	0	0	0	0	0	2026-08-19 17:00			2026-08-19 17:00	2026-08-19 17:00		2026-08-19 17:00	2026-08-19 17:00	2026-08-19 17:00	2026-08-19 17:00	2026-08-19 17:00	2026-08-19 17:00	2026-08-19 17:00	2026-08-19 17:00	CS_MEOB	PT_Normal			1	24	0x976xe5TgWgHOwk4RVk9A				N	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%R	181478	1255	17867	2352	0	N	1	N	N	CP_Drtn	TT_Task	DT_FixedDUR2	TK_NotStart	MIL-1040	Final Completion - Main Building		0	0	40	0	0	0	40	0	0	0				2026-09-09 08:00	2026-09-15 17:00		2026-09-09 08:00	2026-09-15 17:00	2026-09-09 08:00	2026-09-15 17:00	2026-09-09 08:00	2026-09-15 17:00	2026-09-09 08:00	2026-09-15 17:00		PT_Normal					yOdPxtMnSIaxYG+eH2ibiQ				Y	0	0			2025-11-03 10:31	2025-11-03 10:31	eantico	eantico		
+%T	ACTVCODE
+%F	actv_code_id	parent_actv_code_id	actv_code_type_id	actv_code_name	short_name	seq_num	color	total_assignments
+%R	11177		1576	Public Storage Fairfax VA	Public	1		183
+%R	11178		1577	Precon	Precon	1		2
+%R	11179		1577	Construction	Construction	2		181
+%R	11180		1578	Long Lead Items	Long	1		12
+%R	11181		1578	Site Work Utilities	Site	2		169
+%R	11182		1578	 	 	3		2
+%R	11183		1579	Building	Building	1		141
+%R	11184		1579	 	 	2		42
+%R	11185		1580	Structure	Structure	1		102
+%R	11186		1580	Exterior Building	Exterior	2		15
+%R	11187		1580	New Office	New	3		16
+%R	11188		1580	Final Inspections& Close Out	Final	4		8
+%R	11189		1580	 	 	5		42
+%R	11190		1581	First Floor Structure & Interior Framing	First	1		27
+%R	11191		1581	Second Floor Structural & Interior Finishes	Second	2		18
+%R	11192		1581	Third Floor Structural & Interior Finishes	Third	3		17
+%R	11193		1581	Fourth Floor Structural & Interior Finishes	Fourth	4		14
+%R	11194		1581	Fifth Floor Structural & Interior Finishes	Fifth	5		17
+%R	11195		1581	Elevator	Elevator	6		1
+%R	11196		1581	Permanent Power	Permanent	7		8
+%R	11197		1581	 	 	8		81
+%T	TASKPRED
+%F	task_pred_id	task_id	pred_task_id	proj_id	pred_proj_id	pred_type	lag_hr_cnt	comments	float_path	aref	arls
+%R	316900	181296	181295	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	316901	181309	181296	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	316902	181323	181298	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	316903	181307	181298	1255	1255	PR_FS	0			2025-10-31 17:00	2026-01-15 08:00
+%R	316904	181299	181300	1255	1255	PR_FS	0			2025-12-12 17:00	2026-02-26 08:00
+%R	316905	181302	181301	1255	1255	PR_FS	0			2026-06-01 17:00	2026-07-06 08:00
+%R	316906	181304	181303	1255	1255	PR_FS	0			2026-07-17 17:00	2026-08-03 08:00
+%R	316907	181301	181305	1255	1255	PR_FS	0			2026-01-16 17:00	2026-06-25 08:00
+%R	316908	181308	181306	1255	1255	PR_FS	0			2026-07-31 17:00	2026-08-13 08:00
+%R	316909	181324	181323	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	316910	181327	181323	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	316911	181397	181396	1255	1255	PR_FS	0			2026-04-23 17:00	2026-08-07 08:00
+%R	316912	181406	181396	1255	1255	PR_FS	0			2026-04-23 17:00	2026-08-06 08:00
+%R	316913	181407	181396	1255	1255	PR_FS	0			2026-04-23 17:00	2026-08-06 08:00
+%R	316914	181357	181356	1255	1255	PR_FS	0			2025-11-21 17:00	2025-11-24 08:00
+%R	316915	181325	181324	1255	1255	PR_FS	16			2025-10-31 17:00	2025-11-03 08:00
+%R	316916	181440	181324	1255	1255	PR_FS	16			2025-10-31 17:00	2026-07-14 08:00
+%R	316917	181429	181324	1255	1255	PR_FS	16			2025-10-31 17:00	2026-04-17 08:00
+%R	316918	181418	181417	1255	1255	PR_FS	0			2026-05-29 17:00	2026-09-10 08:00
+%R	316919	181427	181417	1255	1255	PR_FS	0			2026-05-29 17:00	2026-09-15 08:00
+%R	316920	181428	181417	1255	1255	PR_FS	0			2026-05-29 17:00	2026-09-15 08:00
+%R	316921	181303	181332	1255	1255	PR_FS	0			2026-07-10 17:00	2026-07-13 08:00
+%R	316922	181334	181332	1255	1255	PR_FS	0			2026-07-10 17:00	2026-07-24 08:00
+%R	316923	181303	181333	1255	1255	PR_FS	0			2026-06-16 17:00	2026-07-13 08:00
+%R	316924	181336	181335	1255	1255	PR_FS	0			2026-07-20 17:00	2026-07-21 08:00
+%R	316925	181469	181336	1255	1255	PR_FS	0			2026-07-29 17:00	2026-07-30 08:00
+%R	316926	181470	181469	1255	1255	PR_FS	0			2026-08-05 17:00	2026-08-06 08:00
+%R	316927	181471	181470	1255	1255	PR_FS	0			2026-08-12 17:00	2026-08-13 08:00
+%R	316928	181473	181472	1255	1255	PR_FS	0			2026-08-18 17:00	2026-08-19 08:00
+%R	316929	181297	181307	1255	1255	PR_FS	0			2025-10-31 17:00	2026-02-26 08:00
+%R	316930	181358	181357	1255	1255	PR_FS	0			2025-11-27 17:00	2025-11-28 08:00
+%R	316931	181353	181352	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	316932	181354	181353	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	316933	181376	181373	1255	1255	PR_FS	0			2026-01-29 17:00	2026-04-21 08:00
+%R	316934	181376	181374	1255	1255	PR_FS	0			2026-02-09 17:00	2026-04-21 08:00
+%R	316935	181376	181375	1255	1255	PR_FS	0			2026-01-29 17:00	2026-04-21 08:00
+%R	316936	181377	181376	1255	1255	PR_FS	0			2026-02-11 17:00	2026-07-28 08:00
+%R	316937	181378	181376	1255	1255	PR_FS	0			2026-02-11 17:00	2026-09-14 08:00
+%R	316938	181379	181377	1255	1255	PR_FS	0			2026-04-20 17:00	2026-08-06 08:00
+%R	316939	181328	181359	1255	1255	PR_SS	24			2025-12-12 17:00	2026-03-26 08:00
+%R	316940	181388	181386	1255	1255	PR_FS	0			2026-02-19 17:00	2026-04-01 08:00
+%R	316941	181393	181388	1255	1255	PR_FS	0			2026-02-20 17:00	2026-09-09 08:00
+%R	316942	181395	181388	1255	1255	PR_FS	0			2026-02-20 17:00	2026-09-09 08:00
+%R	316943	181361	181360	1255	1255	PR_FS	0			2025-12-29 17:00	2025-12-30 08:00
+%R	316944	181362	181361	1255	1255	PR_FS	0			2026-01-02 17:00	2026-01-05 08:00
+%R	316945	181329	181363	1255	1255	PR_SS	24			2026-01-19 17:00	2026-04-21 08:00
+%R	316946	181402	181401	1255	1255	PR_FS	0			2026-03-05 17:00	2026-07-23 08:00
+%R	316947	181396	181402	1255	1255	PR_FS	0			2026-04-20 17:00	2026-08-03 08:00
+%R	316948	181381	181379	1255	1255	PR_FS	0			2026-04-22 17:00	2026-08-13 08:00
+%R	316949	181383	181379	1255	1255	PR_FS	0			2026-04-22 17:00	2026-08-10 08:00
+%R	316950	181384	181379	1255	1255	PR_FS	0			2026-04-22 17:00	2026-08-10 08:00
+%R	316951	181365	181364	1255	1255	PR_FS	0			2026-02-03 17:00	2026-02-04 08:00
+%R	316952	181366	181365	1255	1255	PR_FS	0			2026-02-09 17:00	2026-02-10 08:00
+%R	316953	181367	181366	1255	1255	PR_FS	0			2026-02-13 17:00	2026-05-06 08:00
+%R	316954	181368	181366	1255	1255	PR_FS	0			2026-02-13 17:00	2026-02-16 08:00
+%R	316955	181410	181409	1255	1255	PR_FS	16			2026-04-23 17:00	2026-05-18 08:00
+%R	316956	181411	181409	1255	1255	PR_FS	16			2026-04-23 17:00	2026-05-25 08:00
+%R	316957	181414	181409	1255	1255	PR_FS	16			2026-04-23 17:00	2026-07-28 08:00
+%R	316958	181330	181367	1255	1255	PR_SS	24			2026-02-18 17:00	2026-05-13 08:00
+%R	316959	181412	181411	1255	1255	PR_FS	0			2026-04-30 17:00	2026-06-03 08:00
+%R	316960	181413	181412	1255	1255	PR_FS	0			2026-05-08 17:00	2026-08-11 08:00
+%R	316961	181415	181412	1255	1255	PR_FS	0			2026-05-08 17:00	2026-08-06 08:00
+%R	316962	181416	181412	1255	1255	PR_FS	0			2026-05-08 17:00	2026-08-06 08:00
+%R	316963	181401	181403	1255	1255	PR_FS	0			2026-02-24 17:00	2026-05-12 08:00
+%R	316964	181369	181368	1255	1255	PR_FS	0			2026-03-05 17:00	2026-03-06 08:00
+%R	316965	181445	181369	1255	1255	PR_FS	0			2026-03-19 17:00	2026-04-15 08:00
+%R	316966	181331	181369	1255	1255	PR_FS	0			2026-03-19 17:00	2026-03-25 08:00
+%R	316967	181431	181445	1255	1255	PR_FS	0			2026-04-09 17:00	2026-05-07 08:00
+%R	316968	181421	181370	1255	1255	PR_FS	0			2026-04-02 17:00	2026-06-01 08:00
+%R	316969	181422	181370	1255	1255	PR_FS	0			2026-04-02 17:00	2026-06-10 08:00
+%R	316970	181423	181370	1255	1255	PR_FS	0			2026-04-02 17:00	2026-06-08 08:00
+%R	316971	181426	181370	1255	1255	PR_FS	0			2026-04-02 17:00	2026-07-30 08:00
+%R	316972	181340	181331	1255	1255	PR_FS	0			2026-04-01 17:00	2026-04-02 08:00
+%R	316973	181424	181421	1255	1255	PR_FS	0			2026-05-15 17:00	2026-06-15 08:00
+%R	316974	181424	181422	1255	1255	PR_FS	0			2026-05-06 17:00	2026-06-15 08:00
+%R	316975	181424	181423	1255	1255	PR_FS	0			2026-05-08 17:00	2026-06-15 08:00
+%R	316976	181425	181424	1255	1255	PR_FS	0			2026-05-18 17:00	2026-06-16 08:00
+%R	316977	181417	181425	1255	1255	PR_FS	0			2026-05-27 17:00	2026-09-08 08:00
+%R	316978	181346	181337	1255	1255	PR_FS	0			2026-05-25 17:00	2026-07-10 08:00
+%R	316979	181352	181325	1255	1255	PR_FS	32			2025-10-31 17:00	2025-11-03 08:00
+%R	316980	181326	181325	1255	1255	PR_FS	32			2025-10-31 17:00	2026-02-25 08:00
+%R	316981	181455	181452	1255	1255	PR_FS	0			2025-11-13 17:00	2025-12-10 08:00
+%R	316982	181452	181453	1255	1255	PR_FS	0			2025-11-10 17:00	2025-12-05 08:00
+%R	316983	181447	181446	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	316984	181462	181447	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	316985	181449	181447	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	316986	181453	181454	1255	1255	PR_FS	0			2025-11-07 17:00	2025-12-04 08:00
+%R	316987	181456	181455	1255	1255	PR_FS	0			2025-11-17 17:00	2025-12-12 08:00
+%R	316988	181458	181455	1255	1255	PR_FS	0			2025-11-17 17:00	2025-12-29 08:00
+%R	316989	181457	181456	1255	1255	PR_FS	0			2025-11-19 17:00	2025-12-23 08:00
+%R	316990	181454	181462	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	316991	181399	181405	1255	1255	PR_FS	0			2026-02-17 17:00	2026-05-07 08:00
+%R	316992	181400	181405	1255	1255	PR_FS	0			2026-02-17 17:00	2026-04-28 08:00
+%R	316993	181403	181405	1255	1255	PR_FS	0			2026-02-17 17:00	2026-05-05 08:00
+%R	316994	181404	181405	1255	1255	PR_FS	0			2026-02-17 17:00	2026-07-30 08:00
+%R	316995	181386	181394	1255	1255	PR_FS	0			2026-02-05 17:00	2026-03-18 08:00
+%R	316996	181387	181394	1255	1255	PR_FS	0			2026-02-05 17:00	2026-03-25 08:00
+%R	316997	181391	181394	1255	1255	PR_FS	0			2026-02-05 17:00	2026-07-30 08:00
+%R	316998	181373	181382	1255	1255	PR_FS	0			2026-01-26 17:00	2026-04-16 08:00
+%R	316999	181374	181382	1255	1255	PR_FS	0			2026-01-26 17:00	2026-04-07 08:00
+%R	317000	181375	181382	1255	1255	PR_FS	0			2026-01-26 17:00	2026-04-16 08:00
+%R	317001	181380	181382	1255	1255	PR_FS	0			2026-01-26 17:00	2026-07-30 08:00
+%R	317002	181288	181281	1255	1255	PR_FS	0			2025-11-07 17:00	2026-05-20 08:00
+%R	317003	181287	181282	1255	1255	PR_FS	0			2025-11-07 17:00	2026-04-29 08:00
+%R	317004	181431	181284	1255	1255	PR_FS	0			2025-11-07 17:00	2026-05-07 08:00
+%R	317005	181283	181284	1255	1255	PR_FS	0			2025-11-07 17:00	2026-01-29 08:00
+%R	317006	181285	181286	1255	1255	PR_FS	0			2025-12-01 17:00	2026-06-18 08:00
+%R	317007	181433	181287	1255	1255	PR_FS	0			2025-11-07 17:00	2026-04-29 08:00
+%R	317008	181310	181309	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	317009	181298	181310	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	317010	181324	181327	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	317011	181437	181432	1255	1255	PR_FS	0			2026-02-03 17:00	2026-06-10 08:00
+%R	317012	181432	181433	1255	1255	PR_FS	0			2026-01-13 17:00	2026-05-20 08:00
+%R	317013	181433	181434	1255	1255	PR_FS	0			2025-12-23 17:00	2026-04-29 08:00
+%R	317014	181436	181435	1255	1255	PR_FS	0			2026-03-04 17:00	2026-07-09 08:00
+%R	317015	181439	181436	1255	1255	PR_FS	0			2026-03-11 17:00	2026-07-16 08:00
+%R	317016	181435	181437	1255	1255	PR_FS	0			2026-02-04 17:00	2026-06-11 08:00
+%R	317017	181438	181439	1255	1255	PR_FS	0			2026-03-18 17:00	2026-07-23 08:00
+%R	317018	181441	181429	1255	1255	PR_FS	0			2025-10-31 17:00	2026-07-14 08:00
+%R	317019	181430	181429	1255	1255	PR_FS	0			2025-10-31 17:00	2026-04-17 08:00
+%R	317020	181332	181338	1255	1255	PR_FS	0			2026-06-16 17:00	2026-06-17 08:00
+%R	317021	181338	181339	1255	1255	PR_FS	0			2026-05-21 17:00	2026-05-22 08:00
+%R	317022	181339	181340	1255	1255	PR_FS	0			2026-04-27 17:00	2026-04-28 08:00
+%R	317023	181333	181341	1255	1255	PR_FS	0			2026-06-08 17:00	2026-06-15 08:00
+%R	317024	181341	181342	1255	1255	PR_FS	0			2026-05-29 17:00	2026-06-05 08:00
+%R	317025	181342	181343	1255	1255	PR_FS	0			2026-05-05 17:00	2026-05-28 08:00
+%R	317026	181344	181343	1255	1255	PR_FS	0			2026-05-05 17:00	2026-06-22 08:00
+%R	317027	181337	181344	1255	1255	PR_FS	0			2026-05-14 17:00	2026-07-01 08:00
+%R	317028	181345	181346	1255	1255	PR_FS	0			2026-06-03 17:00	2026-07-21 08:00
+%R	317029	181290	181289	1255	1255	PR_FS	0			2025-11-07 17:00	2026-01-14 08:00
+%R	317030	181340	181291	1255	1255	PR_FS	0			2025-10-31 17:00	2026-04-02 08:00
+%R	317031	181463	181291	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-18 08:00
+%R	317032	181461	181292	1255	1255	PR_FS	0			2025-12-19 17:00	2025-12-22 08:00
+%R	317033	181280	181474	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	317034	181286	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2026-05-27 08:00
+%R	317035	181281	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2026-05-20 08:00
+%R	317036	181289	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2026-01-14 08:00
+%R	317037	181284	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2026-01-29 08:00
+%R	317038	181282	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2026-04-29 08:00
+%R	317039	181395	181288	1255	1255	PR_FS	0			2025-11-07 17:00	2026-09-09 08:00
+%R	317040	181416	181288	1255	1255	PR_FS	0			2025-11-07 17:00	2026-08-06 08:00
+%R	317041	181407	181288	1255	1255	PR_FS	0			2025-11-07 17:00	2026-08-06 08:00
+%R	317042	181428	181288	1255	1255	PR_FS	0			2025-11-07 17:00	2026-09-15 08:00
+%R	317043	181384	181288	1255	1255	PR_FS	0			2025-11-07 17:00	2026-08-10 08:00
+%R	317044	181432	181288	1255	1255	PR_FS	0			2025-11-07 17:00	2026-05-20 08:00
+%R	317045	181292	181280	1255	1255	PR_SS	0			2025-11-03 08:00	2025-10-27 08:00
+%R	317046	181380	181285	1255	1255	PR_FS	0			2026-01-12 17:00	2026-07-30 08:00
+%R	317047	181431	181283	1255	1255	PR_FS	0			2026-02-13 17:00	2026-05-07 08:00
+%R	317048	181387	181290	1255	1255	PR_FS	0			2026-01-16 17:00	2026-03-25 08:00
+%R	317049	181423	181290	1255	1255	PR_FS	0			2026-01-16 17:00	2026-06-08 08:00
+%R	317050	181411	181290	1255	1255	PR_FS	0			2026-01-16 17:00	2026-05-27 08:00
+%R	317051	181403	181290	1255	1255	PR_FS	0			2026-01-16 17:00	2026-05-05 08:00
+%R	317052	181375	181290	1255	1255	PR_FS	0			2026-01-16 17:00	2026-04-16 08:00
+%R	317053	181295	181474	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-03 08:00
+%R	317054	181305	181297	1255	1255	PR_FS	0			2025-12-05 17:00	2026-03-12 08:00
+%R	317055	181293	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2026-02-12 08:00
+%R	317056	181294	181293	1255	1255	PR_FS	0			2025-11-07 17:00	2026-02-12 08:00
+%R	317057	181297	181294	1255	1255	PR_FS	0			2025-11-21 17:00	2026-02-26 08:00
+%R	317058	181305	181299	1255	1255	PR_FS	0			2025-12-26 17:00	2026-03-12 08:00
+%R	317059	181303	181299	1255	1255	PR_FS	0			2025-12-26 17:00	2026-07-13 08:00
+%R	317060	181313	181312	1255	1255	PR_FS	0			2025-11-24 17:00	2025-12-26 08:00
+%R	317061	181312	181316	1255	1255	PR_FS	0			2025-11-17 17:00	2025-12-24 08:00
+%R	317062	181319	181318	1255	1255	PR_FS	0			2025-11-28 17:00	2025-12-31 08:00
+%R	317063	181321	181320	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-27 08:00
+%R	317064	181311	181321	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-27 08:00
+%R	317065	181318	181313	1255	1255	PR_FS	0			2025-11-25 17:00	2025-12-29 08:00
+%R	317066	181306	181302	1255	1255	PR_FS	0			2026-06-15 17:00	2026-07-20 08:00
+%R	317067	181472	181308	1255	1255	PR_FS	0			2026-08-04 17:00	2026-08-17 08:00
+%R	317068	181478	181477	1255	1255	PR_FS	0			2026-08-19 17:00	2026-09-09 08:00
+%R	317069	181478	181473	1255	1255	PR_FS	0			2026-09-08 17:00	2026-09-09 08:00
+%R	317070	181431	181430	1255	1255	PR_FS	0			2025-11-20 17:00	2026-05-07 08:00
+%R	317071	181431	181429	1255	1255	PR_FS	0			2025-10-31 17:00	2026-05-07 08:00
+%R	317072	181389	181390	1255	1255	PR_FS	0			2025-12-25 17:00	2026-08-13 08:00
+%R	317073	181444	181440	1255	1255	PR_FS	0			2025-10-31 17:00	2026-07-14 08:00
+%R	317074	181444	181441	1255	1255	PR_FS	0			2025-10-31 17:00	2026-07-14 08:00
+%R	317075	181442	181444	1255	1255	PR_FS	0			2025-11-14 17:00	2026-08-13 08:00
+%R	317076	181442	181443	1255	1255	PR_FS	0			2025-11-18 17:00	2026-08-13 08:00
+%R	317077	181378	181377	1255	1255	PR_FS	0			2026-04-20 17:00	2026-09-14 08:00
+%R	317078	181472	181381	1255	1255	PR_FS	0			2026-04-24 17:00	2026-08-17 08:00
+%R	317079	181472	181383	1255	1255	PR_FS	0			2026-04-29 17:00	2026-08-17 08:00
+%R	317080	181472	181384	1255	1255	PR_FS	0			2026-04-29 17:00	2026-08-17 08:00
+%R	317081	181446	181451	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	317082	181451	181311	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-27 08:00
+%R	317083	181448	181451	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-27 08:00
+%R	317084	181464	181447	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-15 08:00
+%R	317085	181461	181464	1255	1255	PR_FS	0			2025-11-05 17:00	2025-12-22 08:00
+%R	317086	181463	181464	1255	1255	PR_FS	0			2025-11-05 17:00	2025-12-18 08:00
+%R	317087	181450	181447	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	317088	181452	181450	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-05 08:00
+%R	317089	181455	181447	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-10 08:00
+%R	317090	181454	181450	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	317091	181460	181456	1255	1255	PR_FS	0			2025-11-19 17:00	2025-12-16 08:00
+%R	317092	181457	181460	1255	1255	PR_FS	0			2025-11-26 17:00	2025-12-23 08:00
+%R	317093	181458	181460	1255	1255	PR_FS	0			2025-11-26 17:00	2025-12-29 08:00
+%R	317094	181475	181438	1255	1255	PR_FS	0			2026-03-25 17:00	2026-07-30 08:00
+%R	317095	181322	181311	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-10 08:00
+%R	317096	181467	181466	1255	1255	PR_FS	0			2026-01-02 17:00	2026-01-13 08:00
+%R	317097	181466	181319	1255	1255	PR_FS	0			2025-12-01 17:00	2026-01-09 08:00
+%R	317098	181478	181467	1255	1255	PR_FS	0			2026-01-23 17:00	2026-09-09 08:00
+%R	317099	181468	181459	1255	1255	PR_FS	0			2025-12-25 17:00	2026-01-01 08:00
+%R	317100	181466	181317	1255	1255	PR_FS	0			2025-12-03 17:00	2026-01-09 08:00
+%R	317101	181468	181465	1255	1255	PR_FS	0			2025-12-31 17:00	2026-01-01 08:00
+%R	317102	181466	181465	1255	1255	PR_FS	0			2025-12-31 17:00	2026-01-09 08:00
+%R	317103	181466	181459	1255	1255	PR_FS	0			2025-12-25 17:00	2026-01-09 08:00
+%R	317104	181466	181457	1255	1255	PR_FS	0			2025-11-28 17:00	2026-01-09 08:00
+%R	317105	181466	181458	1255	1255	PR_FS	0			2025-11-28 17:00	2026-01-09 08:00
+%R	317106	181314	181312	1255	1255	PR_FS	0			2025-11-24 17:00	2025-12-25 08:00
+%R	317107	181300	181307	1255	1255	PR_FS	0			2025-10-31 17:00	2026-01-15 08:00
+%R	317108	181303	181301	1255	1255	PR_FS	0			2026-06-01 17:00	2026-07-13 08:00
+%R	317109	181472	181304	1255	1255	PR_FS	0			2026-08-14 17:00	2026-08-17 08:00
+%R	317110	181340	181305	1255	1255	PR_FS	0			2026-01-16 17:00	2026-04-02 08:00
+%R	317111	181339	181305	1255	1255	PR_FS	0			2026-01-16 17:00	2026-04-28 08:00
+%R	317112	181338	181305	1255	1255	PR_FS	0			2026-01-16 17:00	2026-05-22 08:00
+%R	317113	181332	181305	1255	1255	PR_FS	0			2026-01-16 17:00	2026-06-17 08:00
+%R	317114	181301	181340	1255	1255	PR_FS	0			2026-04-27 17:00	2026-06-25 08:00
+%R	317115	181347	181355	1255	1255	PR_FS	0			2025-11-11 17:00	2026-02-17 08:00
+%R	317116	181434	181347	1255	1255	PR_FS	0			2025-11-19 17:00	2026-04-15 08:00
+%R	317117	181348	181347	1255	1255	PR_FS	0			2025-11-19 17:00	2026-03-27 08:00
+%R	317118	181476	181348	1255	1255	PR_FF	0			2026-04-01 17:00	2026-06-15 17:00
+%R	317119	181476	181445	1255	1255	PR_FF	0			2026-04-09 17:00	2026-06-15 17:00
+%R	317120	181476	181329	1255	1255	PR_FF	0			2026-01-27 17:00	2026-06-15 17:00
+%R	317121	181476	181330	1255	1255	PR_FF	0			2026-02-26 17:00	2026-06-15 17:00
+%R	317122	181476	181331	1255	1255	PR_FF	0			2026-04-01 17:00	2026-06-15 17:00
+%R	317123	181476	181347	1255	1255	PR_FF	0			2025-11-19 17:00	2026-06-15 17:00
+%R	317124	181476	181328	1255	1255	PR_FF	0			2025-12-22 17:00	2026-06-15 17:00
+%R	317125	181360	181358	1255	1255	PR_FS	0			2025-12-09 17:00	2025-12-10 08:00
+%R	317126	181359	181358	1255	1255	PR_FS	0			2025-12-09 17:00	2026-03-04 08:00
+%R	317127	181434	181358	1255	1255	PR_FS	0			2025-12-09 17:00	2026-04-15 08:00
+%R	317128	181363	181362	1255	1255	PR_FS	0			2026-01-14 17:00	2026-04-14 08:00
+%R	317129	181364	181362	1255	1255	PR_FS	0			2026-01-14 17:00	2026-01-15 08:00
+%R	317130	181356	181354	1255	1255	PR_FS	0			2025-11-03 17:00	2025-11-04 08:00
+%R	317131	181355	181354	1255	1255	PR_FS	0			2025-11-03 17:00	2026-02-09 08:00
+%R	317132	181331	181370	1255	1255	PR_SS	24			2026-03-24 17:00	2026-03-06 08:00
+%R	317133	181356	181352	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-04 08:00
+%R	317134	181360	181356	1255	1255	PR_FS	0			2025-11-21 17:00	2025-12-10 08:00
+%R	317135	181364	181360	1255	1255	PR_FS	0			2025-12-29 17:00	2026-01-15 08:00
+%R	317136	181368	181364	1255	1255	PR_FS	0			2026-02-03 17:00	2026-02-16 08:00
+%R	317137	181373	181355	1255	1255	PR_FS	0			2025-11-11 17:00	2026-04-16 08:00
+%R	317138	181374	181355	1255	1255	PR_FS	0			2025-11-11 17:00	2026-04-07 08:00
+%R	317139	181375	181355	1255	1255	PR_FS	0			2025-11-11 17:00	2026-04-16 08:00
+%R	317140	181380	181355	1255	1255	PR_FS	0			2025-11-11 17:00	2026-07-30 08:00
+%R	317141	181386	181359	1255	1255	PR_FS	0			2025-12-23 17:00	2026-03-18 08:00
+%R	317142	181387	181359	1255	1255	PR_FS	0			2025-12-23 17:00	2026-03-25 08:00
+%R	317143	181391	181359	1255	1255	PR_FS	0			2025-12-23 17:00	2026-07-30 08:00
+%R	317144	181388	181359	1255	1255	PR_FS	0			2025-12-23 17:00	2026-04-01 08:00
+%R	317145	181390	181359	1255	1255	PR_FS	0			2025-12-23 17:00	2026-08-11 08:00
+%R	317146	181399	181363	1255	1255	PR_FS	0			2026-01-28 17:00	2026-05-07 08:00
+%R	317147	181400	181363	1255	1255	PR_FS	0			2026-01-28 17:00	2026-04-28 08:00
+%R	317148	181403	181363	1255	1255	PR_FS	0			2026-01-28 17:00	2026-05-05 08:00
+%R	317149	181404	181363	1255	1255	PR_FS	0			2026-01-28 17:00	2026-07-30 08:00
+%R	317150	181410	181367	1255	1255	PR_FS	0			2026-02-27 17:00	2026-05-20 08:00
+%R	317151	181411	181367	1255	1255	PR_FS	0			2026-02-27 17:00	2026-05-27 08:00
+%R	317152	181414	181367	1255	1255	PR_FS	0			2026-02-27 17:00	2026-07-30 08:00
+%R	317153	181349	181328	1255	1255	PR_FS	0			2025-12-22 17:00	2026-04-22 08:00
+%R	317154	181350	181329	1255	1255	PR_FS	0			2026-01-27 17:00	2026-05-18 08:00
+%R	317155	181351	181330	1255	1255	PR_FS	0			2026-02-26 17:00	2026-06-09 08:00
+%R	317156	181449	181446	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	317157	181462	181449	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	317158	181464	181450	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-15 08:00
+%R	317159	181459	181455	1255	1255	PR_FS	0			2025-11-17 17:00	2025-12-31 08:00
+%R	317160	181459	181456	1255	1255	PR_FS	0			2025-11-19 17:00	2025-12-31 08:00
+%R	317161	181459	181460	1255	1255	PR_FS	0			2025-11-26 17:00	2025-12-31 08:00
+%R	317162	181459	181457	1255	1255	PR_FS	0			2025-11-28 17:00	2025-12-31 08:00
+%R	317163	181459	181458	1255	1255	PR_FS	0			2025-11-28 17:00	2025-12-31 08:00
+%R	317164	181465	181457	1255	1255	PR_FS	0			2025-11-28 17:00	2025-12-25 08:00
+%R	317165	181314	181463	1255	1255	PR_FS	0			2025-11-12 17:00	2025-12-25 08:00
+%R	317166	181459	181314	1255	1255	PR_FS	0			2025-11-26 17:00	2025-12-31 08:00
+%R	317167	181318	181314	1255	1255	PR_FS	0			2025-11-26 17:00	2025-12-29 08:00
+%R	317168	181317	181318	1255	1255	PR_FS	0			2025-11-28 17:00	2026-01-06 08:00
+%R	317169	181466	181315	1255	1255	PR_FS	0			2025-11-18 17:00	2026-01-09 08:00
+%R	317170	181306	181303	1255	1255	PR_FS	0			2026-07-17 17:00	2026-07-20 08:00
+%R	317171	181304	181306	1255	1255	PR_FS	0			2026-07-31 17:00	2026-08-03 08:00
+%R	317172	181320	181296	1255	1255	PR_FS	0			2025-10-31 17:00	2025-11-27 08:00
+%R	317173	181470	181431	1255	1255	PR_FS	0			2026-07-09 17:00	2026-08-06 08:00
+%R	317174	181443	181441	1255	1255	PR_FS	0			2025-10-31 17:00	2026-07-28 08:00
+%R	317175	181443	181440	1255	1255	PR_FS	0			2025-10-31 17:00	2026-07-28 08:00
+%R	317176	181443	181444	1255	1255	PR_FS	0			2025-11-14 17:00	2026-07-28 08:00
+%R	317177	181472	181442	1255	1255	PR_FS	0			2025-11-20 17:00	2026-08-17 08:00
+%R	317178	181469	181443	1255	1255	PR_FS	0			2025-11-18 17:00	2026-07-30 08:00
+%R	317179	181471	181397	1255	1255	PR_FS	0			2026-04-29 17:00	2026-08-13 08:00
+%R	317180	181472	181397	1255	1255	PR_FS	0			2026-04-29 17:00	2026-08-17 08:00
+%R	317181	181471	181406	1255	1255	PR_FS	0			2026-04-30 17:00	2026-08-13 08:00
+%R	317182	181472	181406	1255	1255	PR_FS	0			2026-04-30 17:00	2026-08-17 08:00
+%R	317183	181471	181407	1255	1255	PR_FS	0			2026-04-30 17:00	2026-08-13 08:00
+%R	317184	181472	181407	1255	1255	PR_FS	0			2026-04-30 17:00	2026-08-17 08:00
+%R	317185	181471	181416	1255	1255	PR_FS	0			2026-05-15 17:00	2026-08-13 08:00
+%R	317186	181472	181416	1255	1255	PR_FS	0			2026-05-15 17:00	2026-08-17 08:00
+%R	317187	181471	181415	1255	1255	PR_FS	0			2026-05-15 17:00	2026-08-13 08:00
+%R	317188	181472	181415	1255	1255	PR_FS	0			2026-05-15 17:00	2026-08-17 08:00
+%R	317189	181471	181413	1255	1255	PR_FS	0			2026-05-12 17:00	2026-08-13 08:00
+%R	317190	181472	181413	1255	1255	PR_FS	0			2026-05-12 17:00	2026-08-17 08:00
+%R	317191	181471	181414	1255	1255	PR_FS	0			2026-05-07 17:00	2026-08-13 08:00
+%R	317192	181472	181414	1255	1255	PR_FS	0			2026-05-07 17:00	2026-08-17 08:00
+%R	317193	181412	181410	1255	1255	PR_FS	0			2026-05-07 17:00	2026-06-03 08:00
+%R	317194	181471	181404	1255	1255	PR_FS	0			2026-03-03 17:00	2026-08-13 08:00
+%R	317195	181472	181404	1255	1255	PR_FS	0			2026-03-03 17:00	2026-08-17 08:00
+%R	317196	181471	181391	1255	1255	PR_FS	0			2026-02-19 17:00	2026-08-13 08:00
+%R	317197	181472	181391	1255	1255	PR_FS	0			2026-02-19 17:00	2026-08-17 08:00
+%R	317198	181471	181380	1255	1255	PR_FS	0			2026-02-09 17:00	2026-08-13 08:00
+%R	317199	181472	181380	1255	1255	PR_FS	0			2026-02-09 17:00	2026-08-17 08:00
+%R	317200	181471	181426	1255	1255	PR_FS	0			2026-05-15 17:00	2026-08-13 08:00
+%R	317201	181472	181426	1255	1255	PR_FS	0			2026-05-15 17:00	2026-08-17 08:00
+%R	317202	181421	181420	1255	1255	PR_FS	0			2026-05-01 17:00	2026-06-01 08:00
+%R	317203	181422	181420	1255	1255	PR_FS	0			2026-05-01 17:00	2026-06-10 08:00
+%R	317204	181423	181420	1255	1255	PR_FS	0			2026-05-01 17:00	2026-06-08 08:00
+%R	317205	181426	181420	1255	1255	PR_FS	0			2026-05-01 17:00	2026-07-30 08:00
+%R	317206	181477	181471	1255	1255	PR_FF	0			2026-08-19 17:00	2026-08-19 17:00
+%R	317207	181469	181345	1255	1255	PR_FS	0			2026-06-12 17:00	2026-07-30 08:00
+%R	317208	181469	181334	1255	1255	PR_FS	0			2026-07-16 17:00	2026-07-30 08:00
+%R	317209	181469	181475	1255	1255	PR_SS	0			2026-03-26 08:00	2026-07-30 08:00
+%R	317210	181470	181475	1255	1255	PR_SS	0			2026-03-26 08:00	2026-08-06 08:00
+%R	317211	181471	181475	1255	1255	PR_SS	0			2026-03-26 08:00	2026-08-13 08:00
+%R	317212	181377	181476	1255	1255	PR_FS	0			2026-04-09 17:00	2026-07-28 08:00
+%R	317213	181402	181476	1255	1255	PR_FS	0			2026-04-09 17:00	2026-07-23 08:00
+%R	317214	181425	181476	1255	1255	PR_FS	0			2026-04-09 17:00	2026-06-16 08:00
+%R	317215	181477	181308	1255	1255	PR_FF	0			2026-08-04 17:00	2026-08-19 17:00
+%R	317216	181468	181319	1255	1255	PR_FS	0			2025-12-01 17:00	2026-01-01 08:00
+%R	317217	181419	181425	1255	1255	PR_FS	0			2026-05-27 17:00	2026-06-25 08:00
+%R	317218	181388	181387	1255	1255	PR_FS	0			2026-02-12 17:00	2026-04-01 08:00
+%R	317219	181370	181368	1255	1255	PR_FS	0			2026-03-05 17:00	2026-03-20 08:00
+%R	317220	181370	181369	1255	1255	PR_FS	0			2026-03-19 17:00	2026-03-20 08:00
+%R	317221	181316	181311	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-16 08:00
+%R	317222	181312	181322	1255	1255	PR_FS	0			2025-11-21 17:00	2025-12-24 08:00
+%R	317223	181371	181385	1255	1255	PR_FS	0			2026-04-03 17:00	2026-07-16 08:00
+%R	317224	181371	181392	1255	1255	PR_FS	0			2026-03-13 17:00	2026-07-16 08:00
+%R	317225	181371	181398	1255	1255	PR_FS	0			2026-04-24 17:00	2026-07-16 08:00
+%R	317226	181371	181408	1255	1255	PR_FS	0			2026-05-29 17:00	2026-07-16 08:00
+%R	317227	181371	181419	1255	1255	PR_FS	0			2026-06-19 17:00	2026-07-16 08:00
+%R	317228	181372	181371	1255	1255	PR_SS	16			2026-06-23 17:00	2026-07-09 08:00
+%R	317229	181472	181372	1255	1255	PR_FS	0			2026-07-14 17:00	2026-08-17 08:00
+%R	317230	181477	181372	1255	1255	PR_FF	0			2026-07-14 17:00	2026-08-19 17:00
+%R	317231	181304	181338	1255	1255	PR_FS	0			2026-06-16 17:00	2026-08-03 08:00
+%R	317232	181301	181339	1255	1255	PR_FS	0			2026-05-21 17:00	2026-06-25 08:00
+%R	317233	181304	181332	1255	1255	PR_FS	0			2026-07-10 17:00	2026-08-03 08:00
+%R	317234	181401	181399	1255	1255	PR_FS	0			2026-02-20 17:00	2026-05-12 08:00
+%R	317235	181401	181400	1255	1255	PR_FS	0			2026-03-03 17:00	2026-05-12 08:00
+%R	317236	181385	181392	1255	1255	PR_FS	0			2026-03-13 17:00	2026-04-23 08:00
+%R	317237	181398	181385	1255	1255	PR_FS	0			2026-04-03 17:00	2026-05-14 08:00
+%R	317238	181408	181398	1255	1255	PR_FS	0			2026-04-24 17:00	2026-06-04 08:00
+%R	317239	181419	181408	1255	1255	PR_FS	0			2026-05-29 17:00	2026-06-25 08:00
+%R	317240	181349	181348	1255	1255	PR_FS	0			2026-04-01 17:00	2026-04-22 08:00
+%R	317241	181350	181349	1255	1255	PR_FS	0			2026-04-07 17:00	2026-05-18 08:00
+%R	317242	181351	181350	1255	1255	PR_FS	0			2026-04-13 17:00	2026-06-09 08:00
+%R	317243	181348	181331	1255	1255	PR_SS	0			2026-03-25 08:00	2026-03-19 08:00
+%R	317244	181349	181331	1255	1255	PR_FS	0			2026-04-01 17:00	2026-04-22 08:00
+%R	317245	181350	181331	1255	1255	PR_FS	0			2026-04-01 17:00	2026-05-18 08:00
+%R	317246	181351	181331	1255	1255	PR_FS	0			2026-04-01 17:00	2026-06-09 08:00
+%R	317247	181340	181348	1255	1255	PR_FS	0			2026-04-01 17:00	2026-04-02 08:00
+%R	317248	181339	181349	1255	1255	PR_FS	0			2026-04-07 17:00	2026-04-28 08:00
+%R	317249	181338	181350	1255	1255	PR_FS	0			2026-04-13 17:00	2026-05-22 08:00
+%R	317250	181332	181351	1255	1255	PR_FS	0			2026-04-17 17:00	2026-06-17 08:00
+%R	317251	181469	181371	1255	1255	PR_FS	0			2026-07-03 17:00	2026-07-30 08:00
+%R	317252	181348	181331	1255	1255	PR_FF	0			2026-03-27 08:00	2026-04-01 17:00
+%R	317253	181372	181371	1255	1255	PR_FF	16			2026-06-17 08:00	2026-08-13 08:00
+%R	317254	181477	181304	1255	1255	PR_FF	0			2026-08-14 17:00	2026-08-19 17:00
+%R	317255	181465	181463	1255	1255	PR_FS	0			2025-11-12 17:00	2025-12-25 08:00
+%R	317256	181448	181280	1255	1255	PR_SS	0			2025-11-03 08:00	2025-11-20 08:00
+%R	317257	181454	181448	1255	1255	PR_FS	0			2025-11-04 17:00	2025-12-01 08:00
+%R	317258	181449	181450	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-01 08:00
+%R	317259	181465	181453	1255	1255	PR_FS	0			2025-11-10 17:00	2025-12-25 08:00
+%R	317260	181464	181449	1255	1255	PR_FS	0			2025-10-31 17:00	2025-12-15 08:00
+%R	317261	181465	181461	1255	1255	PR_FS	0			2025-12-24 17:00	2025-12-25 08:00
+%R	317262	181459	181461	1255	1255	PR_FS	0			2025-12-24 17:00	2025-12-31 08:00
+%R	317263	181315	181316	1255	1255	PR_FS	0			2025-11-17 17:00	2026-01-08 08:00
+%R	317264	181326	181347	1255	1255	PR_FS	0			2025-11-19 17:00	2026-02-25 08:00
+%R	317265	181355	181352	1255	1255	PR_FS	0			2025-10-31 17:00	2026-02-09 08:00
+%R	317266	181316	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2025-12-16 08:00
+%R	317267	181322	181280	1255	1255	PR_FS	0			2025-11-07 17:00	2025-12-10 08:00
+%R	317268	181359	181326	1255	1255	PR_FS	0			2025-11-26 17:00	2026-03-04 08:00
+%R	317269	181420	181368	1255	1255	PR_FS	0			2026-03-05 17:00	2026-05-20 08:00
+%R	317270	181420	181366	1255	1255	PR_FS	0			2026-02-13 17:00	2026-05-20 08:00
+%R	317271	181382	181362	1255	1255	PR_FS	0			2026-01-14 17:00	2026-02-24 08:00
+%R	317272	181385	181376	1255	1255	PR_FS	0			2026-02-11 17:00	2026-04-23 08:00
+%R	317273	181394	181382	1255	1255	PR_FS	0			2026-01-26 17:00	2026-03-06 08:00
+%R	317274	181472	181389	1255	1255	PR_FS	0			2025-12-29 17:00	2026-08-17 08:00
+%R	317275	181392	181388	1255	1255	PR_FS	0			2026-02-20 17:00	2026-04-02 08:00
+%R	317276	181405	181394	1255	1255	PR_FS	0			2026-02-05 17:00	2026-04-16 08:00
+%R	317277	181398	181401	1255	1255	PR_FS	0			2026-03-05 17:00	2026-05-14 08:00
+%R	317278	181409	181405	1255	1255	PR_FS	0			2026-02-17 17:00	2026-05-06 08:00
+%R	317279	181408	181412	1255	1255	PR_FS	0			2026-05-08 17:00	2026-06-04 08:00
+%R	317280	181409	181445	1255	1255	PR_FS	0			2026-04-09 17:00	2026-05-06 08:00
+%R	317281	181420	181409	1255	1255	PR_FS	0			2026-04-21 17:00	2026-05-20 08:00
+%R	317282	181419	181424	1255	1255	PR_FS	0			2026-05-18 17:00	2026-06-25 08:00
+%R	317283	181343	181340	1255	1255	PR_FS	0			2026-04-27 17:00	2026-05-20 08:00
+%R	317284	181342	181339	1255	1255	PR_FS	0			2026-05-21 17:00	2026-05-28 08:00
+%R	317285	181342	181349	1255	1255	PR_FS	0			2026-04-07 17:00	2026-05-28 08:00
+%R	317286	181341	181350	1255	1255	PR_FS	0			2026-04-13 17:00	2026-06-05 08:00
+%R	317287	181333	181351	1255	1255	PR_FS	0			2026-04-17 17:00	2026-06-15 08:00
+%R	317288	181343	181348	1255	1255	PR_FS	0			2026-04-01 17:00	2026-05-20 08:00
+%R	317289	181335	181340	1255	1255	PR_FS	0			2026-04-27 17:00	2026-06-23 08:00
+%R	317290	181335	181339	1255	1255	PR_FS	0			2026-05-21 17:00	2026-06-23 08:00
+%R	317291	181335	181338	1255	1255	PR_FS	0			2026-06-16 17:00	2026-06-23 08:00
+%R	317292	181335	181343	1255	1255	PR_FS	0			2026-05-05 17:00	2026-06-23 08:00
+%R	317293	181335	181342	1255	1255	PR_FS	0			2026-05-29 17:00	2026-06-23 08:00
+%R	317294	181335	181341	1255	1255	PR_FS	0			2026-06-08 17:00	2026-06-23 08:00
+%R	317295	181335	181333	1255	1255	PR_FS	0			2026-06-16 17:00	2026-06-23 08:00
+%R	317296	181335	181332	1255	1255	PR_FF	48			2026-06-23 08:00	2026-07-13 08:00
+%T	TASKACTV
+%F	task_id	actv_code_type_id	actv_code_id	proj_id
+%R	181279	1576	11177	1255
+%R	181279	1577	11178	1255
+%R	181279	1578	11182	1255
+%R	181279	1579	11184	1255
+%R	181279	1580	11189	1255
+%R	181279	1581	11197	1255
+%R	181281	1576	11177	1255
+%R	181281	1577	11179	1255
+%R	181281	1578	11180	1255
+%R	181281	1579	11184	1255
+%R	181281	1580	11189	1255
+%R	181281	1581	11197	1255
+%R	181282	1576	11177	1255
+%R	181282	1577	11179	1255
+%R	181282	1578	11180	1255
+%R	181282	1579	11184	1255
+%R	181282	1580	11189	1255
+%R	181282	1581	11197	1255
+%R	181283	1576	11177	1255
+%R	181283	1577	11179	1255
+%R	181283	1578	11180	1255
+%R	181283	1579	11184	1255
+%R	181283	1580	11189	1255
+%R	181283	1581	11197	1255
+%R	181284	1576	11177	1255
+%R	181284	1577	11179	1255
+%R	181284	1578	11180	1255
+%R	181284	1579	11184	1255
+%R	181284	1580	11189	1255
+%R	181284	1581	11197	1255
+%R	181285	1576	11177	1255
+%R	181285	1577	11179	1255
+%R	181285	1578	11180	1255
+%R	181285	1579	11184	1255
+%R	181285	1580	11189	1255
+%R	181285	1581	11197	1255
+%R	181286	1576	11177	1255
+%R	181286	1577	11179	1255
+%R	181286	1578	11180	1255
+%R	181286	1579	11184	1255
+%R	181286	1580	11189	1255
+%R	181286	1581	11197	1255
+%R	181287	1576	11177	1255
+%R	181287	1577	11179	1255
+%R	181287	1578	11180	1255
+%R	181287	1579	11184	1255
+%R	181287	1580	11189	1255
+%R	181287	1581	11197	1255
+%R	181288	1576	11177	1255
+%R	181288	1577	11179	1255
+%R	181288	1578	11180	1255
+%R	181288	1579	11184	1255
+%R	181288	1580	11189	1255
+%R	181288	1581	11197	1255
+%R	181289	1576	11177	1255
+%R	181289	1577	11179	1255
+%R	181289	1578	11180	1255
+%R	181289	1579	11184	1255
+%R	181289	1580	11189	1255
+%R	181289	1581	11197	1255
+%R	181290	1576	11177	1255
+%R	181290	1577	11179	1255
+%R	181290	1578	11180	1255
+%R	181290	1579	11184	1255
+%R	181290	1580	11189	1255
+%R	181290	1581	11197	1255
+%R	181291	1576	11177	1255
+%R	181291	1577	11179	1255
+%R	181291	1578	11180	1255
+%R	181291	1579	11184	1255
+%R	181291	1580	11189	1255
+%R	181291	1581	11197	1255
+%R	181292	1576	11177	1255
+%R	181292	1577	11179	1255
+%R	181292	1578	11180	1255
+%R	181292	1579	11184	1255
+%R	181292	1580	11189	1255
+%R	181292	1581	11197	1255
+%R	181295	1576	11177	1255
+%R	181295	1577	11179	1255
+%R	181295	1578	11181	1255
+%R	181295	1579	11184	1255
+%R	181295	1580	11189	1255
+%R	181295	1581	11197	1255
+%R	181296	1576	11177	1255
+%R	181296	1577	11179	1255
+%R	181296	1578	11181	1255
+%R	181296	1579	11184	1255
+%R	181296	1580	11189	1255
+%R	181296	1581	11197	1255
+%R	181297	1576	11177	1255
+%R	181297	1577	11179	1255
+%R	181297	1578	11181	1255
+%R	181297	1579	11184	1255
+%R	181297	1580	11189	1255
+%R	181297	1581	11197	1255
+%R	181298	1576	11177	1255
+%R	181298	1577	11179	1255
+%R	181298	1578	11181	1255
+%R	181298	1579	11184	1255
+%R	181298	1580	11189	1255
+%R	181298	1581	11197	1255
+%R	181299	1576	11177	1255
+%R	181299	1577	11179	1255
+%R	181299	1578	11181	1255
+%R	181299	1579	11184	1255
+%R	181299	1580	11189	1255
+%R	181299	1581	11197	1255
+%R	181300	1576	11177	1255
+%R	181300	1577	11179	1255
+%R	181300	1578	11181	1255
+%R	181300	1579	11184	1255
+%R	181300	1580	11189	1255
+%R	181300	1581	11197	1255
+%R	181301	1576	11177	1255
+%R	181301	1577	11179	1255
+%R	181301	1578	11181	1255
+%R	181301	1579	11184	1255
+%R	181301	1580	11189	1255
+%R	181301	1581	11197	1255
+%R	181302	1576	11177	1255
+%R	181302	1577	11179	1255
+%R	181302	1578	11181	1255
+%R	181302	1579	11184	1255
+%R	181302	1580	11189	1255
+%R	181302	1581	11197	1255
+%R	181303	1576	11177	1255
+%R	181303	1577	11179	1255
+%R	181303	1578	11181	1255
+%R	181303	1579	11184	1255
+%R	181303	1580	11189	1255
+%R	181303	1581	11197	1255
+%R	181304	1576	11177	1255
+%R	181304	1577	11179	1255
+%R	181304	1578	11181	1255
+%R	181304	1579	11184	1255
+%R	181304	1580	11189	1255
+%R	181304	1581	11197	1255
+%R	181305	1576	11177	1255
+%R	181305	1577	11179	1255
+%R	181305	1578	11181	1255
+%R	181305	1579	11184	1255
+%R	181305	1580	11189	1255
+%R	181305	1581	11197	1255
+%R	181306	1576	11177	1255
+%R	181306	1577	11179	1255
+%R	181306	1578	11181	1255
+%R	181306	1579	11184	1255
+%R	181306	1580	11189	1255
+%R	181306	1581	11197	1255
+%R	181307	1576	11177	1255
+%R	181307	1577	11179	1255
+%R	181307	1578	11181	1255
+%R	181307	1579	11184	1255
+%R	181307	1580	11189	1255
+%R	181307	1581	11197	1255
+%R	181308	1576	11177	1255
+%R	181308	1577	11179	1255
+%R	181308	1578	11181	1255
+%R	181308	1579	11184	1255
+%R	181308	1580	11189	1255
+%R	181308	1581	11197	1255
+%R	181309	1576	11177	1255
+%R	181309	1577	11179	1255
+%R	181309	1578	11181	1255
+%R	181309	1579	11184	1255
+%R	181309	1580	11189	1255
+%R	181309	1581	11197	1255
+%R	181310	1576	11177	1255
+%R	181310	1577	11179	1255
+%R	181310	1578	11181	1255
+%R	181310	1579	11184	1255
+%R	181310	1580	11189	1255
+%R	181310	1581	11197	1255
+%R	181311	1576	11177	1255
+%R	181311	1577	11179	1255
+%R	181311	1578	11181	1255
+%R	181311	1579	11184	1255
+%R	181311	1580	11189	1255
+%R	181311	1581	11197	1255
+%R	181312	1576	11177	1255
+%R	181312	1577	11179	1255
+%R	181312	1578	11181	1255
+%R	181312	1579	11184	1255
+%R	181312	1580	11189	1255
+%R	181312	1581	11197	1255
+%R	181313	1576	11177	1255
+%R	181313	1577	11179	1255
+%R	181313	1578	11181	1255
+%R	181313	1579	11184	1255
+%R	181313	1580	11189	1255
+%R	181313	1581	11197	1255
+%R	181314	1576	11177	1255
+%R	181314	1577	11179	1255
+%R	181314	1578	11181	1255
+%R	181314	1579	11184	1255
+%R	181314	1580	11189	1255
+%R	181314	1581	11197	1255
+%R	181315	1576	11177	1255
+%R	181315	1577	11179	1255
+%R	181315	1578	11181	1255
+%R	181315	1579	11184	1255
+%R	181315	1580	11189	1255
+%R	181315	1581	11197	1255
+%R	181316	1576	11177	1255
+%R	181316	1577	11179	1255
+%R	181316	1578	11181	1255
+%R	181316	1579	11184	1255
+%R	181316	1580	11189	1255
+%R	181316	1581	11197	1255
+%R	181317	1576	11177	1255
+%R	181317	1577	11179	1255
+%R	181317	1578	11181	1255
+%R	181317	1579	11184	1255
+%R	181317	1580	11189	1255
+%R	181317	1581	11197	1255
+%R	181318	1576	11177	1255
+%R	181318	1577	11179	1255
+%R	181318	1578	11181	1255
+%R	181318	1579	11184	1255
+%R	181318	1580	11189	1255
+%R	181318	1581	11197	1255
+%R	181319	1576	11177	1255
+%R	181319	1577	11179	1255
+%R	181319	1578	11181	1255
+%R	181319	1579	11184	1255
+%R	181319	1580	11189	1255
+%R	181319	1581	11197	1255
+%R	181320	1576	11177	1255
+%R	181320	1577	11179	1255
+%R	181320	1578	11181	1255
+%R	181320	1579	11184	1255
+%R	181320	1580	11189	1255
+%R	181320	1581	11197	1255
+%R	181321	1576	11177	1255
+%R	181321	1577	11179	1255
+%R	181321	1578	11181	1255
+%R	181321	1579	11184	1255
+%R	181321	1580	11189	1255
+%R	181321	1581	11197	1255
+%R	181322	1576	11177	1255
+%R	181322	1577	11179	1255
+%R	181322	1578	11181	1255
+%R	181322	1579	11184	1255
+%R	181322	1580	11189	1255
+%R	181322	1581	11197	1255
+%R	181323	1576	11177	1255
+%R	181323	1577	11179	1255
+%R	181323	1578	11181	1255
+%R	181323	1579	11183	1255
+%R	181323	1580	11185	1255
+%R	181323	1581	11190	1255
+%R	181324	1576	11177	1255
+%R	181324	1577	11179	1255
+%R	181324	1578	11181	1255
+%R	181324	1579	11183	1255
+%R	181324	1580	11185	1255
+%R	181324	1581	11190	1255
+%R	181325	1576	11177	1255
+%R	181325	1577	11179	1255
+%R	181325	1578	11181	1255
+%R	181325	1579	11183	1255
+%R	181325	1580	11185	1255
+%R	181325	1581	11190	1255
+%R	181326	1576	11177	1255
+%R	181326	1577	11179	1255
+%R	181326	1578	11181	1255
+%R	181326	1579	11183	1255
+%R	181326	1580	11185	1255
+%R	181326	1581	11190	1255
+%R	181327	1576	11177	1255
+%R	181327	1577	11179	1255
+%R	181327	1578	11181	1255
+%R	181327	1579	11183	1255
+%R	181327	1580	11185	1255
+%R	181327	1581	11190	1255
+%R	181328	1576	11177	1255
+%R	181328	1577	11179	1255
+%R	181328	1578	11181	1255
+%R	181328	1579	11183	1255
+%R	181328	1580	11185	1255
+%R	181328	1581	11191	1255
+%R	181329	1576	11177	1255
+%R	181329	1577	11179	1255
+%R	181329	1578	11181	1255
+%R	181329	1579	11183	1255
+%R	181329	1580	11185	1255
+%R	181329	1581	11192	1255
+%R	181330	1576	11177	1255
+%R	181330	1577	11179	1255
+%R	181330	1578	11181	1255
+%R	181330	1579	11183	1255
+%R	181330	1580	11185	1255
+%R	181330	1581	11193	1255
+%R	181331	1576	11177	1255
+%R	181331	1577	11179	1255
+%R	181331	1578	11181	1255
+%R	181331	1579	11183	1255
+%R	181331	1580	11185	1255
+%R	181331	1581	11194	1255
+%R	181332	1576	11177	1255
+%R	181332	1577	11179	1255
+%R	181332	1578	11181	1255
+%R	181332	1579	11183	1255
+%R	181332	1580	11186	1255
+%R	181332	1581	11197	1255
+%R	181333	1576	11177	1255
+%R	181333	1577	11179	1255
+%R	181333	1578	11181	1255
+%R	181333	1579	11183	1255
+%R	181333	1580	11186	1255
+%R	181333	1581	11197	1255
+%R	181334	1576	11177	1255
+%R	181334	1577	11179	1255
+%R	181334	1578	11181	1255
+%R	181334	1579	11183	1255
+%R	181334	1580	11186	1255
+%R	181334	1581	11197	1255
+%R	181335	1576	11177	1255
+%R	181335	1577	11179	1255
+%R	181335	1578	11181	1255
+%R	181335	1579	11183	1255
+%R	181335	1580	11186	1255
+%R	181335	1581	11197	1255
+%R	181336	1576	11177	1255
+%R	181336	1577	11179	1255
+%R	181336	1578	11181	1255
+%R	181336	1579	11183	1255
+%R	181336	1580	11186	1255
+%R	181336	1581	11197	1255
+%R	181337	1576	11177	1255
+%R	181337	1577	11179	1255
+%R	181337	1578	11181	1255
+%R	181337	1579	11183	1255
+%R	181337	1580	11186	1255
+%R	181337	1581	11197	1255
+%R	181338	1576	11177	1255
+%R	181338	1577	11179	1255
+%R	181338	1578	11181	1255
+%R	181338	1579	11183	1255
+%R	181338	1580	11186	1255
+%R	181338	1581	11197	1255
+%R	181339	1576	11177	1255
+%R	181339	1577	11179	1255
+%R	181339	1578	11181	1255
+%R	181339	1579	11183	1255
+%R	181339	1580	11186	1255
+%R	181339	1581	11197	1255
+%R	181340	1576	11177	1255
+%R	181340	1577	11179	1255
+%R	181340	1578	11181	1255
+%R	181340	1579	11183	1255
+%R	181340	1580	11186	1255
+%R	181340	1581	11197	1255
+%R	181341	1576	11177	1255
+%R	181341	1577	11179	1255
+%R	181341	1578	11181	1255
+%R	181341	1579	11183	1255
+%R	181341	1580	11186	1255
+%R	181341	1581	11197	1255
+%R	181342	1576	11177	1255
+%R	181342	1577	11179	1255
+%R	181342	1578	11181	1255
+%R	181342	1579	11183	1255
+%R	181342	1580	11186	1255
+%R	181342	1581	11197	1255
+%R	181343	1576	11177	1255
+%R	181343	1577	11179	1255
+%R	181343	1578	11181	1255
+%R	181343	1579	11183	1255
+%R	181343	1580	11186	1255
+%R	181343	1581	11197	1255
+%R	181344	1576	11177	1255
+%R	181344	1577	11179	1255
+%R	181344	1578	11181	1255
+%R	181344	1579	11183	1255
+%R	181344	1580	11186	1255
+%R	181344	1581	11197	1255
+%R	181345	1576	11177	1255
+%R	181345	1577	11179	1255
+%R	181345	1578	11181	1255
+%R	181345	1579	11183	1255
+%R	181345	1580	11186	1255
+%R	181345	1581	11197	1255
+%R	181346	1576	11177	1255
+%R	181346	1577	11179	1255
+%R	181346	1578	11181	1255
+%R	181346	1579	11183	1255
+%R	181346	1580	11186	1255
+%R	181346	1581	11197	1255
+%R	181347	1576	11177	1255
+%R	181347	1577	11179	1255
+%R	181347	1578	11181	1255
+%R	181347	1579	11183	1255
+%R	181347	1580	11185	1255
+%R	181347	1581	11190	1255
+%R	181352	1576	11177	1255
+%R	181352	1577	11179	1255
+%R	181352	1578	11181	1255
+%R	181352	1579	11183	1255
+%R	181352	1580	11185	1255
+%R	181352	1581	11190	1255
+%R	181353	1576	11177	1255
+%R	181353	1577	11179	1255
+%R	181353	1578	11181	1255
+%R	181353	1579	11183	1255
+%R	181353	1580	11185	1255
+%R	181353	1581	11190	1255
+%R	181354	1576	11177	1255
+%R	181354	1577	11179	1255
+%R	181354	1578	11181	1255
+%R	181354	1579	11183	1255
+%R	181354	1580	11185	1255
+%R	181354	1581	11190	1255
+%R	181355	1576	11177	1255
+%R	181355	1577	11179	1255
+%R	181355	1578	11181	1255
+%R	181355	1579	11183	1255
+%R	181355	1580	11185	1255
+%R	181355	1581	11190	1255
+%R	181356	1576	11177	1255
+%R	181356	1577	11179	1255
+%R	181356	1578	11181	1255
+%R	181356	1579	11183	1255
+%R	181356	1580	11185	1255
+%R	181356	1581	11191	1255
+%R	181357	1576	11177	1255
+%R	181357	1577	11179	1255
+%R	181357	1578	11181	1255
+%R	181357	1579	11183	1255
+%R	181357	1580	11185	1255
+%R	181357	1581	11191	1255
+%R	181358	1576	11177	1255
+%R	181358	1577	11179	1255
+%R	181358	1578	11181	1255
+%R	181358	1579	11183	1255
+%R	181358	1580	11185	1255
+%R	181358	1581	11191	1255
+%R	181359	1576	11177	1255
+%R	181359	1577	11179	1255
+%R	181359	1578	11181	1255
+%R	181359	1579	11183	1255
+%R	181359	1580	11185	1255
+%R	181359	1581	11191	1255
+%R	181360	1576	11177	1255
+%R	181360	1577	11179	1255
+%R	181360	1578	11181	1255
+%R	181360	1579	11183	1255
+%R	181360	1580	11185	1255
+%R	181360	1581	11192	1255
+%R	181361	1576	11177	1255
+%R	181361	1577	11179	1255
+%R	181361	1578	11181	1255
+%R	181361	1579	11183	1255
+%R	181361	1580	11185	1255
+%R	181361	1581	11192	1255
+%R	181362	1576	11177	1255
+%R	181362	1577	11179	1255
+%R	181362	1578	11181	1255
+%R	181362	1579	11183	1255
+%R	181362	1580	11185	1255
+%R	181362	1581	11192	1255
+%R	181363	1576	11177	1255
+%R	181363	1577	11179	1255
+%R	181363	1578	11181	1255
+%R	181363	1579	11183	1255
+%R	181363	1580	11185	1255
+%R	181363	1581	11192	1255
+%R	181364	1576	11177	1255
+%R	181364	1577	11179	1255
+%R	181364	1578	11181	1255
+%R	181364	1579	11183	1255
+%R	181364	1580	11185	1255
+%R	181364	1581	11193	1255
+%R	181365	1576	11177	1255
+%R	181365	1577	11179	1255
+%R	181365	1578	11181	1255
+%R	181365	1579	11183	1255
+%R	181365	1580	11185	1255
+%R	181365	1581	11193	1255
+%R	181366	1576	11177	1255
+%R	181366	1577	11179	1255
+%R	181366	1578	11181	1255
+%R	181366	1579	11183	1255
+%R	181366	1580	11185	1255
+%R	181366	1581	11193	1255
+%R	181367	1576	11177	1255
+%R	181367	1577	11179	1255
+%R	181367	1578	11181	1255
+%R	181367	1579	11183	1255
+%R	181367	1580	11185	1255
+%R	181367	1581	11193	1255
+%R	181368	1576	11177	1255
+%R	181368	1577	11179	1255
+%R	181368	1578	11181	1255
+%R	181368	1579	11183	1255
+%R	181368	1580	11185	1255
+%R	181368	1581	11194	1255
+%R	181369	1576	11177	1255
+%R	181369	1577	11179	1255
+%R	181369	1578	11181	1255
+%R	181369	1579	11183	1255
+%R	181369	1580	11185	1255
+%R	181369	1581	11194	1255
+%R	181370	1576	11177	1255
+%R	181370	1577	11179	1255
+%R	181370	1578	11181	1255
+%R	181370	1579	11183	1255
+%R	181370	1580	11185	1255
+%R	181370	1581	11194	1255
+%R	181373	1576	11177	1255
+%R	181373	1577	11179	1255
+%R	181373	1578	11181	1255
+%R	181373	1579	11183	1255
+%R	181373	1580	11185	1255
+%R	181373	1581	11190	1255
+%R	181374	1576	11177	1255
+%R	181374	1577	11179	1255
+%R	181374	1578	11181	1255
+%R	181374	1579	11183	1255
+%R	181374	1580	11185	1255
+%R	181374	1581	11190	1255
+%R	181375	1576	11177	1255
+%R	181375	1577	11179	1255
+%R	181375	1578	11181	1255
+%R	181375	1579	11183	1255
+%R	181375	1580	11185	1255
+%R	181375	1581	11190	1255
+%R	181376	1576	11177	1255
+%R	181376	1577	11179	1255
+%R	181376	1578	11181	1255
+%R	181376	1579	11183	1255
+%R	181376	1580	11185	1255
+%R	181376	1581	11190	1255
+%R	181377	1576	11177	1255
+%R	181377	1577	11179	1255
+%R	181377	1578	11181	1255
+%R	181377	1579	11183	1255
+%R	181377	1580	11185	1255
+%R	181377	1581	11190	1255
+%R	181378	1576	11177	1255
+%R	181378	1577	11179	1255
+%R	181378	1578	11181	1255
+%R	181378	1579	11183	1255
+%R	181378	1580	11185	1255
+%R	181378	1581	11190	1255
+%R	181379	1576	11177	1255
+%R	181379	1577	11179	1255
+%R	181379	1578	11181	1255
+%R	181379	1579	11183	1255
+%R	181379	1580	11185	1255
+%R	181379	1581	11190	1255
+%R	181380	1576	11177	1255
+%R	181380	1577	11179	1255
+%R	181380	1578	11181	1255
+%R	181380	1579	11183	1255
+%R	181380	1580	11185	1255
+%R	181380	1581	11190	1255
+%R	181381	1576	11177	1255
+%R	181381	1577	11179	1255
+%R	181381	1578	11181	1255
+%R	181381	1579	11183	1255
+%R	181381	1580	11185	1255
+%R	181381	1581	11190	1255
+%R	181382	1576	11177	1255
+%R	181382	1577	11179	1255
+%R	181382	1578	11181	1255
+%R	181382	1579	11183	1255
+%R	181382	1580	11185	1255
+%R	181382	1581	11190	1255
+%R	181383	1576	11177	1255
+%R	181383	1577	11179	1255
+%R	181383	1578	11181	1255
+%R	181383	1579	11183	1255
+%R	181383	1580	11185	1255
+%R	181383	1581	11190	1255
+%R	181384	1576	11177	1255
+%R	181384	1577	11179	1255
+%R	181384	1578	11181	1255
+%R	181384	1579	11183	1255
+%R	181384	1580	11185	1255
+%R	181384	1581	11190	1255
+%R	181385	1576	11177	1255
+%R	181385	1577	11179	1255
+%R	181385	1578	11181	1255
+%R	181385	1579	11183	1255
+%R	181385	1580	11185	1255
+%R	181385	1581	11190	1255
+%R	181386	1576	11177	1255
+%R	181386	1577	11179	1255
+%R	181386	1578	11181	1255
+%R	181386	1579	11183	1255
+%R	181386	1580	11185	1255
+%R	181386	1581	11191	1255
+%R	181387	1576	11177	1255
+%R	181387	1577	11179	1255
+%R	181387	1578	11181	1255
+%R	181387	1579	11183	1255
+%R	181387	1580	11185	1255
+%R	181387	1581	11191	1255
+%R	181388	1576	11177	1255
+%R	181388	1577	11179	1255
+%R	181388	1578	11181	1255
+%R	181388	1579	11183	1255
+%R	181388	1580	11185	1255
+%R	181388	1581	11191	1255
+%R	181389	1576	11177	1255
+%R	181389	1577	11179	1255
+%R	181389	1578	11181	1255
+%R	181389	1579	11183	1255
+%R	181389	1580	11185	1255
+%R	181389	1581	11191	1255
+%R	181390	1576	11177	1255
+%R	181390	1577	11179	1255
+%R	181390	1578	11181	1255
+%R	181390	1579	11183	1255
+%R	181390	1580	11185	1255
+%R	181390	1581	11191	1255
+%R	181391	1576	11177	1255
+%R	181391	1577	11179	1255
+%R	181391	1578	11181	1255
+%R	181391	1579	11183	1255
+%R	181391	1580	11185	1255
+%R	181391	1581	11191	1255
+%R	181392	1576	11177	1255
+%R	181392	1577	11179	1255
+%R	181392	1578	11181	1255
+%R	181392	1579	11183	1255
+%R	181392	1580	11185	1255
+%R	181392	1581	11191	1255
+%R	181393	1576	11177	1255
+%R	181393	1577	11179	1255
+%R	181393	1578	11181	1255
+%R	181393	1579	11183	1255
+%R	181393	1580	11185	1255
+%R	181393	1581	11191	1255
+%R	181394	1576	11177	1255
+%R	181394	1577	11179	1255
+%R	181394	1578	11181	1255
+%R	181394	1579	11183	1255
+%R	181394	1580	11185	1255
+%R	181394	1581	11191	1255
+%R	181395	1576	11177	1255
+%R	181395	1577	11179	1255
+%R	181395	1578	11181	1255
+%R	181395	1579	11183	1255
+%R	181395	1580	11185	1255
+%R	181395	1581	11191	1255
+%R	181396	1576	11177	1255
+%R	181396	1577	11179	1255
+%R	181396	1578	11181	1255
+%R	181396	1579	11183	1255
+%R	181396	1580	11185	1255
+%R	181396	1581	11192	1255
+%R	181397	1576	11177	1255
+%R	181397	1577	11179	1255
+%R	181397	1578	11181	1255
+%R	181397	1579	11183	1255
+%R	181397	1580	11185	1255
+%R	181397	1581	11192	1255
+%R	181398	1576	11177	1255
+%R	181398	1577	11179	1255
+%R	181398	1578	11181	1255
+%R	181398	1579	11183	1255
+%R	181398	1580	11185	1255
+%R	181398	1581	11192	1255
+%R	181399	1576	11177	1255
+%R	181399	1577	11179	1255
+%R	181399	1578	11181	1255
+%R	181399	1579	11183	1255
+%R	181399	1580	11185	1255
+%R	181399	1581	11192	1255
+%R	181400	1576	11177	1255
+%R	181400	1577	11179	1255
+%R	181400	1578	11181	1255
+%R	181400	1579	11183	1255
+%R	181400	1580	11185	1255
+%R	181400	1581	11192	1255
+%R	181401	1576	11177	1255
+%R	181401	1577	11179	1255
+%R	181401	1578	11181	1255
+%R	181401	1579	11183	1255
+%R	181401	1580	11185	1255
+%R	181401	1581	11192	1255
+%R	181402	1576	11177	1255
+%R	181402	1577	11179	1255
+%R	181402	1578	11181	1255
+%R	181402	1579	11183	1255
+%R	181402	1580	11185	1255
+%R	181402	1581	11192	1255
+%R	181403	1576	11177	1255
+%R	181403	1577	11179	1255
+%R	181403	1578	11181	1255
+%R	181403	1579	11183	1255
+%R	181403	1580	11185	1255
+%R	181403	1581	11192	1255
+%R	181404	1576	11177	1255
+%R	181404	1577	11179	1255
+%R	181404	1578	11181	1255
+%R	181404	1579	11183	1255
+%R	181404	1580	11185	1255
+%R	181404	1581	11192	1255
+%R	181405	1576	11177	1255
+%R	181405	1577	11179	1255
+%R	181405	1578	11181	1255
+%R	181405	1579	11183	1255
+%R	181405	1580	11185	1255
+%R	181405	1581	11192	1255
+%R	181406	1576	11177	1255
+%R	181406	1577	11179	1255
+%R	181406	1578	11181	1255
+%R	181406	1579	11183	1255
+%R	181406	1580	11185	1255
+%R	181406	1581	11192	1255
+%R	181407	1576	11177	1255
+%R	181407	1577	11179	1255
+%R	181407	1578	11181	1255
+%R	181407	1579	11183	1255
+%R	181407	1580	11185	1255
+%R	181407	1581	11192	1255
+%R	181408	1576	11177	1255
+%R	181408	1577	11179	1255
+%R	181408	1578	11181	1255
+%R	181408	1579	11183	1255
+%R	181408	1580	11185	1255
+%R	181408	1581	11193	1255
+%R	181409	1576	11177	1255
+%R	181409	1577	11179	1255
+%R	181409	1578	11181	1255
+%R	181409	1579	11183	1255
+%R	181409	1580	11185	1255
+%R	181409	1581	11193	1255
+%R	181410	1576	11177	1255
+%R	181410	1577	11179	1255
+%R	181410	1578	11181	1255
+%R	181410	1579	11183	1255
+%R	181410	1580	11185	1255
+%R	181410	1581	11193	1255
+%R	181411	1576	11177	1255
+%R	181411	1577	11179	1255
+%R	181411	1578	11181	1255
+%R	181411	1579	11183	1255
+%R	181411	1580	11185	1255
+%R	181411	1581	11193	1255
+%R	181412	1576	11177	1255
+%R	181412	1577	11179	1255
+%R	181412	1578	11181	1255
+%R	181412	1579	11183	1255
+%R	181412	1580	11185	1255
+%R	181412	1581	11193	1255
+%R	181413	1576	11177	1255
+%R	181413	1577	11179	1255
+%R	181413	1578	11181	1255
+%R	181413	1579	11183	1255
+%R	181413	1580	11185	1255
+%R	181413	1581	11193	1255
+%R	181414	1576	11177	1255
+%R	181414	1577	11179	1255
+%R	181414	1578	11181	1255
+%R	181414	1579	11183	1255
+%R	181414	1580	11185	1255
+%R	181414	1581	11193	1255
+%R	181415	1576	11177	1255
+%R	181415	1577	11179	1255
+%R	181415	1578	11181	1255
+%R	181415	1579	11183	1255
+%R	181415	1580	11185	1255
+%R	181415	1581	11193	1255
+%R	181416	1576	11177	1255
+%R	181416	1577	11179	1255
+%R	181416	1578	11181	1255
+%R	181416	1579	11183	1255
+%R	181416	1580	11185	1255
+%R	181416	1581	11193	1255
+%R	181417	1576	11177	1255
+%R	181417	1577	11179	1255
+%R	181417	1578	11181	1255
+%R	181417	1579	11183	1255
+%R	181417	1580	11185	1255
+%R	181417	1581	11194	1255
+%R	181418	1576	11177	1255
+%R	181418	1577	11179	1255
+%R	181418	1578	11181	1255
+%R	181418	1579	11183	1255
+%R	181418	1580	11185	1255
+%R	181418	1581	11194	1255
+%R	181419	1576	11177	1255
+%R	181419	1577	11179	1255
+%R	181419	1578	11181	1255
+%R	181419	1579	11183	1255
+%R	181419	1580	11185	1255
+%R	181419	1581	11194	1255
+%R	181420	1576	11177	1255
+%R	181420	1577	11179	1255
+%R	181420	1578	11181	1255
+%R	181420	1579	11183	1255
+%R	181420	1580	11185	1255
+%R	181420	1581	11194	1255
+%R	181421	1576	11177	1255
+%R	181421	1577	11179	1255
+%R	181421	1578	11181	1255
+%R	181421	1579	11183	1255
+%R	181421	1580	11185	1255
+%R	181421	1581	11194	1255
+%R	181422	1576	11177	1255
+%R	181422	1577	11179	1255
+%R	181422	1578	11181	1255
+%R	181422	1579	11183	1255
+%R	181422	1580	11185	1255
+%R	181422	1581	11194	1255
+%R	181423	1576	11177	1255
+%R	181423	1577	11179	1255
+%R	181423	1578	11181	1255
+%R	181423	1579	11183	1255
+%R	181423	1580	11185	1255
+%R	181423	1581	11194	1255
+%R	181424	1576	11177	1255
+%R	181424	1577	11179	1255
+%R	181424	1578	11181	1255
+%R	181424	1579	11183	1255
+%R	181424	1580	11185	1255
+%R	181424	1581	11194	1255
+%R	181425	1576	11177	1255
+%R	181425	1577	11179	1255
+%R	181425	1578	11181	1255
+%R	181425	1579	11183	1255
+%R	181425	1580	11185	1255
+%R	181425	1581	11194	1255
+%R	181426	1576	11177	1255
+%R	181426	1577	11179	1255
+%R	181426	1578	11181	1255
+%R	181426	1579	11183	1255
+%R	181426	1580	11185	1255
+%R	181426	1581	11194	1255
+%R	181427	1576	11177	1255
+%R	181427	1577	11179	1255
+%R	181427	1578	11181	1255
+%R	181427	1579	11183	1255
+%R	181427	1580	11185	1255
+%R	181427	1581	11194	1255
+%R	181428	1576	11177	1255
+%R	181428	1577	11179	1255
+%R	181428	1578	11181	1255
+%R	181428	1579	11183	1255
+%R	181428	1580	11185	1255
+%R	181428	1581	11194	1255
+%R	181429	1576	11177	1255
+%R	181429	1577	11179	1255
+%R	181429	1578	11181	1255
+%R	181429	1579	11183	1255
+%R	181429	1580	11185	1255
+%R	181429	1581	11190	1255
+%R	181430	1576	11177	1255
+%R	181430	1577	11179	1255
+%R	181430	1578	11181	1255
+%R	181430	1579	11183	1255
+%R	181430	1580	11185	1255
+%R	181430	1581	11190	1255
+%R	181431	1576	11177	1255
+%R	181431	1577	11179	1255
+%R	181431	1578	11181	1255
+%R	181431	1579	11183	1255
+%R	181431	1580	11185	1255
+%R	181431	1581	11195	1255
+%R	181432	1576	11177	1255
+%R	181432	1577	11179	1255
+%R	181432	1578	11181	1255
+%R	181432	1579	11183	1255
+%R	181432	1580	11185	1255
+%R	181432	1581	11196	1255
+%R	181433	1576	11177	1255
+%R	181433	1577	11179	1255
+%R	181433	1578	11181	1255
+%R	181433	1579	11183	1255
+%R	181433	1580	11185	1255
+%R	181433	1581	11196	1255
+%R	181434	1576	11177	1255
+%R	181434	1577	11179	1255
+%R	181434	1578	11181	1255
+%R	181434	1579	11183	1255
+%R	181434	1580	11185	1255
+%R	181434	1581	11196	1255
+%R	181435	1576	11177	1255
+%R	181435	1577	11179	1255
+%R	181435	1578	11181	1255
+%R	181435	1579	11183	1255
+%R	181435	1580	11185	1255
+%R	181435	1581	11196	1255
+%R	181436	1576	11177	1255
+%R	181436	1577	11179	1255
+%R	181436	1578	11181	1255
+%R	181436	1579	11183	1255
+%R	181436	1580	11185	1255
+%R	181436	1581	11196	1255
+%R	181437	1576	11177	1255
+%R	181437	1577	11179	1255
+%R	181437	1578	11181	1255
+%R	181437	1579	11183	1255
+%R	181437	1580	11185	1255
+%R	181437	1581	11196	1255
+%R	181438	1576	11177	1255
+%R	181438	1577	11179	1255
+%R	181438	1578	11181	1255
+%R	181438	1579	11183	1255
+%R	181438	1580	11185	1255
+%R	181438	1581	11196	1255
+%R	181439	1576	11177	1255
+%R	181439	1577	11179	1255
+%R	181439	1578	11181	1255
+%R	181439	1579	11183	1255
+%R	181439	1580	11185	1255
+%R	181439	1581	11196	1255
+%R	181440	1576	11177	1255
+%R	181440	1577	11179	1255
+%R	181440	1578	11181	1255
+%R	181440	1579	11183	1255
+%R	181440	1580	11185	1255
+%R	181440	1581	11190	1255
+%R	181441	1576	11177	1255
+%R	181441	1577	11179	1255
+%R	181441	1578	11181	1255
+%R	181441	1579	11183	1255
+%R	181441	1580	11185	1255
+%R	181441	1581	11190	1255
+%R	181442	1576	11177	1255
+%R	181442	1577	11179	1255
+%R	181442	1578	11181	1255
+%R	181442	1579	11183	1255
+%R	181442	1580	11185	1255
+%R	181442	1581	11191	1255
+%R	181443	1576	11177	1255
+%R	181443	1577	11179	1255
+%R	181443	1578	11181	1255
+%R	181443	1579	11183	1255
+%R	181443	1580	11185	1255
+%R	181443	1581	11191	1255
+%R	181444	1576	11177	1255
+%R	181444	1577	11179	1255
+%R	181444	1578	11181	1255
+%R	181444	1579	11183	1255
+%R	181444	1580	11185	1255
+%R	181444	1581	11191	1255
+%R	181445	1576	11177	1255
+%R	181445	1577	11179	1255
+%R	181445	1578	11181	1255
+%R	181445	1579	11183	1255
+%R	181445	1580	11185	1255
+%R	181445	1581	11194	1255
+%R	181446	1576	11177	1255
+%R	181446	1577	11179	1255
+%R	181446	1578	11181	1255
+%R	181446	1579	11183	1255
+%R	181446	1580	11187	1255
+%R	181446	1581	11197	1255
+%R	181447	1576	11177	1255
+%R	181447	1577	11179	1255
+%R	181447	1578	11181	1255
+%R	181447	1579	11183	1255
+%R	181447	1580	11187	1255
+%R	181447	1581	11197	1255
+%R	181448	1576	11177	1255
+%R	181448	1577	11179	1255
+%R	181448	1578	11181	1255
+%R	181448	1579	11183	1255
+%R	181448	1580	11187	1255
+%R	181448	1581	11197	1255
+%R	181449	1576	11177	1255
+%R	181449	1577	11179	1255
+%R	181449	1578	11181	1255
+%R	181449	1579	11183	1255
+%R	181449	1580	11187	1255
+%R	181449	1581	11197	1255
+%R	181450	1576	11177	1255
+%R	181450	1577	11179	1255
+%R	181450	1578	11181	1255
+%R	181450	1579	11183	1255
+%R	181450	1580	11187	1255
+%R	181450	1581	11197	1255
+%R	181452	1576	11177	1255
+%R	181452	1577	11179	1255
+%R	181452	1578	11181	1255
+%R	181452	1579	11183	1255
+%R	181452	1580	11187	1255
+%R	181452	1581	11197	1255
+%R	181453	1576	11177	1255
+%R	181453	1577	11179	1255
+%R	181453	1578	11181	1255
+%R	181453	1579	11183	1255
+%R	181453	1580	11187	1255
+%R	181453	1581	11197	1255
+%R	181454	1576	11177	1255
+%R	181454	1577	11179	1255
+%R	181454	1578	11181	1255
+%R	181454	1579	11183	1255
+%R	181454	1580	11187	1255
+%R	181454	1581	11197	1255
+%R	181455	1576	11177	1255
+%R	181455	1577	11179	1255
+%R	181455	1578	11181	1255
+%R	181455	1579	11183	1255
+%R	181455	1580	11187	1255
+%R	181455	1581	11197	1255
+%R	181456	1576	11177	1255
+%R	181456	1577	11179	1255
+%R	181456	1578	11181	1255
+%R	181456	1579	11183	1255
+%R	181456	1580	11187	1255
+%R	181456	1581	11197	1255
+%R	181457	1576	11177	1255
+%R	181457	1577	11179	1255
+%R	181457	1578	11181	1255
+%R	181457	1579	11183	1255
+%R	181457	1580	11187	1255
+%R	181457	1581	11197	1255
+%R	181458	1576	11177	1255
+%R	181458	1577	11179	1255
+%R	181458	1578	11181	1255
+%R	181458	1579	11183	1255
+%R	181458	1580	11187	1255
+%R	181458	1581	11197	1255
+%R	181459	1576	11177	1255
+%R	181459	1577	11179	1255
+%R	181459	1578	11181	1255
+%R	181459	1579	11183	1255
+%R	181459	1580	11187	1255
+%R	181459	1581	11197	1255
+%R	181461	1576	11177	1255
+%R	181461	1577	11179	1255
+%R	181461	1578	11181	1255
+%R	181461	1579	11183	1255
+%R	181461	1580	11187	1255
+%R	181461	1581	11197	1255
+%R	181462	1576	11177	1255
+%R	181462	1577	11179	1255
+%R	181462	1578	11181	1255
+%R	181462	1579	11183	1255
+%R	181462	1580	11187	1255
+%R	181462	1581	11197	1255
+%R	181463	1576	11177	1255
+%R	181463	1577	11179	1255
+%R	181463	1578	11181	1255
+%R	181463	1579	11183	1255
+%R	181463	1580	11187	1255
+%R	181463	1581	11197	1255
+%R	181465	1576	11177	1255
+%R	181465	1577	11179	1255
+%R	181465	1578	11181	1255
+%R	181465	1579	11183	1255
+%R	181465	1580	11188	1255
+%R	181465	1581	11197	1255
+%R	181466	1576	11177	1255
+%R	181466	1577	11179	1255
+%R	181466	1578	11181	1255
+%R	181466	1579	11183	1255
+%R	181466	1580	11188	1255
+%R	181466	1581	11197	1255
+%R	181467	1576	11177	1255
+%R	181467	1577	11179	1255
+%R	181467	1578	11181	1255
+%R	181467	1579	11183	1255
+%R	181467	1580	11188	1255
+%R	181467	1581	11197	1255
+%R	181469	1576	11177	1255
+%R	181469	1577	11179	1255
+%R	181469	1578	11181	1255
+%R	181469	1579	11183	1255
+%R	181469	1580	11188	1255
+%R	181469	1581	11197	1255
+%R	181470	1576	11177	1255
+%R	181470	1577	11179	1255
+%R	181470	1578	11181	1255
+%R	181470	1579	11183	1255
+%R	181470	1580	11188	1255
+%R	181470	1581	11197	1255
+%R	181471	1576	11177	1255
+%R	181471	1577	11179	1255
+%R	181471	1578	11181	1255
+%R	181471	1579	11183	1255
+%R	181471	1580	11188	1255
+%R	181471	1581	11197	1255
+%R	181472	1576	11177	1255
+%R	181472	1577	11179	1255
+%R	181472	1578	11181	1255
+%R	181472	1579	11183	1255
+%R	181472	1580	11188	1255
+%R	181472	1581	11197	1255
+%R	181473	1576	11177	1255
+%R	181473	1577	11179	1255
+%R	181473	1578	11181	1255
+%R	181473	1579	11183	1255
+%R	181473	1580	11188	1255
+%R	181473	1581	11197	1255
+%R	181474	1576	11177	1255
+%R	181474	1577	11178	1255
+%R	181474	1578	11182	1255
+%R	181474	1579	11184	1255
+%R	181474	1580	11189	1255
+%R	181474	1581	11197	1255
+%E
