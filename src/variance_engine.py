@@ -323,13 +323,14 @@ def format_variance_for_context(variance: Dict, max_items_per_phase: int = 5) ->
         f"=== VARIANCE ANALYSIS: {label_curr} vs. {label_prev} ===",
         f"Activities compared: {s.get('total_compared', 0)} | "
         f"Slipped: {s.get('total_slipped', 0)} | "
-        f"Accelerated: {s.get('total_accelerated', 0)}",
+        f"Accelerated (pulled earlier): {s.get('total_accelerated', 0)}",
+        "(All day values are CALENDAR DAYS)",
     ]
 
     if s.get("max_slip_days", 0) > 0:
-        lines.append(f"Largest slip: {s['max_slip_days']}d — {s['max_slip_activity']}")
+        lines.append(f"Largest slip: {s['max_slip_days']} calendar days — {s['max_slip_activity']}")
     if s.get("max_accel_days", 0) > 0:
-        lines.append(f"Largest acceleration: {s['max_accel_days']}d — {s['max_accel_activity']}")
+        lines.append(f"Largest pull-forward: {s['max_accel_days']} calendar days — {s['max_accel_activity']}")
 
     lines.append("")
 
@@ -358,22 +359,23 @@ def format_variance_for_context(variance: Dict, max_items_per_phase: int = 5) ->
 
         for item in slipped[:max_items_per_phase]:
             crit_tag = " [CRITICAL]" if item["critical"] else ""
-            float_tag = f" | Float: {item['float_days']}d" if item["float_days"] is not None else ""
+            float_tag = f" | Float: {item['float_days']} cal days" if item["float_days"] is not None else ""
             lines.append(
-                f"  SLIP  {item['finish_delta']:+d}d  {item['name']}{crit_tag}{float_tag}"
-                + (f"  ({item['prev_finish']} → {item['curr_finish']})" if item["prev_finish"] and item["curr_finish"] else "")
+                f"  SLIP  {item['finish_delta']:+d} cal days  {item['name']}{crit_tag}{float_tag}"
+                + (f"  ({item['prev_finish']} \u2192 {item['curr_finish']})" if item["prev_finish"] and item["curr_finish"] else "")
             )
         if len(slipped) > max_items_per_phase:
             lines.append(f"  ... +{len(slipped) - max_items_per_phase} more slipped in this phase")
 
         for item in accel[:max_items_per_phase]:
             crit_tag = " [CRITICAL]" if item["critical"] else ""
+            float_tag = f" | Float: {item['float_days']} cal days" if item["float_days"] is not None else ""
             lines.append(
-                f"  ACCEL {item['finish_delta']:+d}d  {item['name']}{crit_tag}"
-                + (f"  ({item['prev_finish']} → {item['curr_finish']})" if item["prev_finish"] and item["curr_finish"] else "")
+                f"  PULL  {item['finish_delta']:+d} cal days  {item['name']}{crit_tag}{float_tag}"
+                + (f"  ({item['prev_finish']} \u2192 {item['curr_finish']})" if item["prev_finish"] and item["curr_finish"] else "")
             )
         if len(accel) > max_items_per_phase:
-            lines.append(f"  ... +{len(accel) - max_items_per_phase} more accelerated in this phase")
+            lines.append(f"  ... +{len(accel) - max_items_per_phase} more pulled earlier in this phase")
 
         new_acts = data.get("new_activities", [])
         removed = data.get("removed_activities", [])
