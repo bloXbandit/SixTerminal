@@ -188,3 +188,69 @@ def get_tracker_context(slug: str) -> str:
 def get_tracker_data(slug: str) -> Optional[dict]:
     """Returns raw tracker dict for a slug. None if not tracked."""
     return _tracker_cache.get(slug)
+
+
+def get_portfolio_summary(schedule_flags: Optional[Dict[str, bool]] = None) -> str:
+    """
+    Returns a compact portfolio-level health summary across all tracked projects.
+    schedule_flags: optional {slug: bool} — True if schedule file is loaded for that project.
+    Used for cross-project awareness: "which projects are behind?" / "portfolio overview".
+    """
+    if not _tracker_cache:
+        return ""
+
+    lines = [
+        "=== PORTFOLIO OVERVIEW (all projects — use for cross-project questions) ===",
+        "Format: Project | Type | Updates | Current Data Date | Schedule Loaded",
+        "",
+    ]
+
+    # Sort: Construction first, then Development; alphabetical within each group
+    construction = sorted(
+        [(slug, d) for slug, d in _tracker_cache.items() if "construction" in (d.get("type") or "").lower()],
+        key=lambda x: x[1]["project_name"]
+    )
+    development = sorted(
+        [(slug, d) for slug, d in _tracker_cache.items() if "development" in (d.get("type") or "").lower()],
+        key=lambda x: x[1]["project_name"]
+    )
+    other = sorted(
+        [(slug, d) for slug, d in _tracker_cache.items()
+         if slug not in {s for s, _ in construction} and slug not in {s for s, _ in development}],
+        key=lambda x: x[1]["project_name"]
+    )
+
+    def _project_row(slug: str, data: dict) -> str:
+        name = data.get("project_name", slug)
+        total = data.get("total_updates", 0)
+        current = data.get("current") or {}
+        data_date = current.get("data_date", "N/A")
+        file_type = current.get("file_type", "N/A")
+        has_sched = schedule_flags.get(slug, False) if schedule_flags else False
+        sched_tag = "Yes" if has_sched else "No file"
+        return f"  {name:<22} | {data.get('type', 'N/A'):<14} | {total} update(s) | {file_type} | Data: {data_date} | Schedule: {sched_tag}"
+
+    if construction:
+        lines.append("CONSTRUCTION PROJECTS:")
+        for slug, data in construction:
+            lines.append(_project_row(slug, data))
+        lines.append("")
+
+    if development:
+        lines.append("DEVELOPMENT PROJECTS:")
+        for slug, data in development:
+            lines.append(_project_row(slug, data))
+        lines.append("")
+
+    if other:
+        lines.append("OTHER PROJECTS:")
+        for slug, data in other:
+            lines.append(_project_row(slug, data))
+        lines.append("")
+
+    lines.append(
+        "NOTE: Schedule health detail (variance, CP, float) is only available for projects with schedule files loaded. "
+        "For detailed project analysis, the user must select a specific project from the dropdown."
+    )
+
+    return "\n".join(lines)
