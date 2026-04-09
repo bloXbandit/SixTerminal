@@ -100,7 +100,7 @@ def _find_versioned_files(project_path: str) -> dict:
         elif name_no_ext.startswith("update_"):
             updates.append((name_no_ext, fpath))
 
-    updates.sort(key=lambda x: x[0])
+    updates.sort(key=lambda x: int(x[0].split("_", 1)[1]) if x[0].split("_", 1)[1].isdigit() else 0)
     return {"baseline": baseline, "updates": updates, "verify_pdf": verify_pdf}
 
 
@@ -152,8 +152,8 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
 
 def _extract_pdf_milestones(pdf_path: str) -> list:
     """
-    Extract activity names and finish dates from a verify.pdf for crosscheck.
-    Returns list of dicts: [{activity, finish}]
+    Extract meaningful lines from verify.pdf for schedule crosscheck.
+    Filters out blank lines and short header/footer noise.
     """
     try:
         import pdfplumber
@@ -161,9 +161,12 @@ def _extract_pdf_milestones(pdf_path: str) -> list:
         with pdfplumber.open(pdf_path) as pdf:
             for page in pdf.pages[:30]:
                 text = page.extract_text()
-                if text:
-                    for line in text.splitlines():
-                        entries.append(line.strip())
+                if not text:
+                    continue
+                for line in text.splitlines():
+                    line = line.strip()
+                    if len(line) > 5:  
+                        entries.append(line)
         return entries
     except Exception as e:
         logger.warning(f"PDF crosscheck failed: {e}")
@@ -187,12 +190,17 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     parts = []
 
     # --- Determine current and previous ---
-    current_label, current_path = updates[-1] if updates else ("baseline", baseline_path)
-    previous_path = None
-    if len(updates) >= 2:
-        previous_label, previous_path = updates[-2]
-    elif len(updates) == 1 and baseline_path:
-        previous_label, previous_path = "baseline", baseline_path
+    if updates:
+        current_label, current_path = updates[-1]
+        if len(updates) >= 2:
+            _, previous_path = updates[-2]
+        elif baseline_path:
+            previous_path = baseline_path
+        else:
+            previous_path = None
+    else:
+        current_label, current_path = "baseline", baseline_path
+        previous_path = None
 
     # --- Format label ---
     total_updates = len(updates)
@@ -287,7 +295,7 @@ def get_project_context(slug: str, page: Optional[str] = None) -> str:
         parts.append("")
         parts.append(schedule_ctx)
     else:
-        parts.append("\n[No schedule file loaded for this project yet. User can attach an MPP/XER file to provide schedule data.]")
+        parts.append("[No schedule file loaded for this project yet. User can attach an MPP/XER file to provide schedule data.]")
 
     return "\n".join(parts)
 
