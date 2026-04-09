@@ -422,6 +422,9 @@
       sel.className = proj && proj.has_schedule ? "has-data" : "";
       const projName = proj ? proj.display_name : selectedProjectSlug;
       appendMsg("assistant", `📂 Project set to: ${projName}${proj && proj.has_schedule ? " — schedule data loaded ✓" : " — no schedule file yet, attach an MPP to add data"}`);
+      if (proj && proj.has_schedule) {
+        appendMsg("assistant", "⏳ Loading project context — your first question may take a few seconds...");
+      }
     } else {
       pageSel.style.display = "none";
     }
@@ -552,6 +555,20 @@
     return div;
   }
 
+  async function doChat(payload, retrying) {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.error === "__timeout__" && !retrying) {
+      await new Promise(r => setTimeout(r, 1500));
+      return doChat(payload, true);
+    }
+    return data;
+  }
+
   async function sendMessage() {
     const input = document.getElementById("msgInput");
     const btn = document.getElementById("sendBtn");
@@ -567,20 +584,18 @@
     const typing = appendMsg("typing", "Thinking...");
 
     try {
-      const res = await fetch("/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: messages.slice(-10),
-          context: context,
-          image: pastedImageBase64 || null,
-          project_slug: selectedProjectSlug || null,
-          page_view: selectedPageView || null
-        })
-      });
-      const data = await res.json();
+      const payload = {
+        messages: messages.slice(-10),
+        context: context,
+        image: pastedImageBase64 || null,
+        project_slug: selectedProjectSlug || null,
+        page_view: selectedPageView || null
+      };
+      const data = await doChat(payload, false);
       typing.remove();
-      if (data.error) {
+      if (data.error === "__timeout__") {
+        appendMsg("assistant", "⏳ Still loading — please try again in a moment.");
+      } else if (data.error) {
         appendMsg("assistant", "⚠️ " + data.error);
       } else {
         appendMsg("assistant", data.reply);

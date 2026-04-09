@@ -149,6 +149,16 @@ except Exception as _te:
     logger.warning(f"Tracker loader not available: {_te}")
     def load_tracker(): pass
 
+# Pre-build portfolio summary once at startup — not per-request
+_PORTFOLIO_CTX = ""
+try:
+    from tracker_loader import get_portfolio_summary
+    _sched_flags = {p["slug"]: has_schedule(p["slug"]) for p in list_projects()}
+    _PORTFOLIO_CTX = get_portfolio_summary(_sched_flags)
+    logger.info("Portfolio summary cached.")
+except Exception as _pfe:
+    logger.warning(f"Portfolio summary cache failed: {_pfe}")
+
 
 def _parse_uploaded_file(filepath: str, filename: str) -> str:
     """Parse an uploaded schedule file and return a context string for the Copilot."""
@@ -310,15 +320,9 @@ def chat():
 
     system = SYSTEM_BASE
 
-    # Portfolio overview — always injected so LLM can answer cross-project questions
-    try:
-        from tracker_loader import get_portfolio_summary
-        sched_flags = {slug: has_schedule(slug) for p in list_projects() for slug in [p["slug"]]}
-        portfolio_ctx = get_portfolio_summary(sched_flags)
-        if portfolio_ctx:
-            system += f"\n\n{portfolio_ctx}"
-    except Exception as _pf:
-        logger.warning(f"Portfolio summary injection failed: {_pf}")
+    # Portfolio overview — injected from startup cache, never rebuilt per-request
+    if _PORTFOLIO_CTX:
+        system += f"\n\n{_PORTFOLIO_CTX}"
 
     if dashboard_context:
         system += f"\n\n{dashboard_context}"
@@ -351,9 +355,12 @@ def chat():
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=full_messages,
-            temperature=0.3
+            temperature=0.3,
+            timeout=25
         )
         return jsonify({"reply": response.choices[0].message.content})
+    except openai.APITimeoutError:
+        return jsonify({"error": "__timeout__"}), 504
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
