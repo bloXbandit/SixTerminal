@@ -35,11 +35,11 @@ def _get_xer_parser():
     return P6Parser
 
 
+SCHEDULE_EXTS = (".mpp", ".xml", ".xer")
+
+
 def load_all_projects():
-    """
-    Scans projects/ folder, parses any MPP/XER files found, caches context.
-    Called once on app startup.
-    """
+    """Scans projects/ folder, builds versioned schedule context per project."""
     if not os.path.exists(PROJECTS_DIR):
         logger.warning(f"Projects directory not found: {PROJECTS_DIR}")
         return
@@ -57,63 +57,183 @@ def load_all_projects():
             meta = json.load(f)
         _project_meta[slug] = meta
 
-        schedule_file = _find_schedule_file(project_path)
-        if not schedule_file:
-            logger.info(f"[{slug}] No schedule file found — metadata only.")
+        try:
+            context = _build_versioned_context(slug, project_path)
+            _project_cache[slug] = context
+            status = "with schedule data" if context else "metadata only"
+            logger.info(f"[{slug}] Loaded — {status}")
+        except Exception as e:
+            logger.error(f"[{slug}] Load failed: {e}")
             _project_cache[slug] = ""
+
+    loaded = sum(1 for v in _project_cache.values() if v)
+    logger.info(f"Project loader: {len(_project_meta)} projects, {loaded} with schedule data.")
+
+
+def _find_versioned_files(project_path: str) -> dict:
+    """
+    Scans a project folder and returns:
+      baseline: filepath or None
+      updates:  list of (label, filepath) sorted ascending by label
+      verify_pdf: filepath or None
+    """
+    baseline = None
+    updates = []
+    verify_pdf = None
+
+    for fname in os.listdir(project_path):
+        lower = fname.lower()
+        fpath = os.path.join(project_path, fname)
+
+        if lower == "verify.pdf":
+            verify_pdf = fpath
             continue
 
-        try:
-            context = _parse_schedule(schedule_file)
-            _project_cache[slug] = context
-            logger.info(f"[{slug}] Loaded: {os.path.basename(schedule_file)}")
-        except Exception as e:
-            logger.error(f"[{slug}] Parse failed: {e}")
-            _project_cache[slug] = f"[Schedule file present but could not be parsed: {e}]"
+        name_no_ext = os.path.splitext(lower)[0]
+        ext = os.path.splitext(lower)[1]
 
-    logger.info(f"Project loader: {len(_project_meta)} projects loaded, {sum(1 for v in _project_cache.values() if v)} with schedule data.")
+        if ext not in SCHEDULE_EXTS:
+            continue
+
+        if name_no_ext == "baseline":
+            baseline = fpath
+        elif name_no_ext.startswith("update_"):
+            updates.append((name_no_ext, fpath))
+
+    updates.sort(key=lambda x: x[0])
+    return {"baseline": baseline, "updates": updates, "verify_pdf": verify_pdf}
 
 
-def _find_schedule_file(project_path: str) -> Optional[str]:
-    """Find the first .mpp or .xer file in the project folder."""
-    for fname in os.listdir(project_path):
-        if fname.lower().endswith((".mpp", ".xer", ".xml")):
-            return os.path.join(project_path, fname)
+def _parse_schedule(filepath: str) -> Optional[dict]:
+    """
+    Parse any schedule file (mpp/xml/xer) and return a normalized dict:
+    { name, data_date, total, completed, in_progress, not_started, pct_complete,
+      milestones: [{name, finish}], raw_context }
+    """
+    ext = os.path.splitext(filepath)[1].lower()
+
+    try:
+        if ext in (".mpp", ".xml"):
+            MPPParser = _get_mpp_parser()
+            p = MPPParser(filepath)
+            raw = p.get_llm_context()
+            return {"raw_context": raw, "source": os.path.basename(filepath)}
+
+        elif ext == ".xer":
+            P6Parser = _get_xer_parser()
+            p = P6Parser(filepath)
+            ctx = p.get_llm_context()
+            info = ctx.get("project_info", {})
+            metrics = ctx.get("project_metrics", {})
+            lines = [
+                "=== PROJECT SCHEDULE DATA ===",
+                f"Project: {info.get('name', 'Unknown')}",
+                f"Data Date: {info.get('data_date', 'N/A')}",
+                "",
+                "SCHEDULE SUMMARY:",
+                f"  Total Activities: {metrics.get('total_activities', 0)}",
+                f"  Completed: {metrics.get('completed', 0)}",
+                f"  In Progress: {metrics.get('in_progress', 0)}",
+                f"  Not Started: {metrics.get('not_started', 0)}",
+                f"  % Complete: {metrics.get('percent_complete', '0%')}",
+                "",
+                f"WBS PHASES: {', '.join(ctx.get('wbs_phases', []))}",
+                "",
+                f"DCMA METRICS: {json.dumps(ctx.get('dcma_metrics', {}))}",
+            ]
+            return {"raw_context": "\n".join(lines), "source": os.path.basename(filepath)}
+
+    except Exception as e:
+        logger.error(f"Parse failed for {filepath}: {e}")
+        return None
+
     return None
 
 
-def _parse_schedule(filepath: str) -> str:
-    """Parse a schedule file and return LLM context string."""
-    ext = os.path.splitext(filepath)[1].lower()
+def _extract_pdf_milestones(pdf_path: str) -> list:
+    """
+    Extract activity names and finish dates from a verify.pdf for crosscheck.
+    Returns list of dicts: [{activity, finish}]
+    """
+    try:
+        import pdfplumber
+        entries = []
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages[:30]:
+                text = page.extract_text()
+                if text:
+                    for line in text.splitlines():
+                        entries.append(line.strip())
+        return entries
+    except Exception as e:
+        logger.warning(f"PDF crosscheck failed: {e}")
+        return []
 
-    if ext == ".mpp" or ext == ".xml":
-        MPPParser = _get_mpp_parser()
-        p = MPPParser(filepath)
-        return p.get_llm_context()
 
-    elif ext == ".xer":
-        P6Parser = _get_xer_parser()
-        p = P6Parser(filepath)
-        ctx = p.get_llm_context()
-        lines = [
-            f"=== PROJECT SCHEDULE DATA ===",
-            f"Project: {ctx.get('project_info', {}).get('name', 'Unknown')}",
-            f"Data Date: {ctx.get('project_info', {}).get('data_date', 'N/A')}",
-            f"",
-            f"SCHEDULE SUMMARY:",
-            f"  Total Activities: {ctx.get('project_metrics', {}).get('total_activities', 0)}",
-            f"  Completed: {ctx.get('project_metrics', {}).get('completed', 0)}",
-            f"  In Progress: {ctx.get('project_metrics', {}).get('in_progress', 0)}",
-            f"  Not Started: {ctx.get('project_metrics', {}).get('not_started', 0)}",
-            f"  % Complete: {ctx.get('project_metrics', {}).get('percent_complete', '0%')}",
-            f"",
-            f"WBS PHASES: {', '.join(ctx.get('wbs_phases', []))}",
-            f"",
-            f"DCMA METRICS: {json.dumps(ctx.get('dcma_metrics', {}))}",
-        ]
-        return "\n".join(lines)
+def _build_versioned_context(slug: str, project_path: str) -> str:
+    """
+    Build the full LLM context for a project using versioned files.
+    Handles any mix of mpp/xml/xer across baseline and updates.
+    Uses verify.pdf as a silent crosscheck if present.
+    """
+    files = _find_versioned_files(project_path)
+    baseline_path = files["baseline"]
+    updates = files["updates"]
+    verify_pdf = files["verify_pdf"]
 
-    return f"[Unsupported format: {ext}]"
+    if not baseline_path and not updates:
+        return ""
+
+    parts = []
+
+    # --- Determine current and previous ---
+    current_label, current_path = updates[-1] if updates else ("baseline", baseline_path)
+    previous_path = None
+    if len(updates) >= 2:
+        previous_label, previous_path = updates[-2]
+    elif len(updates) == 1 and baseline_path:
+        previous_label, previous_path = "baseline", baseline_path
+
+    # --- Format label ---
+    total_updates = len(updates)
+    parts.append(f"SCHEDULE VERSIONS: {'baseline' if baseline_path else 'no baseline'} + {total_updates} update(s)")
+    parts.append(f"CURRENT SUBMISSION: {current_label} ({os.path.basename(current_path)})")
+
+    # --- Parse current ---
+    current_data = _parse_schedule(current_path)
+    if not current_data:
+        parts.append("[Current schedule could not be parsed]")
+        return "\n".join(parts)
+
+    parts.append("")
+    parts.append("=== CURRENT SCHEDULE ===")
+    parts.append(current_data["raw_context"])
+
+    # --- Parse previous for delta context ---
+    if previous_path:
+        previous_data = _parse_schedule(previous_path)
+        if previous_data:
+            parts.append("")
+            parts.append(f"=== PREVIOUS SCHEDULE ({os.path.basename(previous_path)}) ===")
+            parts.append(previous_data["raw_context"])
+
+    # --- Parse baseline for drift context ---
+    if baseline_path and baseline_path != current_path:
+        baseline_data = _parse_schedule(baseline_path)
+        if baseline_data:
+            parts.append("")
+            parts.append(f"=== BASELINE SCHEDULE ({os.path.basename(baseline_path)}) ===")
+            parts.append(baseline_data["raw_context"])
+
+    # --- PDF crosscheck (silent, for LLM verification only) ---
+    if verify_pdf:
+        pdf_lines = _extract_pdf_milestones(verify_pdf)
+        if pdf_lines:
+            parts.append("")
+            parts.append("=== PDF VERIFICATION REFERENCE (use to crosscheck activity dates/names — do not expose raw) ===")
+            parts.append("\n".join(pdf_lines[:200]))
+
+    return "\n".join(parts)
 
 
 def _load_milestone_map(slug: str) -> str:
