@@ -17,6 +17,8 @@ PROJECTS_DIR = os.path.join(os.path.dirname(__file__), "projects")
 
 _project_cache: Dict[str, str] = {}
 _project_meta: Dict[str, dict] = {}
+_project_health: Dict[str, dict] = {}  # {slug: {status, compression_pct, max_slip_days, max_accel_days}}
+_project_tasks: Dict[str, list] = {}   # {slug: [task_dicts]} — current schedule tasks for milestone lookup
 
 
 def _get_mpp_parser():
@@ -233,6 +235,20 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
         parts.append("[Current schedule could not be parsed]")
         return "\n".join(parts)
 
+    # --- Store tasks for milestone date cross-referencing ---
+    _project_tasks[slug] = current_data.get("tasks", [])
+
+    # --- Compression % from current tasks ---
+    _compression_pct = None
+    try:
+        tasks = current_data.get("tasks", [])
+        non_summary = [t for t in tasks if not t.get("summary", False)]
+        if non_summary:
+            pcts = [float(t.get("percent_complete") or 0) for t in non_summary]
+            _compression_pct = round(sum(pcts) / len(pcts), 1)
+    except Exception:
+        pass
+
     parts.append("")
     parts.append("=== CURRENT SCHEDULE ===")
     parts.append(current_data["raw_context"])
@@ -289,6 +305,21 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                         parts.append("")
                         parts.append("=== BASELINE DRIFT ===")
                         parts.append(drift_ctx)
+                    # --- Populate project health from baseline drift ---
+                    s = drift.get("summary", {})
+                    _project_health[slug] = {
+                        "status": _health_tag(
+                            s.get("max_slip_days", 0),
+                            s.get("max_accel_days", 0),
+                            s.get("total_slipped", 0),
+                            s.get("total_accelerated", 0),
+                        ),
+                        "compression_pct": _compression_pct,
+                        "max_slip_days": s.get("max_slip_days", 0),
+                        "max_accel_days": s.get("max_accel_days", 0),
+                        "total_slipped": s.get("total_slipped", 0),
+                        "total_accelerated": s.get("total_accelerated", 0),
+                    }
                 except Exception as _de:
                     logger.warning(f"[{slug}] Baseline drift computation failed: {_de}")
 
@@ -303,8 +334,23 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     return "\n".join(parts)
 
 
+def _health_tag(max_slip: int, max_accel: int, total_slipped: int, total_accelerated: int) -> str:
+    """Derive a simple health label from variance summary numbers."""
+    net = total_slipped - total_accelerated
+    if max_accel >= 14 and net <= 0:
+        return "AHEAD"
+    if max_slip >= 30 or (max_slip >= 14 and net >= 5):
+        return "MAJOR DELAY"
+    if max_slip >= 7 or net >= 3:
+        return "SLIGHT DELAY"
+    return "ON TIME"
+
+
 def _load_milestone_map(slug: str) -> str:
-    """Load milestone_map.json for a project and return a formatted context block."""
+    """
+    Load milestone_map.json and cross-reference against parsed tasks to inject
+    actual forecast dates, baseline dates, and % complete into the milestone context.
+    """
     mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
     if not os.path.exists(mm_path):
         return ""
@@ -314,15 +360,56 @@ def _load_milestone_map(slug: str) -> str:
         milestones = data.get("milestones", [])
         if not milestones:
             return ""
-        lines = ["STANDARDIZED MILESTONES (always use these names in responses):"]
-        for m in milestones:
+
+        # Build a lookup from the cached parsed tasks — by activity name (lower) and by ID (str)
+        task_lookup_name: dict = {}
+        task_lookup_id: dict = {}
+        cached_ctx = _project_cache.get(slug, "")
+        # Tasks are stored separately — re-access via a lightweight parse of the cached task list
+        # We stored tasks in a side-channel dict at parse time
+        tasks = _project_tasks.get(slug, [])
+        for t in tasks:
+            name = (t.get("name") or t.get("task_name") or "").strip().lower()
+            tid = str(t.get("id") or t.get("task_id") or t.get("activity_id") or "").strip()
+            if name:
+                task_lookup_name[name] = t
+            if tid:
+                task_lookup_id[tid] = t
+
+        lines = ["STANDARDIZED MILESTONES (always use these names — dates are from current schedule):"]
+        for m in sorted(milestones, key=lambda x: x.get("sort", 99)):
             std = m["standardized_name"]
-            act = m["activity_name"]
-            act_id = m["activity_id"]
-            if act and act != std:
-                lines.append(f"  - {std}  (schedule activity: '{act}', ID: {act_id})")
+            act_name = (m.get("activity_name") or "").strip()
+            act_id = str(m.get("activity_id") or "")
+
+            # Find the matching task
+            task = (task_lookup_name.get(act_name.lower())
+                    or task_lookup_id.get(act_id)
+                    or None)
+
+            if task:
+                finish = (task.get("finish") or task.get("target_end_date") or
+                          task.get("early_end_date") or "")
+                baseline_finish = (task.get("baseline_finish") or
+                                   task.get("bl_finish") or "")
+                pct = task.get("percent_complete", 0)
+                # Trim to date only
+                if finish:
+                    finish = str(finish)[:10]
+                if baseline_finish:
+                    baseline_finish = str(baseline_finish)[:10]
+
+                date_str = f"Forecast: {finish}" if finish else "Forecast: N/A"
+                bl_str = f" | Baseline: {baseline_finish}" if baseline_finish else ""
+                pct_str = f" | {pct:.0f}% complete" if pct is not None else ""
+                lines.append(f"  - {std}: {date_str}{bl_str}{pct_str}")
             else:
-                lines.append(f"  - {std}  (ID: {act_id})")
+                # No task match — still emit the name so LLM knows what milestones exist
+                if act_name and act_name != std:
+                    lines.append(f"  - {std}  (activity: '{act_name}' — date not resolved)")
+                else:
+                    lines.append(f"  - {std}  (date not resolved)")
+
         return "\n".join(lines)
     except Exception as e:
         logger.warning(f"[{slug}] Could not load milestone map: {e}")
@@ -397,6 +484,11 @@ def list_projects():
 def has_schedule(slug: str) -> bool:
     """Returns True if this project has a parsed schedule file."""
     return bool(_project_cache.get(slug))
+
+
+def get_project_health(slug: str) -> Optional[dict]:
+    """Returns health dict for a slug: {status, compression_pct, max_slip_days, max_accel_days}."""
+    return _project_health.get(slug)
 
 
 if __name__ == "__main__":

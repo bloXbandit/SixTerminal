@@ -206,19 +206,28 @@ def get_tracker_data(slug: str) -> Optional[dict]:
 def get_portfolio_summary(schedule_flags: Optional[Dict[str, bool]] = None) -> str:
     """
     Returns a compact portfolio-level health summary across all tracked projects.
-    schedule_flags: optional {slug: bool} — True if schedule file is loaded for that project.
-    Used for cross-project awareness: "which projects are behind?" / "portfolio overview".
+    Includes health status, compression %, and max slip/accel from baseline drift.
     """
     if not _tracker_cache:
         return ""
 
+    # Pull health data from project_loader if available
+    _health_map = {}
+    try:
+        from project_loader import get_project_health
+        for slug in _tracker_cache:
+            h = get_project_health(slug)
+            if h:
+                _health_map[slug] = h
+    except Exception:
+        pass
+
     lines = [
         "=== PORTFOLIO OVERVIEW (all projects — use for cross-project questions) ===",
-        "Format: Project | Type | Updates | Current Data Date | Schedule Loaded",
+        "Columns: Project | Type | Updates | Data Date | Health Status | Compression % | Max Slip vs Baseline | Max Accel vs Baseline",
         "",
     ]
 
-    # Sort: Construction first, then Development; alphabetical within each group
     construction = sorted(
         [(slug, d) for slug, d in _tracker_cache.items() if "construction" in (d.get("type") or "").lower()],
         key=lambda x: x[1]["project_name"]
@@ -238,10 +247,20 @@ def get_portfolio_summary(schedule_flags: Optional[Dict[str, bool]] = None) -> s
         total = data.get("total_updates", 0)
         current = data.get("current") or {}
         data_date = current.get("data_date", "N/A")
-        file_type = current.get("file_type", "N/A")
-        has_sched = schedule_flags.get(slug, False) if schedule_flags else False
-        sched_tag = "Yes" if has_sched else "No file"
-        return f"  {name:<22} | {data.get('type', 'N/A'):<14} | {total} update(s) | {file_type} | Data: {data_date} | Schedule: {sched_tag}"
+        h = _health_map.get(slug)
+        if h:
+            status = h["status"]
+            comp = f"{h['compression_pct']}%" if h.get("compression_pct") is not None else "N/A"
+            slip = f"+{h['max_slip_days']}cd" if h.get("max_slip_days") else "—"
+            accel = f"-{h['max_accel_days']}cd" if h.get("max_accel_days") else "—"
+        else:
+            status = "NO SCHEDULE"
+            comp = "N/A"
+            slip = "N/A"
+            accel = "N/A"
+        return (f"  {name:<22} | {data.get('type','N/A'):<14} | {total} update(s) | "
+                f"Data: {data_date} | {status:<14} | {comp:>6} complete | "
+                f"Slip: {slip} | Accel: {accel}")
 
     if construction:
         lines.append("CONSTRUCTION PROJECTS:")
@@ -261,9 +280,29 @@ def get_portfolio_summary(schedule_flags: Optional[Dict[str, bool]] = None) -> s
             lines.append(_project_row(slug, data))
         lines.append("")
 
+    # Append a counts summary line for LLM to use directly
+    if _health_map:
+        ahead   = [s for s, h in _health_map.items() if h["status"] == "AHEAD"]
+        on_time = [s for s, h in _health_map.items() if h["status"] == "ON TIME"]
+        slight  = [s for s, h in _health_map.items() if h["status"] == "SLIGHT DELAY"]
+        major   = [s for s, h in _health_map.items() if h["status"] == "MAJOR DELAY"]
+        no_data = [s for s in _tracker_cache if s not in _health_map]
+
+        def _names(slugs):
+            return ", ".join(_tracker_cache[s]["project_name"] for s in slugs if s in _tracker_cache)
+
+        lines.append("HEALTH SUMMARY COUNTS (use these directly for portfolio status questions):")
+        lines.append(f"  AHEAD OF SCHEDULE   ({len(ahead)}): {_names(ahead) or 'none'}")
+        lines.append(f"  ON TIME             ({len(on_time)}): {_names(on_time) or 'none'}")
+        lines.append(f"  SLIGHT DELAY        ({len(slight)}): {_names(slight) or 'none'}")
+        lines.append(f"  MAJOR DELAY         ({len(major)}): {_names(major) or 'none'}")
+        lines.append(f"  NO SCHEDULE DATA    ({len(no_data)}): {_names(no_data) or 'none'}")
+        lines.append("")
+
     lines.append(
-        "NOTE: Schedule health detail (variance, CP, float) is only available for projects with schedule files loaded. "
-        "For detailed project analysis, the user must select a specific project from the dropdown."
+        "NOTE: Health status is computed from baseline drift variance. "
+        "Compression % = average % complete across all non-summary activities. "
+        "For full schedule detail, user must select a project from the dropdown."
     )
 
     return "\n".join(lines)
