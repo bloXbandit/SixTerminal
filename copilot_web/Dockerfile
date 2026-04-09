@@ -11,6 +11,7 @@ ENV PATH="${JAVA_HOME}/bin:${PATH}"
 WORKDIR /app
 
 COPY requirements.txt .
+# cache-bust: 2026-04-09
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN playwright install chromium
