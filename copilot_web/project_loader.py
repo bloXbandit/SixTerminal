@@ -42,33 +42,48 @@ def _get_xer_parser():
 SCHEDULE_EXTS = (".mpp", ".xml", ".xer")
 
 
+def _load_single_project(slug: str, project_path: str):
+    """Load one project — called in a per-project thread with timeout."""
+    meta_path = os.path.join(project_path, "meta.json")
+    if not os.path.exists(meta_path):
+        return
+    with open(meta_path, "r") as f:
+        meta = json.load(f)
+    _project_meta[slug] = meta
+    try:
+        context = _build_versioned_context(slug, project_path)
+        _project_cache[slug] = context
+        status = "with schedule data" if context else "metadata only"
+        logger.info(f"[{slug}] Loaded — {status}")
+    except Exception as e:
+        logger.error(f"[{slug}] Load failed: {e}")
+        _project_cache[slug] = ""
+
+
 def load_all_projects():
-    """Scans projects/ folder, builds versioned schedule context per project."""
+    """Scans projects/ folder, builds versioned schedule context per project.
+    Each project is loaded in its own thread with a 90s timeout so a hung
+    PDF parse on one project cannot block all subsequent projects.
+    """
+    import threading as _thr
     if not os.path.exists(PROJECTS_DIR):
         logger.warning(f"Projects directory not found: {PROJECTS_DIR}")
         return
 
-    for slug in sorted(os.listdir(PROJECTS_DIR)):
+    slugs = [
+        s for s in sorted(os.listdir(PROJECTS_DIR))
+        if os.path.isdir(os.path.join(PROJECTS_DIR, s))
+        and os.path.exists(os.path.join(PROJECTS_DIR, s, "meta.json"))
+    ]
+
+    for slug in slugs:
         project_path = os.path.join(PROJECTS_DIR, slug)
-        if not os.path.isdir(project_path):
-            continue
-
-        meta_path = os.path.join(project_path, "meta.json")
-        if not os.path.exists(meta_path):
-            continue
-
-        with open(meta_path, "r") as f:
-            meta = json.load(f)
-        _project_meta[slug] = meta
-
-        try:
-            context = _build_versioned_context(slug, project_path)
-            _project_cache[slug] = context
-            status = "with schedule data" if context else "metadata only"
-            logger.info(f"[{slug}] Loaded — {status}")
-        except Exception as e:
-            logger.error(f"[{slug}] Load failed: {e}")
-            _project_cache[slug] = ""
+        t = _thr.Thread(target=_load_single_project, args=(slug, project_path), daemon=True)
+        t.start()
+        t.join(timeout=90)
+        if t.is_alive():
+            logger.warning(f"[{slug}] Load timed out after 90s — skipping, marking empty")
+            _project_cache.setdefault(slug, "")
 
     loaded = sum(1 for v in _project_cache.values() if v)
     logger.info(f"Project loader: {len(_project_meta)} projects, {loaded} with schedule data.")
