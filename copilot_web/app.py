@@ -413,8 +413,6 @@ except Exception as _e:
 
 try:
     from project_loader import load_all_projects, get_project_context, list_projects, has_schedule
-    load_all_projects()
-    logger.info("Project buckets loaded.")
 except Exception as _pe:
     logger.warning(f"Project loader not available: {_pe}")
     def load_all_projects(): pass
@@ -423,22 +421,36 @@ except Exception as _pe:
     def has_schedule(slug): return False
 
 try:
-    from tracker_loader import load_tracker
-    load_tracker()
-    logger.info("Project tracker loaded.")
+    from tracker_loader import load_tracker, get_portfolio_summary
 except Exception as _te:
     logger.warning(f"Tracker loader not available: {_te}")
     def load_tracker(): pass
+    def get_portfolio_summary(flags): return ""
 
 # Pre-build portfolio summary once at startup — not per-request
 _PORTFOLIO_CTX = ""
-try:
-    from tracker_loader import get_portfolio_summary
-    _sched_flags = {p["slug"]: has_schedule(p["slug"]) for p in list_projects()}
-    _PORTFOLIO_CTX = get_portfolio_summary(_sched_flags)
-    logger.info("Portfolio summary cached.")
-except Exception as _pfe:
-    logger.warning(f"Portfolio summary cache failed: {_pfe}")
+
+def _background_startup():
+    global _PORTFOLIO_CTX
+    try:
+        load_tracker()
+        logger.info("Project tracker loaded.")
+    except Exception as _te:
+        logger.warning(f"Tracker load failed in background: {_te}")
+    try:
+        load_all_projects()
+        logger.info("Project buckets loaded.")
+    except Exception as _pe:
+        logger.warning(f"Project load failed in background: {_pe}")
+    try:
+        _sched_flags = {p["slug"]: has_schedule(p["slug"]) for p in list_projects()}
+        _PORTFOLIO_CTX = get_portfolio_summary(_sched_flags)
+        logger.info("Portfolio summary cached.")
+    except Exception as _pfe:
+        logger.warning(f"Portfolio summary cache failed: {_pfe}")
+
+import threading as _threading
+_threading.Thread(target=_background_startup, daemon=True).start()
 
 
 def _parse_uploaded_file(filepath: str, filename: str) -> str:
