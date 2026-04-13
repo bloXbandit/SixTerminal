@@ -47,9 +47,11 @@ def _load_single_project(slug: str, project_path: str):
     meta_path = os.path.join(project_path, "meta.json")
     if not os.path.exists(meta_path):
         return
+    logger.info(f"[{slug}] Starting load...")
     with open(meta_path, "r") as f:
         meta = json.load(f)
     _project_meta[slug] = meta
+    logger.info(f"[{slug}] Meta loaded, building versioned context...")
     try:
         context = _build_versioned_context(slug, project_path)
         _project_cache[slug] = context
@@ -212,50 +214,84 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
     return None
 
 
-def _extract_pdf_milestones(pdf_path: str) -> list:
+def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
     """
     Extract meaningful lines from verify.pdf for schedule crosscheck.
     Filters out blank lines and short header/footer noise.
+    Uses a thread-based timeout to avoid hanging on malformed PDFs.
     """
-    try:
-        import pdfplumber
-        entries = []
-        with pdfplumber.open(pdf_path) as pdf:
-            for page in pdf.pages[:30]:
-                text = page.extract_text()
-                if not text:
-                    continue
-                for line in text.splitlines():
-                    line = line.strip()
-                    if len(line) > 5:
-                        entries.append(line)
-        return entries
-    except Exception as e:
-        logger.warning(f"PDF crosscheck failed: {e}")
+    import threading as _thr
+    result = []
+    exc_holder = []
+
+    def _read():
+        try:
+            import pdfplumber
+            entries = []
+            logger.info(f"  PDF open: {os.path.basename(pdf_path)}")
+            with pdfplumber.open(pdf_path) as pdf:
+                for page in pdf.pages[:max_pages]:
+                    text = page.extract_text()
+                    if not text:
+                        continue
+                    for line in text.splitlines():
+                        line = line.strip()
+                        if len(line) > 5:
+                            entries.append(line)
+            result.extend(entries)
+        except Exception as e:
+            exc_holder.append(e)
+
+    t = _thr.Thread(target=_read, daemon=True)
+    t.start()
+    t.join(timeout=45)
+    if t.is_alive():
+        logger.warning(f"PDF read timed out (45s), skipping: {os.path.basename(pdf_path)}")
         return []
+    if exc_holder:
+        logger.warning(f"PDF crosscheck failed: {exc_holder[0]}")
+        return []
+    return result
 
 
 def _extract_variance_pdf(pdf_path: str) -> list:
     """
     Extract text lines from a variance_N.pdf report.
     Returns filtered, meaningful lines for LLM injection.
+    Uses a thread-based timeout to avoid hanging on malformed PDFs.
     """
-    try:
-        import pdfplumber
-        lines = []
-        with pdfplumber.open(pdf_path) as pdf:
-            for page in pdf.pages[:30]:
-                text = page.extract_text()
-                if not text:
-                    continue
-                for line in text.splitlines():
-                    line = line.strip()
-                    if len(line) > 5:
-                        lines.append(line)
-        return lines
-    except Exception as e:
-        logger.warning(f"Variance PDF extraction failed ({pdf_path}): {e}")
+    import threading as _thr
+    result = []
+    exc_holder = []
+
+    def _read():
+        try:
+            import pdfplumber
+            lines = []
+            logger.info(f"  Variance PDF open: {os.path.basename(pdf_path)}")
+            with pdfplumber.open(pdf_path) as pdf:
+                for page in pdf.pages[:30]:
+                    text = page.extract_text()
+                    if not text:
+                        continue
+                    for line in text.splitlines():
+                        line = line.strip()
+                        if len(line) > 5:
+                            lines.append(line)
+            result.extend(lines)
+        except Exception as e:
+            exc_holder.append(e)
+
+    t = _thr.Thread(target=_read, daemon=True)
+    t.start()
+    t.join(timeout=45)
+    if t.is_alive():
+        logger.warning(f"Variance PDF timed out (45s), skipping: {os.path.basename(pdf_path)}")
         return []
+    if exc_holder:
+        logger.warning(f"Variance PDF extraction failed ({pdf_path}): {exc_holder[0]}")
+        return []
+    return result
 
 
 def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
