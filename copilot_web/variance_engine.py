@@ -312,6 +312,8 @@ def compute_variance(
 
     # Build anomaly flags for LLM attention
     anomalies = _detect_anomalies(phases, max_slip_days, max_slip_activity)
+    floor_cascade = _detect_floor_cascade(phases)
+    mitigation = _detect_mitigation(phases)
 
     return {
         "label_current": label_current,
@@ -330,6 +332,8 @@ def compute_variance(
             "id_fallback_count": id_fallback_count,
         },
         "anomalies": anomalies,
+        "floor_cascade": floor_cascade,
+        "mitigation": mitigation,
     }
 
 
@@ -391,6 +395,87 @@ def _detect_anomalies(phases: Dict, max_slip: int, max_slip_act: str) -> List[st
             "SCHEDULE COMPRESSION: Early phases accelerated while late phases slipped — downstream work may be overlapping more aggressively than prior update."
         )
 
+    return flags
+
+
+def _detect_floor_cascade(phases: Dict) -> List[str]:
+    """
+    Detects floor-by-floor slip cascades within a phase.
+    If activity names contain floor indicators and slip in order, flags it.
+    """
+    import re
+    FLOOR_PATTERNS = [
+        (r'\b1st\b|\bfirst\s+floor\b|\bfl[\.\s]?1\b|\blevel\s*1\b', 1),
+        (r'\b2nd\b|\bsecond\s+floor\b|\bfl[\.\s]?2\b|\blevel\s*2\b', 2),
+        (r'\b3rd\b|\bthird\s+floor\b|\bfl[\.\s]?3\b|\blevel\s*3\b', 3),
+        (r'\b4th\b|\bfourth\s+floor\b|\bfl[\.\s]?4\b|\blevel\s*4\b', 4),
+        (r'\b5th\b|\bfifth\s+floor\b|\bfl[\.\s]?5\b|\blevel\s*5\b', 5),
+        (r'\b6th\b|\bsixth\s+floor\b|\bfl[\.\s]?6\b|\blevel\s*6\b', 6),
+        (r'\b7th\b|\bseventh\s+floor\b|\bfl[\.\s]?7\b|\blevel\s*7\b', 7),
+        (r'\b8th\b|\beighth\s+floor\b|\bfl[\.\s]?8\b|\blevel\s*8\b', 8),
+    ]
+
+    flags = []
+    for phase, data in phases.items():
+        slipped = data.get("slipped", [])
+        if len(slipped) < 2:
+            continue
+        floor_slips: Dict[int, str] = {}
+        for act in slipped:
+            name_lower = act["name"].lower()
+            for pattern, floor_num in FLOOR_PATTERNS:
+                if re.search(pattern, name_lower):
+                    floor_slips[floor_num] = act["name"]
+                    break
+        if len(floor_slips) >= 2:
+            sorted_floors = sorted(floor_slips.keys())
+            # Check for sequential cascade (consecutive or near-consecutive floors)
+            is_cascade = any(
+                sorted_floors[i + 1] - sorted_floors[i] <= 2
+                for i in range(len(sorted_floors) - 1)
+            )
+            if is_cascade:
+                floor_labels = [f"{n}F" for n in sorted_floors]
+                flags.append(
+                    f"FLOOR CASCADE ({phase}): Slip detected sequentially across floors "
+                    f"{', '.join(floor_labels)} — delay on lower floors is cascading upward through the phase."
+                )
+    return flags
+
+
+def _detect_mitigation(phases: Dict) -> List[str]:
+    """
+    Detects potential resequencing/mitigation:
+    A phase that accelerated (pulled earlier) while an upstream or predecessor phase slipped.
+    Flags it as a possible intentional mitigation.
+    """
+    UPSTREAM_MAP = {
+        "Site / Civil":           [],
+        "Foundations":            ["Site / Civil"],
+        "Structure / Frame":      ["Foundations"],
+        "Dry-in / Enclosure":     ["Structure / Frame"],
+        "MEP Rough-in":           ["Structure / Frame", "Dry-in / Enclosure"],
+        "Elevator / Vertical":    ["Structure / Frame"],
+        "Interiors":              ["MEP Rough-in", "Dry-in / Enclosure"],
+        "MEP Finish / Trim":      ["Interiors", "MEP Rough-in"],
+        "Inspections / Closeout": ["MEP Finish / Trim", "Interiors"],
+        "Exterior / Sitework":    ["Dry-in / Enclosure", "Structure / Frame"],
+        "Commissioning":          ["MEP Finish / Trim", "Inspections / Closeout"],
+    }
+
+    flags = []
+    for phase, data in phases.items():
+        accel = data.get("accelerated", [])
+        if not accel:
+            continue
+        upstream_phases = UPSTREAM_MAP.get(phase, [])
+        for up in upstream_phases:
+            if phases.get(up, {}).get("slipped"):
+                flags.append(
+                    f"MITIGATION DETECTED ({phase}): Activities pulled earlier while upstream '{up}' is slipping — "
+                    f"this appears to reflect intentional resequencing to protect downstream dates."
+                )
+                break
     return flags
 
 
@@ -527,6 +612,14 @@ def format_variance_for_context(variance: Dict, max_items_per_phase: int = 5) ->
 
     if s.get("max_slip_days", 0) > 0:
         lines.append(f"Largest slip: {s['max_slip_days']} calendar days — {s['max_slip_activity']}")
+
+    # Floor cascade flags
+    for fc in variance.get("floor_cascade", []):
+        lines.append(fc)
+
+    # Mitigation/resequencing flags
+    for mf in variance.get("mitigation", []):
+        lines.append(mf)
     if s.get("max_accel_days", 0) > 0:
         lines.append(f"Largest pull-forward: {s['max_accel_days']} calendar days — {s['max_accel_activity']}")
 

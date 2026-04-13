@@ -140,6 +140,9 @@
     transition: all 0.15s;
   }
   .quick-btn:hover { background: #0078D4; color: white; }
+  .report-btn { background: #1a3a5c; color: #fff; border-color: #1a3a5c; font-weight: 600; }
+  .report-btn:hover { background: #0078D4; border-color: #0078D4; }
+  .section-select { background: #f0f6ff; color: #1a3a5c; border-color: #cce0f5; min-width: 130px; }
 
   .upload-bar {
     padding: 4px 10px;
@@ -332,6 +335,18 @@
       <button class="quick-btn" onclick="sendQuick('Top risks?')">Risks?</button>
       <button class="quick-btn" onclick="sendQuick('Critical path?')">Critical path?</button>
       <button class="quick-btn" onclick="sendQuick('Schedule health?')">Health?</button>
+      <button class="quick-btn report-btn" onclick="sendQuick('generate report')" title="Draft a full narrative report for the selected project">📄 Report</button>
+      <select class="quick-btn section-select" id="sectionSelect" onchange="sendSectionRedraft()" title="Re-draft a specific section">
+        <option value="">✏️ Re-draft section…</option>
+        <option value="Summary">Summary</option>
+        <option value="Milestones">Milestones</option>
+        <option value="Critical Path Analysis">Critical Path Analysis</option>
+        <option value="Schedule Compression">Schedule Compression</option>
+        <option value="Variance Analysis">Variance Analysis</option>
+        <option value="Critical Path Shift">Critical Path Shift</option>
+        <option value="Recommendations">Recommendations</option>
+        <option value="Opportunities">Opportunities</option>
+      </select>
     </div>
 
     <div class="upload-bar">
@@ -475,6 +490,15 @@
 
   function sendQuick(q) {
     document.getElementById("msgInput").value = q;
+    sendMessage();
+  }
+
+  function sendSectionRedraft() {
+    const sel = document.getElementById("sectionSelect");
+    const section = sel.value;
+    if (!section) return;
+    sel.value = "";
+    document.getElementById("msgInput").value = `re-draft ${section} section only`;
     sendMessage();
   }
 

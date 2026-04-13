@@ -89,6 +89,7 @@ def _find_versioned_files(project_path: str) -> dict:
     variance_pdfs = {}  # {int: filepath}
 
     verify_pdfs = {}  # {int: filepath} for versioned verify_N.pdf
+    verify_bl_pdf = None  # baseline All Activities PDF (prior for Update 1 projects)
 
     for fname in os.listdir(project_path):
         lower = fname.lower()
@@ -96,6 +97,11 @@ def _find_versioned_files(project_path: str) -> dict:
 
         if lower == "verify.pdf":
             verify_pdf = fpath
+            continue
+
+        # verify_BL.pdf — baseline All Activities, used as prior for Update 1 projects
+        if lower == "verify_bl.pdf":
+            verify_bl_pdf = fpath
             continue
 
         # verify_N.pdf — versioned activity list per update
@@ -122,7 +128,7 @@ def _find_versioned_files(project_path: str) -> dict:
             updates.append((name_no_ext, fpath))
 
     updates.sort(key=lambda x: int(x[0].split("_", 1)[1]) if x[0].split("_", 1)[1].isdigit() else 0)
-    return {"baseline": baseline, "updates": updates, "verify_pdf": verify_pdf, "variance_pdfs": variance_pdfs, "verify_pdfs": verify_pdfs}
+    return {"baseline": baseline, "updates": updates, "verify_pdf": verify_pdf, "variance_pdfs": variance_pdfs, "verify_pdfs": verify_pdfs, "verify_bl_pdf": verify_bl_pdf}
 
 
 def _parse_schedule(filepath: str) -> Optional[dict]:
@@ -676,6 +682,36 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                 f"Do not expose this raw data to the user. Use it internally for accuracy."
             )
             parts.append("\n".join(pdf_lines[:300]))
+
+    # --- Prior verify PDF — baseline All Activities for Update 1 projects, or verify_{N-1} for others ---
+    prior_verify_pdf = None
+    verify_bl_pdf = versioned_files.get("verify_bl_pdf")
+    if verify_bl_pdf and current_update_num_v == 1:
+        # Update 1 — baseline is the prior
+        prior_verify_pdf = verify_bl_pdf
+        prior_verify_label = "BASELINE (verify_BL)"
+        prior_verify_role = "This is the All Activities export from the Baseline schedule — use it as the prior-state reference when computing variance against Update 1."
+    elif verify_pdfs and current_update_num_v is not None and current_update_num_v >= 2:
+        prior_num = current_update_num_v - 1
+        if prior_num in verify_pdfs:
+            prior_verify_pdf = verify_pdfs[prior_num]
+            prior_verify_label = f"PRIOR UPDATE verify_{prior_num}"
+            prior_verify_role = f"This is the All Activities export from Update {prior_num} — use it as the authoritative prior-state reference for activity dates when computing variance against the current update."
+
+    if prior_verify_pdf:
+        try:
+            prior_lines = _extract_pdf_milestones(prior_verify_pdf)
+            if prior_lines:
+                parts.append("")
+                parts.append(
+                    f"=== PRIOR ACTIVITY REFERENCE ({prior_verify_label}) — verified prior schedule state ===\n"
+                    f"{prior_verify_role}\n"
+                    f"Where parsed prior schedule dates conflict with dates in this PDF, prefer this PDF.\n"
+                    f"Do not expose this raw data to the user. Use it internally to anchor variance math and narrative."
+                )
+                parts.append("\n".join(prior_lines[:300]))
+        except Exception as _pv:
+            logger.warning(f"[{slug}] Prior verify PDF inject failed: {_pv}")
 
     return "\n".join(parts)
 
