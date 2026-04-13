@@ -888,16 +888,36 @@ def _page_hint(page: str) -> str:
 
 
 def list_projects():
-    """Returns list of all projects with slug, display name, type, and pages."""
-    return [
-        {
+    """Returns list of all projects with slug, display name, type, and pages.
+    Reads meta.json directly from disk so the full list is always available
+    immediately, even before the background load_all_projects() thread finishes.
+    """
+    results = []
+    if not os.path.exists(PROJECTS_DIR):
+        return results
+    for slug in sorted(os.listdir(PROJECTS_DIR)):
+        project_path = os.path.join(PROJECTS_DIR, slug)
+        if not os.path.isdir(project_path):
+            continue
+        # Prefer in-memory cache (fully loaded), fall back to direct disk read
+        meta = _project_meta.get(slug)
+        if meta is None:
+            meta_path = os.path.join(project_path, "meta.json")
+            if not os.path.exists(meta_path):
+                continue
+            try:
+                with open(meta_path, "r") as f:
+                    meta = json.load(f)
+            except Exception:
+                continue
+        results.append({
             "slug": slug,
             "display_name": meta["display_name"],
             "type": meta.get("type", "Construction"),
             "pages": meta["pages"]
-        }
-        for slug, meta in sorted(_project_meta.items(), key=lambda x: x[1]["display_name"])
-    ]
+        })
+    results.sort(key=lambda x: x["display_name"])
+    return results
 
 
 def has_schedule(slug: str) -> bool:
