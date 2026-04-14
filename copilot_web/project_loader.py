@@ -77,6 +77,15 @@ def load_all_projects():
         and os.path.exists(os.path.join(PROJECTS_DIR, s, "meta.json"))
     ]
 
+    # Pre-warm JVM in the main thread before parallel threads start
+    # This ensures only one thread ever calls startJVM(), preventing race conditions
+    try:
+        from mpp_parser import _get_mpxj
+        _get_mpxj()
+        logger.info("JVM pre-warmed — parallel MPP parsing safe to start.")
+    except Exception as _jvm_e:
+        logger.warning(f"JVM pre-warm failed (MPP parsing may be unavailable): {_jvm_e}")
+
     # Start all project threads simultaneously
     threads = []
     for slug in slugs:

@@ -11,19 +11,28 @@ Supports:
 
 import os
 import logging
+import threading
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
+_jvm_lock = threading.Lock()
+
 
 def _get_mpxj():
-    """Start JVM and import mpxj per official docs: https://pypi.org/project/mpxj/"""
+    """Start JVM and import mpxj per official docs: https://pypi.org/project/mpxj/
+    Thread-safe: uses double-checked locking so only one thread ever calls startJVM().
+    """
     try:
         import jpype
         import mpxj  # noqa: F401 - triggers mpxj jar loading
         if not jpype.isJVMStarted():
-            jpype.startJVM()
+            with _jvm_lock:
+                if not jpype.isJVMStarted():
+                    jpype.startJVM()
+        if not jpype.isThreadAttachedToJVM():
+            jpype.attachThreadToJVM()
         return mpxj
     except ImportError as _e:
         raise ImportError(
