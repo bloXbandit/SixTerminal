@@ -632,7 +632,7 @@ def chat():
     full_messages = [{"role": "system", "content": system}] + messages[-10:]
 
     # Detect report mode for extended timeout — gpt-5.4 used for all queries
-    REPORT_TRIGGERS = ("generate report", "draft narrative", "write the narrative", "generate narrative", "re-draft ")
+    REPORT_TRIGGERS = ("generate report", "draft narrative", "write the narrative", "generate narrative", "re-draft ", "[report mode]")
     last_user_msg = next((m["content"] for m in reversed(messages) if m.get("role") == "user"), "")
     last_user_lower = last_user_msg.lower() if isinstance(last_user_msg, str) else ""
     is_report_mode = any(t in last_user_lower for t in REPORT_TRIGGERS)

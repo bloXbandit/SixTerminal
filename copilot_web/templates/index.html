@@ -140,9 +140,14 @@
     transition: all 0.15s;
   }
   .quick-btn:hover { background: #0078D4; color: white; }
-  .report-btn { background: #1a3a5c; color: #fff; border-color: #1a3a5c; font-weight: 600; }
-  .report-btn:hover { background: #0078D4; border-color: #0078D4; }
   .section-select { background: #f0f6ff; color: #1a3a5c; border-color: #cce0f5; min-width: 130px; }
+  .report-toggle { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #1a3a5c; font-weight: 600; cursor: pointer; user-select: none; }
+  .report-toggle input[type=checkbox] { appearance: none; width: 28px; height: 15px; background: #cce0f5; border-radius: 15px; position: relative; cursor: pointer; transition: background 0.2s; outline: none; border: none; }
+  .report-toggle input[type=checkbox]::after { content: ''; position: absolute; width: 11px; height: 11px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: left 0.2s; }
+  .report-toggle input[type=checkbox]:checked { background: #1a3a5c; }
+  .report-toggle input[type=checkbox]:checked::after { left: 15px; }
+  .clear-chat-btn { background: none; border: none; font-size: 10px; color: #999; cursor: pointer; padding: 2px 5px; border-radius: 3px; transition: color 0.15s; }
+  .clear-chat-btn:hover { color: #c0392b; }
 
   .upload-bar {
     padding: 4px 10px;
@@ -335,7 +340,10 @@
       <button class="quick-btn" onclick="sendQuick('Top risks?')">Risks?</button>
       <button class="quick-btn" onclick="sendQuick('Critical path?')">Critical path?</button>
       <button class="quick-btn" onclick="sendQuick('Schedule health?')">Health?</button>
-      <button class="quick-btn report-btn" onclick="sendQuick('generate report')" title="Draft a full narrative report for the selected project">📄 Report</button>
+      <label class="report-toggle" title="Enable report mode — agent drafts a full narrative report">
+        <input type="checkbox" id="reportModeToggle" onchange="onReportModeToggle()">
+        📄 Report mode
+      </label>
       <select class="quick-btn section-select" id="sectionSelect" onchange="sendSectionRedraft()" title="Re-draft a specific section">
         <option value="">✏️ Re-draft section…</option>
         <option value="Summary">Summary</option>
@@ -347,6 +355,7 @@
         <option value="Recommendations">Recommendations</option>
         <option value="Opportunities">Opportunities</option>
       </select>
+      <button class="clear-chat-btn" onclick="clearChat()" title="Clear chat history">🗑 Clear</button>
     </div>
 
     <div class="upload-bar">
@@ -500,6 +509,22 @@
     sendMessage();
   }
 
+  function onReportModeToggle() {
+    const on = document.getElementById("reportModeToggle").checked;
+    if (on) {
+      appendMsg("assistant", "📄 Report mode enabled — when you're ready, say \"generate report\" or ask any question and I'll respond in report format.");
+    } else {
+      appendMsg("assistant", "Report mode off — back to standard Q&A.");
+    }
+  }
+
+  function clearChat() {
+    messages = [];
+    const chatArea = document.getElementById("chatArea");
+    chatArea.innerHTML = '<div class="msg assistant">👋 Hi — I\'m Stelic Copilot. Ask me about the dashboard, your schedule, or upload a file for context.</div>';
+    document.getElementById("reportModeToggle").checked = false;
+  }
+
   function clearContext() {
     context = "";
     document.getElementById("ctxBadge").style.display = "none";
@@ -634,8 +659,11 @@
     input.value = "";
     btn.disabled = true;
 
+    const reportMode = document.getElementById("reportModeToggle").checked;
+    const effectiveText = reportMode ? `[REPORT MODE] ${text}` : text;
+
     appendMsg("user", text + (pastedImageBase64 ? " [+ screenshot]" : ""));
-    messages.push({ role: "user", content: text });
+    messages.push({ role: "user", content: effectiveText });
 
     const typing = appendMsg("typing", "Thinking...");
 
