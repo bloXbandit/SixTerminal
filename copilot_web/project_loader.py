@@ -452,7 +452,9 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
         pass
 
     # --- Parse current ---
+    logger.info(f"[{slug}] Parsing current: {os.path.basename(current_path)}")
     current_data = _parse_schedule(current_path)
+    logger.info(f"[{slug}] Current parse done: {'ok' if current_data else 'failed'}")
     if not current_data:
         parts.append("[Current schedule could not be parsed]")
         return "\n".join(parts)
@@ -481,7 +483,9 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     # --- Parse previous for delta context + variance ---
     previous_data = None
     if previous_path:
+        logger.info(f"[{slug}] Parsing previous: {os.path.basename(previous_path)}")
         previous_data = _parse_schedule(previous_path)
+        logger.info(f"[{slug}] Previous parse done: {'ok' if previous_data else 'failed'}")
         if previous_data:
             _project_tasks_previous[slug] = previous_data.get("tasks", [])
             parts.append("")

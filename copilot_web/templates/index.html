@@ -442,10 +442,8 @@
       pageSel.style.display = "block";
       sel.className = proj && proj.has_schedule ? "has-data" : "";
       const projName = proj ? proj.display_name : selectedProjectSlug;
-      appendMsg("assistant", `📂 Project set to: ${projName}${proj && proj.has_schedule ? " — schedule data loaded ✓" : " — no schedule file yet, attach an MPP to add data"}`);
-      if (proj && proj.has_schedule) {
-        appendMsg("assistant", "⏳ Loading project context — your first question may take a few seconds...");
-      }
+      appendMsg("assistant", `📂 Project set to: ${projName} — ready for questions.`);
+      appendMsg("assistant", "⏳ Loading project context — your first question may take a few seconds...");
     } else {
       pageSel.style.display = "none";
     }
