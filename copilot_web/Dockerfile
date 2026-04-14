@@ -5,17 +5,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
     libfontconfig1 \
-    wget \
-    gnupg \
-    ca-certificates \
-    libnss3 \
-    libatk-bridge2.0-0 \
-    libdrm2 \
-    libxkbcommon0 \
-    libgbm1 \
-    libasound2 \
-    libpangocairo-1.0-0 \
-    libgtk-3-0 \
+    tesseract-ocr \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
@@ -27,8 +18,6 @@ WORKDIR /app
 
 COPY requirements.txt .
 RUN echo "cache-bust-$(date)" && pip install --no-cache-dir JPype1 && pip install --no-cache-dir xerparser==0.13.9 && pip install --no-cache-dir -r requirements.txt
-
-RUN playwright install chromium --with-deps
 
 COPY . .
 
