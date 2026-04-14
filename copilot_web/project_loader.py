@@ -501,9 +501,20 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     except Exception:
         pass
 
-    # --- Parse current ---
+    # --- Parse current (with 90s timeout to avoid JVM hangs) ---
     logger.info(f"[{slug}] Parsing current: {os.path.basename(current_path)}")
-    current_data = _parse_schedule(current_path)
+    import threading as _thr2
+    _parse_result = [None]
+    def _do_parse_current():
+        _parse_result[0] = _parse_schedule(current_path)
+    _pt = _thr2.Thread(target=_do_parse_current, daemon=True)
+    _pt.start()
+    _pt.join(timeout=90)
+    if _pt.is_alive():
+        logger.warning(f"[{slug}] Current MPP parse timed out after 90s — skipping")
+        parts.append("[Current schedule parse timed out]")
+        return "\n".join(parts)
+    current_data = _parse_result[0]
     logger.info(f"[{slug}] Current parse done: {'ok' if current_data else 'failed'}")
     if not current_data:
         parts.append("[Current schedule could not be parsed]")
@@ -530,12 +541,21 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     parts.append("=== CURRENT SCHEDULE ===")
     parts.append(current_data["raw_context"])
 
-    # --- Parse previous for delta context + variance ---
+    # --- Parse previous for delta context + variance (with 90s timeout) ---
     previous_data = None
     if previous_path:
         logger.info(f"[{slug}] Parsing previous: {os.path.basename(previous_path)}")
-        previous_data = _parse_schedule(previous_path)
-        logger.info(f"[{slug}] Previous parse done: {'ok' if previous_data else 'failed'}")
+        _prev_result = [None]
+        def _do_parse_previous():
+            _prev_result[0] = _parse_schedule(previous_path)
+        _pp = _thr2.Thread(target=_do_parse_previous, daemon=True)
+        _pp.start()
+        _pp.join(timeout=90)
+        if _pp.is_alive():
+            logger.warning(f"[{slug}] Previous MPP parse timed out after 90s — skipping variance")
+        else:
+            previous_data = _prev_result[0]
+        logger.info(f"[{slug}] Previous parse done: {'ok' if previous_data else 'failed/timeout'}")
         if previous_data:
             _project_tasks_previous[slug] = previous_data.get("tasks", [])
             parts.append("")
