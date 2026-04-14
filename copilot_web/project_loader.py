@@ -584,52 +584,36 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             except Exception as _ce:
                 logger.warning(f"[{slug}] Compression computation failed: {_ce}")
 
-            # --- Verified compression PDF (schedule validator output) — current update ---
-            if _compression_pdf_path:
-                try:
-                    comp_pdf_data = _extract_compression_pdf(_compression_pdf_path)
-                    comp_pdf_ctx = _format_compression_pdf_context(
-                        comp_pdf_data,
-                        label=os.path.basename(_compression_pdf_path)
-                    )
-                    if comp_pdf_ctx:
-                        parts.append("")
-                        parts.append(comp_pdf_ctx)
-                except Exception as _cpdf:
-                    logger.warning(f"[{slug}] Compression PDF inject failed: {_cpdf}")
-
-            # --- Historical compression PDFs (prior updates — headline only) ---
+            # --- User-uploaded compression PDF cache (manual upload via chat) ---
             try:
-                import re as _reh
-                _all_comp_pdfs = {}
-                for _fn in os.listdir(project_path):
-                    _hm = _reh.match(r'^compression[_\-]update[_\-]?(\d+)\.pdf$', _fn.lower())
-                    if _hm:
-                        _all_comp_pdfs[int(_hm.group(1))] = os.path.join(project_path, _fn)
-                _cur_comp_num = None
-                if _compression_pdf_path:
-                    _hn = _reh.search(r'(\d+)\.pdf$', os.path.basename(_compression_pdf_path).lower())
-                    if _hn:
-                        _cur_comp_num = int(_hn.group(1))
-                _prior_comp = {n: p for n, p in _all_comp_pdfs.items() if n != _cur_comp_num}
-                if _prior_comp:
-                    hist_lines = ["=== COMPRESSION HISTORY (prior updates — headline only) ==="]
-                    for _n in sorted(_prior_comp.keys()):
-                        try:
-                            _hdata = _extract_compression_pdf(_prior_comp[_n])
-                            if _hdata and _hdata.get("compression_pct") is not None:
-                                _hpct = _hdata["compression_pct"]
-                                _hdir = "compressed" if _hpct < 0 else "expanded" if _hpct > 0 else "unchanged"
-                                _hfinish = f" | Finish: {_hdata['earlier_finish']} → {_hdata['later_finish']}" if _hdata.get("earlier_finish") and _hdata.get("later_finish") else ""
-                                _hdates = f" | Compared: {_hdata['earlier_data_date']} → {_hdata['later_data_date']}" if _hdata.get("earlier_data_date") and _hdata.get("later_data_date") else ""
-                                hist_lines.append(f"  Update {_n}: {_hpct:+d}% ({_hdir}){_hfinish}{_hdates}")
-                        except Exception:
-                            pass
-                    if len(hist_lines) > 1:
+                from compression_cache import get_compression_for_update, get_all_compression_for_project
+                # Try to get cached compression for current update number
+                _update_num = int(current_label.replace("update_", "")) if current_label.startswith("update_") else None
+                if _update_num:
+                    cached_comp = get_compression_for_update(slug, _update_num)
+                    if cached_comp:
                         parts.append("")
-                        parts.append("\n".join(hist_lines))
-            except Exception as _hce:
-                logger.warning(f"[{slug}] Historical compression PDF inject failed: {_hce}")
+                        parts.append(f"=== USER-UPLOADED COMPRESSION REPORT (Update {_update_num}) ===")
+                        parts.append(f"Compression %: {cached_comp.get('compression_pct', 'N/A')}%")
+                        parts.append(f"Earlier finish: {cached_comp.get('earlier_finish', 'N/A')} | Later finish: {cached_comp.get('later_finish', 'N/A')}")
+                        parts.append(f"Earlier data date: {cached_comp.get('earlier_data_date', 'N/A')} | Later data date: {cached_comp.get('later_data_date', 'N/A')}")
+                        if cached_comp.get('monthly'):
+                            parts.append("Monthly activity days: " + str(cached_comp['monthly']))
+                        if cached_comp.get('raw_lines'):
+                            parts.append("Extracted text lines:")
+                            for line in cached_comp['raw_lines'][:20]:
+                                parts.append(f"  {line}")
+                    
+                    # Also show historical compression data
+                    all_comp = get_all_compression_for_project(slug)
+                    if all_comp and len(all_comp) > 1:
+                        parts.append("")
+                        parts.append("=== COMPRESSION HISTORY (user-uploaded reports) ===")
+                        for update_num in sorted(all_comp.keys()):
+                            comp = all_comp[update_num]
+                            parts.append(f"  Update {update_num}: {comp.get('compression_pct', 'N/A')}%")
+            except Exception as _ccache:
+                logger.debug(f"[{slug}] Compression cache lookup failed: {_ccache}")
 
             # --- Critical path shift (current vs previous) ---
             try:

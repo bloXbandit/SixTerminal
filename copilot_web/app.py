@@ -50,6 +50,13 @@ You are equipped with the following data sources. Use all of them proactively wh
 9. COMPRESSION ANALYSIS — remaining span and activity density change between updates.
 10. SCHEDULE RISK DIAGNOSTICS — pre-computed Schedule Health, Schedule Detail, and Constructability findings. Use when asked about risks, flags, or schedule quality.
 
+SCHEDULE COMPRESSION PDF DATA — USER UPLOAD WORKFLOW:
+- Compression reports from the Schedule Validator are NOT automatically loaded at startup (to avoid build delays).
+- If the user asks about compression %, schedule compression analysis, or remaining work compression, and you see "USER-UPLOADED COMPRESSION REPORT" in the context, use that data.
+- If you do NOT see compression data in the context, tell the user: "I don't have compression data for this project yet. Please upload the Schedule Compression PDF from the validator and I'll analyze it for you."
+- When a user uploads a compression PDF, it is cached and associated with the project update number, making it available for future reference and comparisons.
+- Historical compression data across multiple updates is stored and can be referenced for trend analysis.
+
 IMPORTANT INSTRUCTIONS FOR PROJECT DATA:
 - When asked about the current update, answer directly: "Anaheim is currently on Update 03 (data date: 3/24/2026, received 3/20/2026)."
 - Always use PROJECT TRACKER data dates as authoritative over MPP/XER file dates.
@@ -559,14 +566,23 @@ def view_screenshot(page_num):
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
-    """Accept an uploaded schedule file, parse it, return context for the Copilot."""
+    """Accept an uploaded schedule file or compression PDF, parse it, return context for the Copilot."""
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
     f = request.files["file"]
     if not f.filename:
         return jsonify({"error": "Empty filename"}), 400
+    
+    # Get optional project_slug from form data (for compression PDF association)
+    project_slug = request.form.get("project_slug", "")
 
     ext = os.path.splitext(f.filename)[1].lower()
+    
+    # Handle compression PDF uploads
+    if ext == ".pdf":
+        return _handle_compression_pdf_upload(f, project_slug)
+    
+    # Handle schedule file uploads (MPP, XER, etc.)
     allowed = {".mpp", ".xml", ".xer", ".csv", ".txt", ".md"}
     if ext not in allowed:
         return jsonify({"error": f"Unsupported file type: {ext}"}), 400
@@ -585,6 +601,125 @@ def upload_file():
             os.unlink(tmp_path)
         except Exception:
             pass
+
+
+def _handle_compression_pdf_upload(f, project_slug: str) -> tuple:
+    """Handle compression PDF upload - extract data and cache it."""
+    import tempfile
+    import os
+    from datetime import datetime
+    
+    # Import compression cache module
+    try:
+        from compression_cache import save_compression_data, extract_update_number_from_filename
+    except ImportError:
+        return jsonify({"error": "Compression cache module not available"}), 500
+    
+    # Import PDF extraction
+    try:
+        from project_loader import _extract_compression_pdf
+    except ImportError:
+        return jsonify({"error": "PDF extraction not available"}), 500
+    
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            f.save(tmp.name)
+            tmp_path = tmp.name
+        
+        # Extract compression data from PDF
+        comp_data = _extract_compression_pdf(tmp_path)
+        
+        if not comp_data:
+            return jsonify({"error": "Could not extract compression data from PDF. Ensure it's a Schedule Compression report from the validator."}), 400
+        
+        if comp_data.get("compression_pct") is None:
+            return jsonify({"error": "No compression percentage found in PDF. Check if this is a valid compression report."}), 400
+        
+        # Determine project slug and update number
+        slug = project_slug.strip() if project_slug else None
+        if not slug:
+            # Try to infer from filename
+            slug = _infer_project_from_filename(f.filename)
+        
+        if not slug:
+            return jsonify({"error": "Could not determine project. Please select a project from the dropdown first, or include the project name in the filename."}), 400
+        
+        # Get update number: user-provided from form > auto-detect from filename > default to 1
+        form_update_num = request.form.get("update_num", "").strip()
+        if form_update_num:
+            try:
+                update_num = int(form_update_num)
+            except ValueError:
+                update_num = extract_update_number_from_filename(f.filename) or 1
+        else:
+            update_num = extract_update_number_from_filename(f.filename) or 1
+        
+        # Add metadata
+        comp_data["filename"] = f.filename
+        comp_data["uploaded_at"] = datetime.now().isoformat()
+        
+        # Save to cache
+        success = save_compression_data(slug, update_num, comp_data)
+        
+        if not success:
+            return jsonify({"error": "Failed to save compression data"}), 500
+        
+        # Build response context
+        context_lines = [
+            f"=== COMPRESSION REPORT UPLOADED ===",
+            f"Project: {slug}",
+            f"Update: {update_num}",
+            f"Compression: {comp_data['compression_pct']:+d}%",
+        ]
+        if comp_data.get("earlier_finish") and comp_data.get("later_finish"):
+            context_lines.append(f"Finish dates: {comp_data['earlier_finish']} → {comp_data['later_finish']}")
+        if comp_data.get("earlier_data_date") and comp_data.get("later_data_date"):
+            context_lines.append(f"Data dates: {comp_data['earlier_data_date']} → {comp_data['later_data_date']}")
+        
+        return jsonify({
+            "context": "\n".join(context_lines),
+            "filename": f.filename,
+            "project_slug": slug,
+            "update_num": update_num,
+            "compression_pct": comp_data["compression_pct"],
+            "message": f"Compression report saved for {slug} Update {update_num}. You can now ask about compression analysis."
+        })
+        
+    except Exception as e:
+        logger.error(f"Compression PDF upload failed: {e}")
+        return jsonify({"error": f"Failed to process compression PDF: {str(e)}"}), 500
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except Exception:
+            pass
+
+
+def _infer_project_from_filename(filename: str) -> Optional[str]:
+    """Try to infer project slug from filename."""
+    lowered = filename.lower()
+    
+    # Map known project keywords to slugs
+    project_keywords = {
+        "anaheim": "anaheim_ca",
+        "anna": "anna_tx",
+        "aventura": "aventura_fl",
+        "baltimore": "baltimore_md",
+        "cary": "cary_nc",
+        "clayton": "clayton_nc",
+        "fairfax": "fairfax_va",
+        "fayetteville": "fayetteville_nc",
+        "frisco": "frisco_tx",
+        "lakeland": "lakeland_fl",
+        "melbourne": "melbourne_fl",
+        "meridian": "meridian_id",
+    }
+    
+    for keyword, slug in project_keywords.items():
+        if keyword in lowered:
+            return slug
+    
+    return None
 
 @app.route("/scrape", methods=["POST"])
 def trigger_scrape():

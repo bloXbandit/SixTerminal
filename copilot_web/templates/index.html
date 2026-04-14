@@ -148,6 +148,8 @@
   .report-toggle input[type=checkbox]:checked::after { left: 15px; }
   .clear-chat-btn { background: none; border: none; font-size: 10px; color: #999; cursor: pointer; padding: 2px 5px; border-radius: 3px; transition: color 0.15s; }
   .clear-chat-btn:hover { color: #c0392b; }
+  .update-select { background: #f0f6ff; color: #1a3a5c; border: 1px solid #cce0f5; border-radius: 3px; padding: 1px 4px; font-size: 9px; font-family: inherit; cursor: pointer; margin-left: 4px; }
+  .update-select option { font-size: 9px; }
 
   .upload-bar {
     padding: 4px 10px;
@@ -360,9 +362,20 @@
 
     <div class="upload-bar">
       <label id="fileLabel">
-        <input type="file" id="fileInput" accept=".mpp,.xer,.xml,.csv,.txt,.md,.docx,.pdf" onchange="handleFile(this)">
+        <input type="file" id="fileInput" accept=".mpp,.xer,.xml,.csv,.txt,.md,.docx,.pdf" onchange="onFileSelected(this)">
         📎 Attach file
       </label>
+      <select id="updateSelect" class="update-select" style="display:none" title="Select update number for compression PDF">
+        <option value="">Update #</option>
+        <option value="1">Update 1</option>
+        <option value="2">Update 2</option>
+        <option value="3">Update 3</option>
+        <option value="4">Update 4</option>
+        <option value="5">Update 5</option>
+        <option value="6">Update 6</option>
+        <option value="7">Update 7</option>
+        <option value="8">Update 8</option>
+      </select>
       <span id="ctxBadge" class="ctx-badge" style="display:none"></span>
       <button id="clearCtx" class="clear-ctx" style="display:none" onclick="clearContext()">✕</button>
     </div>
@@ -558,8 +571,38 @@
     }
   });
 
-  async function handleFile(input) {
+  let pendingFile = null;
+
+  function onFileSelected(input) {
     const file = input.files[0];
+    if (!file) return;
+    
+    const updateSel = document.getElementById("updateSelect");
+    
+    // Show update selector for PDFs (compression reports), hide for other files
+    if (file.name.toLowerCase().endsWith(".pdf")) {
+      updateSel.style.display = "inline-block";
+      // Try to auto-detect update number from filename
+      const match = file.name.match(/update[_\-]?(\d+)/i);
+      if (match) {
+        updateSel.value = match[1];
+      } else {
+        updateSel.value = ""; // Let user select
+      }
+      pendingFile = file;
+      // Show a message prompting user to confirm update number
+      appendMsg("assistant", `📄 **${file.name}** selected. This looks like a compression PDF. Please select the **Update #** from the dropdown, then click **Attach file** again to upload.`);
+      // Clear the input so user can re-trigger after selecting update
+      input.value = "";
+    } else {
+      updateSel.style.display = "none";
+      updateSel.value = "";
+      // Non-PDF files upload immediately
+      handleFile(file);
+    }
+  }
+
+  async function handleFile(file) {
     if (!file) return;
 
     const badge = document.getElementById("ctxBadge");
@@ -574,6 +617,17 @@
 
     const formData = new FormData();
     formData.append("file", file);
+    
+    // Add project slug for PDF uploads (helps associate compression reports)
+    if (selectedProjectSlug) {
+      formData.append("project_slug", selectedProjectSlug);
+    }
+    
+    // Add update number for PDF uploads (from dropdown or auto-detected)
+    const updateSel = document.getElementById("updateSelect");
+    if (file.name.toLowerCase().endsWith(".pdf") && updateSel.value) {
+      formData.append("update_num", updateSel.value);
+    }
 
     try {
       const res = await fetch("/upload", { method: "POST", body: formData });
@@ -586,7 +640,13 @@
         context = data.context;
         badge.textContent = "📌 " + data.filename;
         clearBtn.style.display = "inline";
-        appendMsg("assistant", `✅ **${data.filename}** loaded — I can now answer questions about this schedule. Try: "What are the key milestones?" or "Show critical path."`); 
+        
+        // Show appropriate message based on file type
+        if (file.name.toLowerCase().endsWith(".pdf")) {
+          appendMsg("assistant", `✅ **${data.filename}** compression report loaded and cached for **${data.project_slug || selectedProjectSlug}** Update ${data.update_num}. ${data.message || ""}`);
+        } else {
+          appendMsg("assistant", `✅ **${data.filename}** loaded — I can now answer questions about this schedule. Try: "What are the key milestones?" or "Show critical path."`);
+        } 
       }
     } catch (err) {
       badge.textContent = "❌ Upload failed";
@@ -595,8 +655,21 @@
       label.style.pointerEvents = "";
       label.style.opacity = "";
       input.value = "";
+      pendingFile = null; // Clear pending file
+      document.getElementById("updateSelect").style.display = "none";
+      document.getElementById("updateSelect").value = "";
     }
   }
+
+  // Handle update number selection for pending PDFs
+  document.getElementById("updateSelect").addEventListener("change", function() {
+    if (pendingFile && this.value) {
+      // User selected update number, proceed with upload
+      const file = pendingFile;
+      pendingFile = null;
+      handleFile(file);
+    }
+  });
 
   function renderMarkdown(text) {
     let html = text
