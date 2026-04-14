@@ -758,7 +758,10 @@ def chat():
         system += f"\n\n{dashboard_context}"
 
     if project_slug:
+        logger.info(f"Chat request — project: {project_slug}, page: {page_view}")
         proj_ctx = get_project_context(project_slug, page_view)
+        has_data = has_schedule(project_slug)
+        logger.info(f"[{project_slug}] Context assembled — schedule data: {'yes' if has_data else 'no'}")
         if proj_ctx:
             system += f"\n\n{proj_ctx}"
 
