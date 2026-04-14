@@ -84,10 +84,10 @@ def _build_predecessor_map(relationships: List[Dict]) -> Dict[str, List[str]]:
     """
     pred_map: Dict[str, List[str]] = {}
     for rel in relationships:
-        # MPP style: task_id / predecessor_task_id
-        # XER style: task_id / pred_task_id
-        succ = str(rel.get("task_id") or rel.get("succ_task_id") or "").strip()
-        pred = str(rel.get("predecessor_task_id") or rel.get("pred_task_id") or "").strip()
+        # Normalized: successor_id / predecessor_id
+        # Legacy fallbacks: task_id / predecessor_task_id / pred_task_id
+        succ = str(rel.get("successor_id") or rel.get("task_id") or rel.get("succ_task_id") or "").strip()
+        pred = str(rel.get("predecessor_id") or rel.get("predecessor_task_id") or rel.get("pred_task_id") or "").strip()
         if succ and pred and succ != "None" and pred != "None":
             pred_map.setdefault(succ, []).append(pred)
     return pred_map

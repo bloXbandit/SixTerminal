@@ -98,8 +98,8 @@ class P6Parser:
                 for rel_id, rel in parser.relationships.items():
                     pred_dict = {
                         'pred_id': rel_id,
-                        'pred_task_id': getattr(rel, 'predecessor_task_id', None),
-                        'task_id': getattr(rel, 'task_id', None),
+                        'predecessor_id': getattr(rel, 'predecessor_task_id', None),
+                        'successor_id': getattr(rel, 'task_id', None),
                         'pred_type': getattr(rel, 'pred_type', '').name if hasattr(getattr(rel, 'pred_type', ''), 'name') else str(getattr(rel, 'pred_type', '')),
                         'lag_hr_cnt': getattr(rel, 'lag_hr_cnt', 0),
                     }
@@ -172,8 +172,8 @@ class P6Parser:
             if self.df_relationships is not None and not self.df_relationships.empty:
                 for _, row in self.df_relationships.iterrows():
                     rels.append({
-                        "task_id": str(row.get("task_id", "")),
-                        "predecessor_task_id": str(row.get("pred_task_id", "")),
+                        "successor_id": str(row.get("successor_id", row.get("task_id", ""))),
+                        "predecessor_id": str(row.get("predecessor_id", row.get("pred_task_id", ""))),
                     })
 
             critical_ids = {t["id"] for t in tasks if t["critical"]}
@@ -220,8 +220,8 @@ class P6Parser:
             if self.df_relationships is not None and not self.df_relationships.empty:
                 for _, row in self.df_relationships.iterrows():
                     rels.append({
-                        "task_id": str(row.get("task_id", "")),
-                        "predecessor_task_id": str(row.get("pred_task_id", "")),
+                        "successor_id": str(row.get("successor_id", row.get("task_id", ""))),
+                        "predecessor_id": str(row.get("predecessor_id", row.get("pred_task_id", ""))),
                     })
             critical_ids = {t["id"] for t in tasks if t["critical"]}
             return build_critical_chain(

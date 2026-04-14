@@ -127,8 +127,8 @@ def run_risk_diagnostics(
     has_predecessor: set = set()
     has_successor: set = set()
     for rel in relationships:
-        succ = str(rel.get("task_id") or rel.get("succ_task_id") or "").strip()
-        pred = str(rel.get("predecessor_task_id") or rel.get("pred_task_id") or "").strip()
+        succ = str(rel.get("successor_id") or rel.get("task_id") or rel.get("succ_task_id") or "").strip()
+        pred = str(rel.get("predecessor_id") or rel.get("predecessor_task_id") or rel.get("pred_task_id") or "").strip()
         if succ and succ != "None":
             has_predecessor.add(succ)
         if pred and pred != "None":
@@ -371,9 +371,9 @@ def run_risk_diagnostics(
             if start > data_date + timedelta(days=30):
                 # Check if it has predecessors — if all complete, flag as late start
                 pred_ids = [
-                    str(rel.get("predecessor_task_id") or rel.get("pred_task_id") or "").strip()
+                    str(rel.get("predecessor_id") or rel.get("predecessor_task_id") or rel.get("pred_task_id") or "").strip()
                     for rel in relationships
-                    if str(rel.get("task_id") or rel.get("succ_task_id") or "").strip() == tid
+                    if str(rel.get("successor_id") or rel.get("task_id") or rel.get("succ_task_id") or "").strip() == tid
                 ]
                 if pred_ids:
                     preds_all_complete = all(

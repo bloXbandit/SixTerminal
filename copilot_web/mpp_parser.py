@@ -172,8 +172,8 @@ class MPPParser:
                         pred_task = pred.getTargetTask()
                         if pred_task and pred_task.getID() is not None:
                             self.relationships.append({
-                                "task_id": str(task.getID()),
-                                "predecessor_task_id": str(pred_task.getID()),
+                                "successor_id": str(task.getID()),
+                                "predecessor_id": str(pred_task.getID()),
                                 "type": str(pred.getType()) if pred.getType() else "FS",
                                 "lag": str(pred.getLag()) if pred.getLag() else "0",
                             })

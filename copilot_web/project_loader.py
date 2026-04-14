@@ -9,9 +9,13 @@ import os
 import json
 import logging
 import sys
+import threading
 from typing import Dict, Optional
 
 logger = logging.getLogger(__name__)
+
+# Limits concurrent MPP/XER parses to 3 — prevents CPU starvation on single-core Render instances
+_mpp_semaphore = threading.Semaphore(3)
 
 PROJECTS_DIR = os.path.join(os.path.dirname(__file__), "projects")
 
@@ -95,11 +99,11 @@ def load_all_projects():
         threads.append((slug, t))
         logger.info(f"[{slug}] Load thread started.")
 
-    # Wait for all with per-project 90s cap
+    # Wait for all — 180s cap accounts for semaphore queue wait on single-CPU instances
     for slug, t in threads:
-        t.join(timeout=90)
+        t.join(timeout=180)
         if t.is_alive():
-            logger.warning(f"[{slug}] Load timed out after 90s — skipping, marking empty")
+            logger.warning(f"[{slug}] Load timed out after 180s — skipping, marking empty")
             _project_cache.setdefault(slug, "")
 
     loaded = sum(1 for v in _project_cache.values() if v)
@@ -532,12 +536,13 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     import threading as _thr2
     _parse_result = [None]
     def _do_parse_current():
-        _parse_result[0] = _parse_schedule(current_path)
+        with _mpp_semaphore:
+            _parse_result[0] = _parse_schedule(current_path)
     _pt = _thr2.Thread(target=_do_parse_current, daemon=True)
     _pt.start()
-    _pt.join(timeout=45)
+    _pt.join(timeout=60)
     if _pt.is_alive():
-        logger.warning(f"[{slug}] Current MPP parse timed out after 45s — skipping")
+        logger.warning(f"[{slug}] Current MPP parse timed out after 60s — skipping")
         parts.append("[Current schedule parse timed out]")
         return "\n".join(parts)
     current_data = _parse_result[0]
@@ -573,7 +578,8 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
         logger.info(f"[{slug}] Parsing previous: {os.path.basename(previous_path)}")
         _prev_result = [None]
         def _do_parse_previous():
-            _prev_result[0] = _parse_schedule(previous_path)
+            with _mpp_semaphore:
+                _prev_result[0] = _parse_schedule(previous_path)
         _pp = _thr2.Thread(target=_do_parse_previous, daemon=True)
         _pp.start()
         _pp.join(timeout=45)
@@ -682,7 +688,8 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     if baseline_path and baseline_path != current_path:
         _bl_result = [None]
         def _do_parse_baseline():
-            _bl_result[0] = _parse_schedule(baseline_path)
+            with _mpp_semaphore:
+                _bl_result[0] = _parse_schedule(baseline_path)
         _pb = _thr2.Thread(target=_do_parse_baseline, daemon=True)
         _pb.start()
         _pb.join(timeout=30)
