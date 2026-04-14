@@ -64,8 +64,8 @@ def _load_single_project(slug: str, project_path: str):
 
 def load_all_projects():
     """Scans projects/ folder, builds versioned schedule context per project.
-    Each project is loaded in its own thread with a 90s timeout so a hung
-    PDF parse on one project cannot block all subsequent projects.
+    Sequential loading — safe on single-CPU Render instances.
+    Each project has a 120s timeout so a hung PDF cannot block the rest.
     """
     import threading as _thr
     if not os.path.exists(PROJECTS_DIR):
@@ -82,9 +82,9 @@ def load_all_projects():
         project_path = os.path.join(PROJECTS_DIR, slug)
         t = _thr.Thread(target=_load_single_project, args=(slug, project_path), daemon=True)
         t.start()
-        t.join(timeout=90)
+        t.join(timeout=120)
         if t.is_alive():
-            logger.warning(f"[{slug}] Load timed out after 90s — skipping, marking empty")
+            logger.warning(f"[{slug}] Load timed out after 120s — skipping, marking empty")
             _project_cache.setdefault(slug, "")
 
     loaded = sum(1 for v in _project_cache.values() if v)
@@ -236,11 +236,29 @@ def _ocr_pdf_lines(pdf_path: str, max_pages: int = 30) -> list:
         return []
 
 
+def _is_image_based_pdf(pdf_path: str) -> bool:
+    """Quick check: open first page only, return True if no extractable text found."""
+    try:
+        import pdfplumber
+        with pdfplumber.open(pdf_path) as pdf:
+            if not pdf.pages:
+                return True
+            text = pdf.pages[0].extract_text()
+            return not text or len(text.strip()) < 20
+    except Exception:
+        return True
+
+
 def _extract_text_or_ocr(pdf_path: str, max_pages: int = 30) -> list:
     """
     Try pdfplumber text extraction first. If no text found (image-based PDF),
     fall back to OCR via pytesseract.
+    Fast pre-check avoids hanging on image PDFs during full extraction.
     """
+    # Fast pre-check on page 1 only — avoids hanging on image-only PDFs
+    if _is_image_based_pdf(pdf_path):
+        logger.info(f"  Image-based PDF detected, using OCR: {os.path.basename(pdf_path)}")
+        return _ocr_pdf_lines(pdf_path, max_pages)
     try:
         import pdfplumber
         lines = []
@@ -256,7 +274,7 @@ def _extract_text_or_ocr(pdf_path: str, max_pages: int = 30) -> list:
             return lines
     except Exception:
         pass
-    logger.info(f"  No text layer found, trying OCR: {os.path.basename(pdf_path)}")
+    logger.info(f"  No text layer found in full read, trying OCR: {os.path.basename(pdf_path)}")
     return _ocr_pdf_lines(pdf_path, max_pages)
 
 

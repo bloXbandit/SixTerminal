@@ -521,8 +521,9 @@ def background_scraper(interval_seconds=1800):
             logger.error(f"Background scraper error: {e}")
         time.sleep(interval_seconds)
 
-scraper_thread = threading.Thread(target=background_scraper, daemon=True)
-scraper_thread.start()
+# Scraper disabled — MPP/XER parsing replaces Power BI screenshotting
+# scraper_thread = threading.Thread(target=background_scraper, daemon=True)
+# scraper_thread.start()
 
 @app.route("/")
 def index():
