@@ -214,11 +214,56 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
     return None
 
 
+def _ocr_pdf_lines(pdf_path: str, max_pages: int = 30) -> list:
+    """
+    Extract text lines from a PDF using OCR (pytesseract + pdf2image).
+    Used as fallback when pdfplumber returns no text (image-based PDFs).
+    """
+    try:
+        from pdf2image import convert_from_path
+        import pytesseract
+        lines = []
+        images = convert_from_path(pdf_path, first_page=1, last_page=max_pages, dpi=200)
+        for img in images:
+            text = pytesseract.image_to_string(img)
+            for line in text.splitlines():
+                line = line.strip()
+                if len(line) > 5:
+                    lines.append(line)
+        return lines
+    except Exception as e:
+        logger.warning(f"OCR fallback failed for {os.path.basename(pdf_path)}: {e}")
+        return []
+
+
+def _extract_text_or_ocr(pdf_path: str, max_pages: int = 30) -> list:
+    """
+    Try pdfplumber text extraction first. If no text found (image-based PDF),
+    fall back to OCR via pytesseract.
+    """
+    try:
+        import pdfplumber
+        lines = []
+        with pdfplumber.open(pdf_path) as pdf:
+            for page in pdf.pages[:max_pages]:
+                text = page.extract_text()
+                if text:
+                    for line in text.splitlines():
+                        line = line.strip()
+                        if len(line) > 5:
+                            lines.append(line)
+        if lines:
+            return lines
+    except Exception:
+        pass
+    logger.info(f"  No text layer found, trying OCR: {os.path.basename(pdf_path)}")
+    return _ocr_pdf_lines(pdf_path, max_pages)
+
+
 def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
     """
     Extract meaningful lines from verify.pdf for schedule crosscheck.
-    Filters out blank lines and short header/footer noise.
-    Uses a thread-based timeout to avoid hanging on malformed PDFs.
+    Uses text extraction with OCR fallback for image-based PDFs.
     """
     import threading as _thr
     result = []
@@ -226,27 +271,17 @@ def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
 
     def _read():
         try:
-            import pdfplumber
-            entries = []
             logger.info(f"  PDF open: {os.path.basename(pdf_path)}")
-            with pdfplumber.open(pdf_path) as pdf:
-                for page in pdf.pages[:max_pages]:
-                    text = page.extract_text()
-                    if not text:
-                        continue
-                    for line in text.splitlines():
-                        line = line.strip()
-                        if len(line) > 5:
-                            entries.append(line)
+            entries = _extract_text_or_ocr(pdf_path, max_pages)
             result.extend(entries)
         except Exception as e:
             exc_holder.append(e)
 
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=45)
+    t.join(timeout=120)
     if t.is_alive():
-        logger.warning(f"PDF read timed out (45s), skipping: {os.path.basename(pdf_path)}")
+        logger.warning(f"PDF read timed out (120s), skipping: {os.path.basename(pdf_path)}")
         return []
     if exc_holder:
         logger.warning(f"PDF crosscheck failed: {exc_holder[0]}")
@@ -257,8 +292,7 @@ def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
 def _extract_variance_pdf(pdf_path: str) -> list:
     """
     Extract text lines from a variance_N.pdf report.
-    Returns filtered, meaningful lines for LLM injection.
-    Uses a thread-based timeout to avoid hanging on malformed PDFs.
+    Uses text extraction with OCR fallback for image-based PDFs.
     """
     import threading as _thr
     result = []
@@ -266,27 +300,17 @@ def _extract_variance_pdf(pdf_path: str) -> list:
 
     def _read():
         try:
-            import pdfplumber
-            lines = []
             logger.info(f"  Variance PDF open: {os.path.basename(pdf_path)}")
-            with pdfplumber.open(pdf_path) as pdf:
-                for page in pdf.pages[:30]:
-                    text = page.extract_text()
-                    if not text:
-                        continue
-                    for line in text.splitlines():
-                        line = line.strip()
-                        if len(line) > 5:
-                            lines.append(line)
+            lines = _extract_text_or_ocr(pdf_path, max_pages=30)
             result.extend(lines)
         except Exception as e:
             exc_holder.append(e)
 
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=45)
+    t.join(timeout=120)
     if t.is_alive():
-        logger.warning(f"Variance PDF timed out (45s), skipping: {os.path.basename(pdf_path)}")
+        logger.warning(f"Variance PDF timed out (120s), skipping: {os.path.basename(pdf_path)}")
         return []
     if exc_holder:
         logger.warning(f"Variance PDF extraction failed ({pdf_path}): {exc_holder[0]}")
@@ -313,7 +337,6 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
 
     def _read():
         try:
-            import pdfplumber
             result = {
                 "compression_pct": None,
                 "earlier_data_date": None,
@@ -324,20 +347,23 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                 "raw_lines": [],
             }
             logger.info(f"  Compression PDF open: {os.path.basename(pdf_path)}")
-            with pdfplumber.open(pdf_path) as pdf:
-                full_text = ""
-                for page in pdf.pages[:5]:
-                    t = page.extract_text()
-                    if t:
-                        full_text += t + "\n"
-
-            lines = [l.strip() for l in full_text.splitlines() if l.strip()]
+            lines = _extract_text_or_ocr(pdf_path, max_pages=5)
             result["raw_lines"] = lines
 
             for line in lines:
-                m = re.search(r'Remaining Work Compression\s+([-+]?\d+)\s*%', line, re.IGNORECASE)
+                m = re.search(r'Remaining Work Compression\s+([-+]?[\dOoIlSsBbZz]+)\s*%', line, re.IGNORECASE)
                 if m:
-                    result["compression_pct"] = int(m.group(1))
+                    raw_val = m.group(1)
+                    # Clean common OCR misreads: O->0, o->0, I/l->1, S/s->5, B/b->8, Z/z->2
+                    cleaned = raw_val.translate(str.maketrans('OoIlSsBbZz', '0011558822'))
+                    try:
+                        pct = int(cleaned)
+                        if -100 <= pct <= 100:
+                            result["compression_pct"] = pct
+                        else:
+                            logger.warning(f"Compression % out of range ({pct}), ignoring — raw: '{raw_val}'")
+                    except ValueError:
+                        logger.warning(f"Compression % could not parse after OCR cleanup — raw: '{raw_val}', cleaned: '{cleaned}'")
                 m = re.findall(r'Data Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
                 if m:
                     if result["earlier_data_date"] is None:
@@ -363,9 +389,9 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
 
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=45)
+    t.join(timeout=120)
     if t.is_alive():
-        logger.warning(f"Compression PDF timed out (45s), skipping: {os.path.basename(pdf_path)}")
+        logger.warning(f"Compression PDF timed out (120s), skipping: {os.path.basename(pdf_path)}")
         return None
     if exc_holder:
         logger.warning(f"Compression PDF extraction failed ({pdf_path}): {exc_holder[0]}")

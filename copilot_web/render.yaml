@@ -3,7 +3,7 @@ services:
     name: stelic-copilot
     runtime: python
     rootDir: copilot_web
-    buildCommand: apt-get update -y && apt-get install -y default-jre-headless && pip install -r requirements.txt
+    buildCommand: apt-get update -y && apt-get install -y default-jre-headless tesseract-ocr poppler-utils && pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
       - key: OPENAI_API_KEY
