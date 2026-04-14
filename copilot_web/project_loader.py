@@ -99,11 +99,11 @@ def load_all_projects():
         threads.append((slug, t))
         logger.info(f"[{slug}] Load thread started.")
 
-    # Wait for all — 180s cap accounts for semaphore queue wait on single-CPU instances
+    # Wait for all — 300s cap; per-file timeouts (60s/45s/30s) are the real hang protection
     for slug, t in threads:
-        t.join(timeout=180)
+        t.join(timeout=300)
         if t.is_alive():
-            logger.warning(f"[{slug}] Load timed out after 180s — skipping, marking empty")
+            logger.warning(f"[{slug}] Load timed out after 300s — skipping, marking empty")
             _project_cache.setdefault(slug, "")
 
     loaded = sum(1 for v in _project_cache.values() if v)
