@@ -237,14 +237,17 @@ def _ocr_pdf_lines(pdf_path: str, max_pages: int = 30) -> list:
 
 
 def _is_image_based_pdf(pdf_path: str) -> bool:
-    """Quick check: open first page only, return True if no extractable text found."""
+    """Check first 3 pages — returns True only if none have extractable text."""
     try:
         import pdfplumber
         with pdfplumber.open(pdf_path) as pdf:
             if not pdf.pages:
                 return True
-            text = pdf.pages[0].extract_text()
-            return not text or len(text.strip()) < 20
+            for page in pdf.pages[:3]:
+                text = page.extract_text()
+                if text and len(text.strip()) >= 50:
+                    return False
+            return True
     except Exception:
         return True
 
@@ -281,28 +284,32 @@ def _extract_text_or_ocr(pdf_path: str, max_pages: int = 30) -> list:
 def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
     """
     Extract meaningful lines from verify.pdf for schedule crosscheck.
-    Uses text extraction with OCR fallback for image-based PDFs.
+    Text-layer only with 30s timeout — image-based PDFs skipped instantly.
     """
     import threading as _thr
+    if _is_image_based_pdf(pdf_path):
+        logger.info(f"  Verify PDF is image-based, skipping: {os.path.basename(pdf_path)}")
+        return []
     result = []
-    exc_holder = []
-
     def _read():
         try:
+            import pdfplumber
             logger.info(f"  PDF open: {os.path.basename(pdf_path)}")
-            entries = _extract_text_or_ocr(pdf_path, max_pages)
-            result.extend(entries)
+            with pdfplumber.open(pdf_path) as pdf:
+                for page in pdf.pages[:max_pages]:
+                    text = page.extract_text()
+                    if text:
+                        for line in text.splitlines():
+                            line = line.strip()
+                            if len(line) > 5:
+                                result.append(line)
         except Exception as e:
-            exc_holder.append(e)
-
+            logger.warning(f"PDF crosscheck failed: {e}")
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=120)
+    t.join(timeout=30)
     if t.is_alive():
-        logger.warning(f"PDF read timed out (120s), skipping: {os.path.basename(pdf_path)}")
-        return []
-    if exc_holder:
-        logger.warning(f"PDF crosscheck failed: {exc_holder[0]}")
+        logger.warning(f"PDF read timed out (30s), skipping: {os.path.basename(pdf_path)}")
         return []
     return result
 
@@ -310,28 +317,32 @@ def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
 def _extract_variance_pdf(pdf_path: str) -> list:
     """
     Extract text lines from a variance_N.pdf report.
-    Uses text extraction with OCR fallback for image-based PDFs.
+    Text-layer only with 30s timeout — image-based PDFs skipped instantly.
     """
     import threading as _thr
+    if _is_image_based_pdf(pdf_path):
+        logger.info(f"  Variance PDF is image-based, skipping: {os.path.basename(pdf_path)}")
+        return []
     result = []
-    exc_holder = []
-
     def _read():
         try:
+            import pdfplumber
             logger.info(f"  Variance PDF open: {os.path.basename(pdf_path)}")
-            lines = _extract_text_or_ocr(pdf_path, max_pages=30)
-            result.extend(lines)
+            with pdfplumber.open(pdf_path) as pdf:
+                for page in pdf.pages[:30]:
+                    text = page.extract_text()
+                    if text:
+                        for line in text.splitlines():
+                            line = line.strip()
+                            if len(line) > 5:
+                                result.append(line)
         except Exception as e:
-            exc_holder.append(e)
-
+            logger.warning(f"Variance PDF extraction failed: {e}")
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=120)
+    t.join(timeout=30)
     if t.is_alive():
-        logger.warning(f"Variance PDF timed out (120s), skipping: {os.path.basename(pdf_path)}")
-        return []
-    if exc_holder:
-        logger.warning(f"Variance PDF extraction failed ({pdf_path}): {exc_holder[0]}")
+        logger.warning(f"Variance PDF timed out (30s), skipping: {os.path.basename(pdf_path)}")
         return []
     return result
 
