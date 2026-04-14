@@ -64,8 +64,7 @@ def _load_single_project(slug: str, project_path: str):
 
 def load_all_projects():
     """Scans projects/ folder, builds versioned schedule context per project.
-    Sequential loading — safe on single-CPU Render instances.
-    Each project has a 120s timeout so a hung PDF cannot block the rest.
+    Parallel loading — all projects start simultaneously, each with a 120s timeout.
     """
     import threading as _thr
     if not os.path.exists(PROJECTS_DIR):
@@ -78,13 +77,20 @@ def load_all_projects():
         and os.path.exists(os.path.join(PROJECTS_DIR, s, "meta.json"))
     ]
 
+    # Start all project threads simultaneously
+    threads = []
     for slug in slugs:
         project_path = os.path.join(PROJECTS_DIR, slug)
         t = _thr.Thread(target=_load_single_project, args=(slug, project_path), daemon=True)
         t.start()
-        t.join(timeout=120)
+        threads.append((slug, t))
+        logger.info(f"[{slug}] Load thread started.")
+
+    # Wait for all with per-project 90s cap
+    for slug, t in threads:
+        t.join(timeout=90)
         if t.is_alive():
-            logger.warning(f"[{slug}] Load timed out after 120s — skipping, marking empty")
+            logger.warning(f"[{slug}] Load timed out after 90s — skipping, marking empty")
             _project_cache.setdefault(slug, "")
 
     loaded = sum(1 for v in _project_cache.values() if v)
@@ -307,9 +313,9 @@ def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
             logger.warning(f"PDF crosscheck failed: {e}")
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=30)
+    t.join(timeout=20)
     if t.is_alive():
-        logger.warning(f"PDF read timed out (30s), skipping: {os.path.basename(pdf_path)}")
+        logger.warning(f"PDF read timed out (20s), skipping: {os.path.basename(pdf_path)}")
         return []
     return result
 
@@ -340,9 +346,9 @@ def _extract_variance_pdf(pdf_path: str) -> list:
             logger.warning(f"Variance PDF extraction failed: {e}")
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=30)
+    t.join(timeout=20)
     if t.is_alive():
-        logger.warning(f"Variance PDF timed out (30s), skipping: {os.path.basename(pdf_path)}")
+        logger.warning(f"Variance PDF timed out (20s), skipping: {os.path.basename(pdf_path)}")
         return []
     return result
 
@@ -520,9 +526,9 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
         _parse_result[0] = _parse_schedule(current_path)
     _pt = _thr2.Thread(target=_do_parse_current, daemon=True)
     _pt.start()
-    _pt.join(timeout=90)
+    _pt.join(timeout=45)
     if _pt.is_alive():
-        logger.warning(f"[{slug}] Current MPP parse timed out after 90s — skipping")
+        logger.warning(f"[{slug}] Current MPP parse timed out after 45s — skipping")
         parts.append("[Current schedule parse timed out]")
         return "\n".join(parts)
     current_data = _parse_result[0]
@@ -561,9 +567,9 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             _prev_result[0] = _parse_schedule(previous_path)
         _pp = _thr2.Thread(target=_do_parse_previous, daemon=True)
         _pp.start()
-        _pp.join(timeout=90)
+        _pp.join(timeout=45)
         if _pp.is_alive():
-            logger.warning(f"[{slug}] Previous MPP parse timed out after 90s — skipping variance")
+            logger.warning(f"[{slug}] Previous MPP parse timed out after 45s — skipping variance")
         else:
             previous_data = _prev_result[0]
         logger.info(f"[{slug}] Previous parse done: {'ok' if previous_data else 'failed/timeout'}")
@@ -663,9 +669,17 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
         except Exception as _ve:
             logger.warning(f"[{slug}] Variance computation failed: {_ve}")
 
-    # --- Parse baseline once for both context display and drift variance ---
+    # --- Parse baseline once for both context display and drift variance (60s timeout) ---
     if baseline_path and baseline_path != current_path:
-        baseline_data = _parse_schedule(baseline_path)
+        _bl_result = [None]
+        def _do_parse_baseline():
+            _bl_result[0] = _parse_schedule(baseline_path)
+        _pb = _thr2.Thread(target=_do_parse_baseline, daemon=True)
+        _pb.start()
+        _pb.join(timeout=30)
+        if _pb.is_alive():
+            logger.warning(f"[{slug}] Baseline MPP parse timed out after 30s — skipping")
+        baseline_data = _bl_result[0]
         if baseline_data:
             _project_tasks_baseline[slug] = baseline_data.get("tasks", [])
             parts.append("")
@@ -805,7 +819,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
 
     # --- Prior verify PDF — baseline All Activities for Update 1 projects, or verify_{N-1} for others ---
     prior_verify_pdf = None
-    verify_bl_pdf = versioned_files.get("verify_bl_pdf")
+    verify_bl_pdf = files.get("verify_bl_pdf")
     if verify_bl_pdf and current_update_num_v == 1:
         # Update 1 — baseline is the prior
         prior_verify_pdf = verify_bl_pdf
