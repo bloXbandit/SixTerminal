@@ -306,65 +306,71 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                B = Later schedule (data date, finish date)
       - Monthly table: Month | Activity Days (A) | Activity Days (B)
     """
-    try:
-        import pdfplumber
-        import re
-        result = {
-            "compression_pct": None,
-            "earlier_data_date": None,
-            "later_data_date": None,
-            "earlier_finish": None,
-            "later_finish": None,
-            "monthly": [],   # [{month, earlier_days, later_days}]
-            "raw_lines": [],
-        }
+    import threading as _thr
+    import re
+    result_holder = [None]
+    exc_holder = []
 
-        with pdfplumber.open(pdf_path) as pdf:
-            full_text = ""
-            for page in pdf.pages[:5]:
-                t = page.extract_text()
-                if t:
-                    full_text += t + "\n"
+    def _read():
+        try:
+            import pdfplumber
+            result = {
+                "compression_pct": None,
+                "earlier_data_date": None,
+                "later_data_date": None,
+                "earlier_finish": None,
+                "later_finish": None,
+                "monthly": [],
+                "raw_lines": [],
+            }
+            logger.info(f"  Compression PDF open: {os.path.basename(pdf_path)}")
+            with pdfplumber.open(pdf_path) as pdf:
+                full_text = ""
+                for page in pdf.pages[:5]:
+                    t = page.extract_text()
+                    if t:
+                        full_text += t + "\n"
 
-        lines = [l.strip() for l in full_text.splitlines() if l.strip()]
-        result["raw_lines"] = lines
+            lines = [l.strip() for l in full_text.splitlines() if l.strip()]
+            result["raw_lines"] = lines
 
-        for line in lines:
-            # Compression % — e.g. "Remaining Work Compression  -5 %"
-            m = re.search(r'Remaining Work Compression\s+([-+]?\d+)\s*%', line, re.IGNORECASE)
-            if m:
-                result["compression_pct"] = int(m.group(1))
+            for line in lines:
+                m = re.search(r'Remaining Work Compression\s+([-+]?\d+)\s*%', line, re.IGNORECASE)
+                if m:
+                    result["compression_pct"] = int(m.group(1))
+                m = re.findall(r'Data Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
+                if m:
+                    if result["earlier_data_date"] is None:
+                        result["earlier_data_date"] = m[0]
+                    elif result["later_data_date"] is None and m[0] != result["earlier_data_date"]:
+                        result["later_data_date"] = m[0]
+                m = re.findall(r'Finish Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
+                if m:
+                    if result["earlier_finish"] is None:
+                        result["earlier_finish"] = m[0]
+                    elif result["later_finish"] is None and m[0] != result["earlier_finish"]:
+                        result["later_finish"] = m[0]
+                m = re.match(r'^([A-Za-z]{3}\s+\d{2})\s+(\d+)\s+(\d+)$', line)
+                if m:
+                    result["monthly"].append({
+                        "month": m.group(1),
+                        "earlier_days": int(m.group(2)),
+                        "later_days": int(m.group(3)),
+                    })
+            result_holder[0] = result if result["compression_pct"] is not None else None
+        except Exception as e:
+            exc_holder.append(e)
 
-            # Data dates — e.g. "Data Date:  01/19/2026"
-            m = re.findall(r'Data Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
-            if m:
-                if result["earlier_data_date"] is None:
-                    result["earlier_data_date"] = m[0]
-                elif result["later_data_date"] is None and m[0] != result["earlier_data_date"]:
-                    result["later_data_date"] = m[0]
-
-            # Finish dates — e.g. "Finish Date:  07/01/2026"
-            m = re.findall(r'Finish Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
-            if m:
-                if result["earlier_finish"] is None:
-                    result["earlier_finish"] = m[0]
-                elif result["later_finish"] is None and m[0] != result["earlier_finish"]:
-                    result["later_finish"] = m[0]
-
-            # Monthly table rows — e.g. "Apr 26  177  155" or "Mar 26 25 41"
-            m = re.match(r'^([A-Za-z]{3}\s+\d{2})\s+(\d+)\s+(\d+)$', line)
-            if m:
-                result["monthly"].append({
-                    "month": m.group(1),
-                    "earlier_days": int(m.group(2)),
-                    "later_days": int(m.group(3)),
-                })
-
-        return result if result["compression_pct"] is not None else None
-
-    except Exception as e:
-        logger.warning(f"Compression PDF extraction failed ({pdf_path}): {e}")
+    t = _thr.Thread(target=_read, daemon=True)
+    t.start()
+    t.join(timeout=45)
+    if t.is_alive():
+        logger.warning(f"Compression PDF timed out (45s), skipping: {os.path.basename(pdf_path)}")
         return None
+    if exc_holder:
+        logger.warning(f"Compression PDF extraction failed ({pdf_path}): {exc_holder[0]}")
+        return None
+    return result_holder[0]
 
 
 def _format_compression_pdf_context(data: dict, label: str = "") -> str:
