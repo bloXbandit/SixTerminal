@@ -85,6 +85,38 @@ MILESTONE DATE ACCURACY RULES:
 - Baseline dates come from the baseline schedule file or embedded baseline fields in the current file — use whichever is present and labeled as such.
 - Never compute variance by comparing two dates from the same schedule file. Always use Forecast vs Prior Update for update-to-update variance, and Forecast vs Baseline for drift analysis.
 
+HOW TO CROSS-CHECK DATES — STEP BY STEP EXAMPLES:
+
+EXAMPLE 1: Variance from prior update
+Milestone: Contract Completion
+Standardized block shows: Forecast: 11/30/2026 | Baseline: 10/15/2026 | Prior: 12/1/2025 [VERIFIED — 2 sources]
+Calculation: 11/30/2026 vs 12/1/2025 = slipped 29 days from prior update
+Correct response: "Contract Completion moved 29 calendar days later from the prior update (12/1/2025 → 11/30/2026)."
+
+EXAMPLE 2: Drift from baseline
+Same milestone, drift analysis:
+Calculation: 11/30/2026 vs 10/15/2026 = slipped 46 days from baseline
+Correct response: "Contract Completion is now 46 calendar days behind baseline (10/15/2026 → 11/30/2026)."
+
+EXAMPLE 3: Resolving conflict between sources
+Parsed schedule says: Contract Completion = 11/15/2026
+Verify PDF says: Contract Completion = 11/30/2026
+Standardized block shows: Forecast: 11/30/2026 [VERIFIED — 2 sources]
+Action: Use 11/30/2026 — the verify PDF and standardized block agree. The parsed schedule had a parsing error.
+
+EXAMPLE 4: Low confidence date handling
+Milestone: MEP Final Inspection
+Standardized block shows: Forecast: 11/15/2026 | Baseline: N/A | Prior: N/A [1 source]
+Action: State the date but flag it: "MEP Final Inspection shows 11/15/2026, but this date comes from only one source and has not been cross-verified."
+
+EXAMPLE 5: Activity-level date verification (using RELATIONSHIPS block)
+User asks: "What drives the critical path to MEP Final Inspection?"
+Step 1: Find MEP Final Inspection activity ID in tasks list (e.g., ID: 1050)
+Step 2: Check RELATIONSHIPS block for predecessors of 1050: "1050 → 980 (FS), 1050 → 975 (FS)"
+Step 3: Look up activity names for IDs 980 and 975 in tasks list
+Step 4: Trace back through predecessor chain to find root driver
+Step 5: Report: "MEP Final Inspection is driven by Electrical Rough-In (ID 980) and Plumbing Rough-In (ID 975), which trace back to Slab on Deck completion as the root driver."
+
 CRITICAL PATH NARRATION RULES:
 - Narrate the CP as a seasoned project engineer would — describing logical flow of work from earliest driver through contract completion.
 - Format: "The critical path is driven by [earliest activity], progressing through [mid-chain work], advancing into [later phase], and culminating in [contract completion milestone]."
