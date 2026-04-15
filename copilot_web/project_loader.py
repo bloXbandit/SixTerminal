@@ -11,7 +11,7 @@ import logging
 import sys
 import threading
 import time
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ _project_health: Dict[str, dict] = {}  # {slug: {status, compression_pct, max_sl
 _project_tasks: Dict[str, list] = {}          # {slug: [task_dicts]} — current schedule tasks for milestone lookup
 _project_tasks_previous: Dict[str, list] = {}  # {slug: [task_dicts]} — previous update tasks
 _project_tasks_baseline: Dict[str, list] = {}  # {slug: [task_dicts]} — baseline tasks
+_project_relationships: Dict[str, list] = {}  # {slug: [rel_dicts]} — current relationships for CP analysis
 _loading_in_progress: set = set()  # Track which slugs are currently loading in background
 _loading_start_times: Dict[str, float] = {}  # {slug: timestamp} — when loading started
 
@@ -588,6 +589,22 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     except Exception:
         pass
 
+    # --- Extract compression PDF if found ---
+    if _compression_pdf_path:
+        try:
+            logger.info(f"[{slug}] Extracting compression PDF: {os.path.basename(_compression_pdf_path)}")
+            comp_data = _extract_compression_pdf(_compression_pdf_path)
+            if comp_data:
+                comp_ctx = _format_compression_pdf_context(comp_data, label=os.path.basename(_compression_pdf_path))
+                if comp_ctx:
+                    parts.append("")
+                    parts.append(comp_ctx)
+                    # Also store in health for portfolio overview
+                    if comp_data.get("compression_pct") is not None:
+                        _compression_pct = comp_data["compression_pct"]
+        except Exception as _ce:
+            logger.warning(f"[{slug}] Compression PDF extraction failed: {_ce}")
+
     # --- Parse current (with 90s timeout to avoid JVM hangs) ---
     logger.info(f"[{slug}] Parsing current: {os.path.basename(current_path)}")
     import threading as _thr2
@@ -608,8 +625,9 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
         parts.append("[Current schedule could not be parsed]")
         return "\n".join(parts)
 
-    # --- Store tasks for milestone date cross-referencing ---
+    # --- Store tasks and relationships for milestone date cross-referencing ---
     _project_tasks[slug] = current_data.get("tasks", [])
+    _project_relationships[slug] = current_data.get("relationships", [])
     # Clear previous/baseline caches so stale data doesn't bleed across reloads
     _project_tasks_previous.pop(slug, None)
     _project_tasks_baseline.pop(slug, None)
@@ -823,6 +841,27 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             parts.append(risk_ctx)
     except Exception as _re:
         logger.warning(f"[{slug}] Risk diagnostics failed: {_re}")
+
+    # --- Relationships for activity critical path tracing ---
+    try:
+        rels = current_data.get("relationships", [])
+        if rels:
+            # Build a compact predecessor table for the agent
+            rel_lines = ["RELATIONSHIPS (for activity critical path tracing):"]
+            rel_lines.append("Format: Activity ID → Predecessor ID (relationship type)")
+            # Show first 50 relationships (should be enough for CP tracing)
+            for r in rels[:50]:
+                succ = r.get("successor_id", "")
+                pred = r.get("predecessor_id", "")
+                rel_type = r.get("type", "FS")
+                if succ and pred:
+                    rel_lines.append(f"  {succ} → {pred} ({rel_type})")
+            if len(rels) > 50:
+                rel_lines.append(f"  ... +{len(rels) - 50} more relationships")
+            parts.append("")
+            parts.append("\n".join(rel_lines))
+    except Exception as _rel:
+        logger.debug(f"[{slug}] Relationships section failed: {_rel}")
 
     # --- Variance PDF — trump-card reference for current update variance ---
     if variance_pdfs:
@@ -1233,6 +1272,11 @@ def has_schedule(slug: str) -> bool:
 def get_project_health(slug: str) -> Optional[dict]:
     """Returns health dict for a slug: {status, compression_pct, max_slip_days, max_accel_days}."""
     return _project_health.get(slug)
+
+
+def get_project_relationships(slug: str) -> List[dict]:
+    """Returns relationship list for a slug: [{successor_id, predecessor_id, type, lag}, ...]."""
+    return _project_relationships.get(slug, [])
 
 
 if __name__ == "__main__":
