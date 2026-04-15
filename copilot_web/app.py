@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, send_file
+from flask_cors import CORS
 from typing import Optional
 import openai
 import os
@@ -12,6 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app, origins="*")  # Allow all origins for Render deployment
 
 @app.after_request
 def allow_iframe(response):
@@ -800,9 +802,11 @@ def chat():
         )
         return jsonify({"reply": response.choices[0].message.content})
     except openai.APITimeoutError:
+        logger.warning(f"OpenAI timeout for project {project_slug}")
         return jsonify({"error": "__timeout__"}), 504
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Chat error for project {project_slug}: {type(e).__name__}: {e}", exc_info=True)
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))

@@ -4,7 +4,7 @@ services:
     runtime: python
     rootDir: copilot_web
     buildCommand: apt-get update -y && apt-get install -y default-jre-headless tesseract-ocr poppler-utils && pip install -r requirements.txt
-    startCommand: gunicorn app:app --timeout 120 --workers 1
+    startCommand: gunicorn app:app --timeout 120 --workers 2 --threads 2
     envVars:
       - key: OPENAI_API_KEY
         sync: false

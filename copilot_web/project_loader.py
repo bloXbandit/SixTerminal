@@ -1015,21 +1015,18 @@ def get_project_context(slug: str, page: Optional[str] = None) -> str:
         parts.append("")
         parts.append(milestone_ctx)
 
-    # If project is still loading (key not yet written), wait up to 90s
-    if slug not in _project_cache:
-        import time as _time
-        _deadline = _time.time() + 90
-        logger.info(f"[{slug}] Context requested while still loading — waiting up to 90s...")
-        while slug not in _project_cache and _time.time() < _deadline:
-            _time.sleep(1)
-        if slug not in _project_cache:
-            logger.warning(f"[{slug}] Context wait timed out — returning partial context")
+    # Check if still loading - don't block, just note it for the agent to handle
+    still_loading = slug not in _project_cache
+    if still_loading:
+        logger.info(f"[{slug}] Context requested while still loading - will inform agent")
+        parts.append("")
+        parts.append("[PROJECT SCHEDULE IS STILL LOADING — data will be available in approximately 60-90 seconds. Please wait and ask again shortly.]")
 
     schedule_ctx = _project_cache.get(slug, "")
     if schedule_ctx:
         parts.append("")
         parts.append(schedule_ctx)
-    else:
+    elif not still_loading:
         parts.append("[No schedule file loaded for this project yet. User can attach an MPP/XER file to provide schedule data.]")
 
     return "\n".join(parts)
