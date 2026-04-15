@@ -444,7 +444,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                 label_current=current_label.replace("_", " ").title(),
                 label_previous=os.path.splitext(os.path.basename(previous_path))[0].replace("_", " ").title(),
             )
-            variance_ctx = format_variance_for_context(variance)
+            variance_ctx = format_variance_for_context(variance, max_items_per_phase=12)
             if variance_ctx:
                 parts.append("")
                 parts.append(variance_ctx)
@@ -556,7 +556,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                         label_current=current_label.replace("_", " ").title(),
                         label_previous="Baseline",
                     )
-                    drift_ctx = format_variance_for_context(drift)
+                    drift_ctx = format_variance_for_context(drift, max_items_per_phase=12)
                     if drift_ctx:
                         parts.append("")
                         parts.append("=== BASELINE DRIFT ===")
@@ -785,7 +785,34 @@ def _load_milestone_map(slug: str) -> str:
                 bl_str = f" | Baseline: {baseline_finish}" if baseline_finish else ""
                 prev_str = f" | Prior Update: {prev_finish}" if prev_finish else ""
                 pct_str = f" | {pct:.0f}% complete" if pct is not None else ""
-                lines.append(f"  - {std}: {date_str}{bl_str}{prev_str}{pct_str}  {confidence}")
+
+                # Pre-compute update-to-update variance (calendar days)
+                var_str = ""
+                if curr_finish and prev_finish:
+                    try:
+                        from datetime import datetime as _dt
+                        d1 = _dt.strptime(str(curr_finish)[:10], "%Y-%m-%d")
+                        d2 = _dt.strptime(str(prev_finish)[:10], "%Y-%m-%d")
+                        delta = (d1 - d2).days
+                        sign = "+" if delta >= 0 else ""
+                        var_str = f" | Variance: {sign}{delta}cd"
+                    except Exception:
+                        pass
+
+                # Pre-compute baseline drift (calendar days)
+                drift_str = ""
+                if curr_finish and baseline_finish:
+                    try:
+                        from datetime import datetime as _dt
+                        d1 = _dt.strptime(str(curr_finish)[:10], "%Y-%m-%d")
+                        d2 = _dt.strptime(str(baseline_finish)[:10], "%Y-%m-%d")
+                        drift = (d1 - d2).days
+                        sign = "+" if drift >= 0 else ""
+                        drift_str = f" | Drift: {sign}{drift}cd vs BL"
+                    except Exception:
+                        pass
+
+                lines.append(f"  - {std}: {date_str}{bl_str}{prev_str}{var_str}{drift_str}{pct_str}  {confidence}")
             else:
                 # No current task match — still emit the name
                 if act_name and act_name != std:

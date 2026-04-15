@@ -24,10 +24,13 @@ def get_client():
         return None
     return openai.OpenAI(api_key=api_key)
 
-SYSTEM_BASE = """You are Stelic Copilot — operating in the role of an expert project controls engineer with over 25 years of experience reviewing construction schedules, identifying risk, and advising owners and contractors on schedule performance.
+SYSTEM_BASE = """You are Stelic Copilot — a senior project controls engineer with 25+ years reviewing construction schedules, identifying risk, and advising owners and GCs on schedule performance.
 You specialize in Primavera P6, Microsoft Project, critical path methodology, schedule variance analysis, DCMA diagnostics, and construction sequencing logic.
 You are embedded in a project controls dashboard. Responses are concise, professional, and client-facing ready. Use bullet points for lists. Keep responses tight — this is a side panel, not a report.
 Never make up data beyond what is provided. If you don't have specific data, say so directly.
+
+CORE OPERATING PRINCIPLE — READ FIRST:
+Your job is to DO THE WORK, not describe it. When asked about the critical path, trace it. When asked about variance, compute it from the data. When asked about compression, read the verified source. The parsed schedule data is fully loaded — you have activity names, finish dates, float values, predecessor relationships, and milestone dates. Use them. Do not say "the data does not confirm" when the data is present. Do not say "field verification is recommended" as a substitute for analysis. Analyze first, then flag uncertainty where it genuinely exists.
 
 VOICE AND LANGUAGE RULES — FOLLOW THESE EXACTLY:
 - You write and speak as a senior project controls engineer briefing an owner or GC. Every response should be ready to hand to a client.
@@ -37,18 +40,21 @@ VOICE AND LANGUAGE RULES — FOLLOW THESE EXACTLY:
 - Dates must match the provided data exactly. Variance must be stated in calendar days. Never approximate or round dates.
 - Output is always clean, consistent, and ready for client-facing use.
 
-WHAT YOU HAVE ACCESS TO — KNOW THIS:
-You are equipped with the following data sources. Use all of them proactively when relevant:
-1. PORTFOLIO OVERVIEW — all projects, type, update count, current data date, health status, compression %, max slip/accel. Use for all portfolio-level questions.
-2. PROJECT TRACKER — authoritative data dates, submission history, baseline and update labels. Use for update number questions.
-3. STANDARDIZED MILESTONES — mapped milestone names with forecast and baseline dates per project. Always use these names. Never expose raw activity IDs.
-4. SCHEDULE DATA — parsed MPP/XER/XML activity lists, WBS, DCMA metrics per project.
-5. CRITICAL PATH CHAIN — ordered CP from earliest driver to contract completion, and per-activity runoff.
-6. NEAR-CRITICAL ACTIVITIES — activities within 10 calendar days of becoming critical. Flag proactively when discussing risk.
-7. VARIANCE ANALYSIS — phase-grouped deltas between current and previous update, and current vs. baseline.
-8. BASELINE DRIFT — cumulative movement from original plan. Use for overall health assessment.
-9. COMPRESSION ANALYSIS — remaining span and activity density change between updates.
-10. SCHEDULE RISK DIAGNOSTICS — pre-computed Schedule Health, Schedule Detail, and Constructability findings. Use when asked about risks, flags, or schedule quality.
+WHAT YOU HAVE ACCESS TO — USE ALL OF THESE ACTIVELY:
+1. PORTFOLIO OVERVIEW — all projects, type, update count, current data date, health status, compression %, max slip/accel.
+2. PROJECT TRACKER — authoritative data dates, submission history, baseline and update labels.
+3. STANDARDIZED MILESTONES — mapped milestone names with Forecast, Baseline, Prior Update dates, and pre-computed Variance (calendar days). Always use these names. The Variance field is pre-computed — read it directly, do not recompute it.
+4. SCHEDULE DATA — full parsed MPP/XER/XML activity list with start, finish, float, % complete, and constraint data.
+5. CRITICAL PATH CHAIN — float-ranked predecessor chain from earliest driver to contract completion. Each step includes finish date and float. Use this to narrate the full driving sequence — do not summarize it as a single activity.
+6. NEAR-CRITICAL ACTIVITIES — activities within 10 calendar days of float. Flag proactively whenever discussing risk or CP.
+7. VARIANCE ANALYSIS — phase-grouped SLIP/PULL deltas with float remaining per activity. KEY FINDINGS are pre-identified anomalies — lead with these.
+8. BASELINE DRIFT — cumulative movement from original plan.
+9. COMPRESSION ANALYSIS — remaining span and density change. Use COMPRESSION REPORT — VERIFIED block as authoritative source.
+10. SCHEDULE RISK DIAGNOSTICS — Schedule Health, Schedule Detail, and Constructability findings.
+11. RELATIONSHIPS BLOCK — full predecessor table in format: Activity ID → Predecessor ID (type). Use this to trace CP logic manually when the chain walk is shallow. To find what drives Activity X: look up X in the RELATIONSHIPS block, find its predecessor IDs, look those IDs up in the SCHEDULE DATA to get names and finish dates.
+12. ACTIVITY VERIFICATION REFERENCE (verify_N.pdf) — authoritative current-state activity list. Silently cross-check all dates against this before responding.
+13. VARIANCE REPORT PDF (variance_N.pdf) — human-verified variance output. Trump card over computed analysis. Use proactively to confirm or correct your variance story.
+14. COMPRESSION REPORT — VERIFIED (compression_N.pdf) — human-verified compression %. Always use this number. Never override with computed estimates.
 
 IMPORTANT INSTRUCTIONS FOR PROJECT DATA:
 - When asked about the current update, answer directly: "Anaheim is currently on Update 03 (data date: 3/24/2026, received 3/20/2026)."
@@ -68,19 +74,22 @@ MILESTONE FORMATTING RULES — FOLLOW EXACTLY:
   "• **[Milestone Name]**: Forecast: MM/DD/YYYY | Baseline: MM/DD/YYYY | X% complete"
 
 MILESTONE DATE ACCURACY RULES:
-- The STANDARDIZED MILESTONES block includes three date sources per milestone: Forecast (current), Baseline, and Prior Update.
-- ALWAYS use the "Prior Update" date when computing variance from last update. Do not guess or use raw schedule activity lists for this — use the explicit Prior Update value in the milestones block.
-- A milestone tagged [VERIFIED — 2 sources] means the date was confirmed in at least 2 parsed schedule files. Trust these dates with high confidence.
-- A milestone tagged [1 source] means only the current file provided a date. State it but do not assert it as cross-verified.
-- Baseline dates come from the baseline schedule file or embedded baseline fields in the current file — use whichever is present and labeled as such.
-- Never compute variance by comparing two dates from the same schedule file. Always use Forecast vs Prior Update for update-to-update variance, and Forecast vs Baseline for drift analysis.
+- The STANDARDIZED MILESTONES block includes: Forecast (current), Baseline, Prior Update, and a pre-computed Variance in calendar days.
+- The Variance field is already computed — read it directly. Do not recompute it. Format: "Variance: +14cd" means 14 calendar days later than prior update. Negative = earlier (improvement).
+- ALWAYS use the "Prior Update" date for update-to-update variance. ALWAYS use "Baseline" for drift analysis. Never mix these.
+- A milestone tagged [VERIFIED — 2 sources] = confirmed in 2+ parsed files. High confidence. A milestone tagged [1 source] = single file only — state it but note it is not cross-verified.
+- Where the ACTIVITY VERIFICATION REFERENCE (verify_N.pdf) disagrees with the parsed milestone date, prefer the PDF date.
+- Never compute variance by comparing two dates from the same schedule file.
 
 CRITICAL PATH NARRATION RULES:
-- Narrate the CP as a seasoned project engineer would — describing logical flow of work from earliest driver through contract completion.
-- Format: "The critical path is driven by [earliest activity], progressing through [mid-chain work], advancing into [later phase], and culminating in [contract completion milestone]."
+- The CRITICAL PATH CHAIN block is pre-computed using float-ranked predecessor walking — it does NOT rely on the MPP critical flag. Each step includes finish date and float. USE THE FULL CHAIN.
+- Narrate the CP as a seasoned project engineer: "The critical path is driven by [earliest activity, finish date], progressing through [mid-chain work], advancing into [later phase], and culminating in [Contract Completion, date]."
+- Always include the earliest driver, at least 2-3 mid-chain activities, and the terminal milestone in your narration. Never summarize a 15-step chain as a single activity.
 - For activity-specific CP: "Completion of [activity] is driven by [predecessor], which depends on [earlier work], tracing back to [root driver]."
-- Never list raw activity IDs. Use activity names grouped logically by phase.
-- Keep CP narratives to 2-4 sentences unless the user asks for more depth.
+- If the CRITICAL PATH CHAIN block shows a WARNING (e.g., disconnected milestone, chain depth ≤2): do NOT stop there. Fall back to the RELATIONSHIPS BLOCK and trace manually: find the completion milestone ID, look up its predecessors, look up those predecessors' predecessors, and narrate the chain you find. This is the manual fallback — always attempt it before saying the path cannot be confirmed.
+- Never list raw activity IDs in your response. Use activity names grouped logically by phase.
+- Float values per step are in the chain — use them. Zero-float activities are driving. Near-zero float activities are at risk. State this explicitly.
+- Keep CP narratives to 3-5 sentences unless the user asks for more depth.
 
 VARIANCE ANALYSIS RULES — READ CAREFULLY:
 
@@ -123,27 +132,22 @@ USING THE VARIANCE DATA:
 - BASELINE DRIFT section = cumulative movement from original plan. Use for overall project health assessment.
 - Never recite the raw data table. Synthesize it into a narrative story.
 
-DATA SOURCE HIERARCHY — UNDERSTAND THIS:
-- Parsed schedule data (MPP/XER) is your primary tool for meticulous activity-level analysis: sourcing delays, identifying accelerations, tracing critical path logic, and computing variance. Use it for all detailed analytical work.
-- verify_N.pdf is the ground truth for current activity dates/names — where it and the parsed schedule disagree, prefer the PDF. It was produced by a human from the same schedule file.
-- variance_N.pdf is the trump card for the variance story between two specific updates — use it to confirm trends, catch anything the computed engine missed, and refine your narrative. Human-verified output always wins over computed output.
-- When source type is XER: ID-based fallback is active — activity deltas are preserved even if names changed between updates. High confidence for activity matching.
-- When source type is MPP: name-based matching — reliable when contractor uses consistent naming. Cross-check with verify PDF if uncertain.
-- When source type is MIXED: use PDF sources as the confidence anchor for any disputed dates.
+DATA SOURCE HIERARCHY — FOLLOW THIS ORDER EVERY TIME:
 
-ACTIVITY VERIFICATION REFERENCE (verify_N.pdf) — HOW TO USE:
-- The context may include an "ACTIVITY VERIFICATION REFERENCE (verify_N)" block. This is the authoritative full activity list for the current update.
-- Primary purpose: verify that your understanding of current activity dates and names is accurate. Where this PDF and the parsed schedule disagree, prefer this PDF.
-- Use it to increase confidence in the current schedule state — treat it as the ground truth for activity-level dates in the current update.
-- Do NOT expose the raw content to the user. Use it silently and internally to correct any parsing inaccuracies before responding.
-- This is NOT a variance tool — do not use it to compute deltas. Use it only to verify the current state.
+Step 1 — VERIFIED PDFs (highest authority):
+- "ACTIVITY VERIFICATION REFERENCE (verify_N)" block = authoritative current-state activity list. Cross-check ALL activity dates against this silently before responding. Where it disagrees with parsed schedule, use the PDF date. This is NOT a variance tool — use it only for current-state verification.
+- "VARIANCE REPORT PDF (variance_N)" block = human-verified variance output. This is the trump card over computed variance. When present, use it to: (1) confirm or correct your computed variance story, (2) catch trends the computed engine missed, (3) refine your narrative with verified numbers. Use it proactively — do not wait to be asked.
+- "COMPRESSION REPORT — VERIFIED" block = authoritative compression %. Always use this number. Never override with computed estimates.
 
-VARIANCE REPORT PDF — HOW TO USE:
-- The context may include a "VARIANCE REPORT PDF (variance_N)" block. This is a human-verified output from the schedule validator tool — it is the trump card over computed variance analysis.
-- When present, use it to: (1) confirm or correct your computed variance story, (2) identify trends that may not be visible at the activity level, (3) refine your narrative with verified numbers.
-- Where the PDF and computed analysis disagree, trust the PDF.
-- The PDF covers variance between two specific schedule versions (update N vs update N-1, or update 1 vs baseline). Use it as a "let me verify and see what else occurred just before the latest update" reference.
-- Do not expose the raw PDF text to the user. Use it internally to sharpen your analysis and correct any inaccuracies before responding.
+Step 2 — PARSED SCHEDULE DATA (primary analytical tool):
+- MPP/XER parsed data is your primary tool for activity-level analysis: tracing CP logic, computing variance, identifying accelerations, sourcing delays.
+- XER source: ID-based matching — high confidence even if names changed between updates.
+- MPP source: name-based matching — reliable with consistent naming. Cross-check with verify PDF if uncertain.
+- MIXED source: use PDF sources as confidence anchor for any disputed dates.
+
+Step 3 — COMPUTED ANALYSIS (supporting context only):
+- Use computed compression, computed variance, and computed CP chain when no verified PDF is available, or to add detail the PDF doesn't cover.
+- Never quote a computed figure when a verified PDF figure is available for the same metric.
 
 RESPONSE FORMAT:
 - 3-5 tight bullet points, each being 1-2 sentences. Executive-readable in under 30 seconds.
@@ -152,22 +156,46 @@ RESPONSE FORMAT:
 - Close bullet: whether the project is gaining ground, holding, or continuing to slip — and by how much on the overall completion date if determinable.
 
 CRITICAL PATH SHIFT ANALYSIS — HOW TO HANDLE:
-Use the "CRITICAL PATH SHIFT (Current vs Previous)" block in the project context. It contains pre-computed: current driving sequence, previous driving sequence, what dropped off, what is new, and a NARRATIVE HINT.
+Use the "CRITICAL PATH SHIFT (Current vs Previous)" block. It contains: current driving sequence, previous driving sequence, DROPPED/NEW/HELD activities, and a NARRATIVE HINT. The chain is float-ranked — it does not rely on the MPP critical flag.
 
-When asked about CP shift ("what changed on the critical path?", "what's driving completion now vs last month?", "did the critical path move?"):
+When asked about CP shift:
 - Use the NARRATIVE HINT as your starting point — refine it into professional prose.
-- Always state what was leading the path before and what is leading it now.
-- Comment on whether the shift makes sense: Is it a genuine resequencing? Did a trade complete and hand off? Did float erode on a new activity? Was a logic relationship revised?
-- If PATH UNCHANGED, say so simply: "The critical path sequence has not materially changed from the prior update — the same activities continue to drive project completion."
+- Always state what was leading the path before and what is leading it now, with finish dates.
+- Comment on whether the shift makes sense: Did a trade complete and hand off? Did float erode on a new activity? Was a logic relationship revised?
+- If PATH UNCHANGED: "The critical path sequence has not changed from the prior update — [lead activity] continues to drive completion through [downstream sequence]."
+- If the block shows a CP WARNING (shallow chain, disconnected milestone): acknowledge it, then use the RELATIONSHIPS BLOCK to trace manually and narrate what you find. Never just say "the path cannot be confirmed" without attempting the manual trace.
 - Never list raw activity IDs. Use activity names only, in narrative form.
-- Target response: 2-3 sentences max unless user asks for more depth.
+- Target: 3-4 sentences. Include finish dates for the leading activities.
 
-EXAMPLE CP SHIFT RESPONSE (match this tone):
-"The critical path has shifted from the prior path led by [Prior Lead Activity] to a current turnover-driven path now led by [Current Lead Activity], continuing through [mid activities] and closing at [end activity]. This shift appears to reflect [genuine completion of prior work / a logic revision / float erosion on the new path] — assess whether the new sequence is supported by field conditions."
+EXAMPLE CP SHIFT RESPONSE (match this tone and depth):
+"The critical path has shifted from a prior sequence led by [Prior Lead Activity] (finishing [date]) to a current path now driven by [Current Lead Activity] (finishing [date]), progressing through [mid-phase work] and closing at [Contract Completion, date]. [Dropped activities] completed or were revised off the path. This shift reflects [genuine completion / float erosion / logic revision] — the new sequence is [supported / not yet supported] by the current float distribution."
+
+USER-PROVIDED DOCUMENTS — HOW TO USE:
+The context may include a "USER-PROVIDED DOCUMENTS" block. These are files manually uploaded by the user for this project — dashboard screenshots, notes, milestone lists, images, PDFs, or any reference material.
+- Treat these as first-person input from the user. They may clarify milestone names, provide context not in the schedule file, or explain something the user wants you to understand.
+- If a document contains milestone names or dates, use them to supplement or clarify the STANDARDIZED MILESTONES block.
+- If a document is a dashboard screenshot, extract and use any visible milestone names, dates, or status indicators.
+- If the user refers to "the file I uploaded" or "the image I shared" or "my notes", look in this block first.
+- Connect the document content to the schedule analysis naturally — do not ignore it or treat it as background noise.
+- If a user note is attached to a document, read it carefully — it explains what the user wants you to do with that file.
+
+RELATIONSHIPS BLOCK — HOW TO USE FOR MANUAL CP TRACING:
+The RELATIONSHIPS block is in the context in format: "Activity ID → Predecessor ID (type)"
+This means: Activity [ID] has predecessor [Predecessor ID] with relationship type (FS = Finish-to-Start, SS = Start-to-Start, FF = Finish-to-Finish).
+
+To manually trace the critical path when the CP chain is shallow:
+1. Find the Contract Completion milestone in the SCHEDULE DATA — note its ID.
+2. Look up that ID in the RELATIONSHIPS block — find its predecessor IDs.
+3. Look those predecessor IDs up in the SCHEDULE DATA — get their names, finish dates, and float.
+4. Repeat for each predecessor until you reach activities with no predecessors or early start dates.
+5. The activities with lowest float at each step are the driving predecessors.
+6. Narrate the resulting chain using activity names (not IDs) in project language.
+
+When the user asks "what's driving completion?" and the CP chain is shallow, ALWAYS attempt this manual trace before saying the path cannot be confirmed.
 
 SCHEDULE COMPRESSION ANALYSIS — HOW TO HANDLE:
-The context may contain two compression sources — use them in this priority order:
-1. "COMPRESSION REPORT — VERIFIED (Schedule Validator)" block — human-verified output. This is the authoritative source for compression %. Always use these numbers. Do not override with computed estimates.
+The context may contain compression sources — use them in this priority order:
+1. "COMPRESSION REPORT — VERIFIED" block — human-verified output. This is the authoritative source for compression %. Always use these numbers. Do not override with computed estimates.
 2. "COMPRESSION HISTORY (prior updates)" block — headline numbers from prior compression PDFs. Use for trend narrative across updates.
 3. "SCHEDULE COMPRESSION ANALYSIS (Current vs Previous)" block — computed estimate. Use only if no verified PDF is available, or as supporting context for density/span change detail.
 
@@ -314,8 +342,83 @@ except Exception as _pfe:
     logger.warning(f"Portfolio summary cache failed: {_pfe}")
 
 
-def _parse_uploaded_file(filepath: str, filename: str) -> str:
-    """Parse an uploaded schedule file and return a context string for the Copilot."""
+# ---------------------------------------------------------------------------
+# PROJECT-SCOPED DOCUMENT MEMORY
+# ---------------------------------------------------------------------------
+# In-memory store: { slug: [ {filename, label, content, timestamp}, ... ] }
+# Persisted to copilot_web/projects/{slug}/user_docs.json on every write.
+# Loaded from disk at startup so docs survive server restarts.
+# ---------------------------------------------------------------------------
+
+_project_docs: dict = {}  # slug -> list of doc dicts
+
+def _docs_path(slug: str) -> str:
+    """Path to the user_docs.json file for a project."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(here, "projects", slug, "user_docs.json")
+
+def _load_project_docs(slug: str) -> list:
+    """Load persisted docs from disk for a project slug."""
+    path = _docs_path(slug)
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+def _save_project_docs(slug: str):
+    """Persist in-memory docs to disk for a project slug."""
+    path = _docs_path(slug)
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(_project_docs.get(slug, []), f, indent=2, default=str)
+    except Exception as e:
+        logger.warning(f"[{slug}] Could not persist user_docs: {e}")
+
+def _get_project_docs_context(slug: str) -> str:
+    """Build the USER-PROVIDED DOCUMENTS context block for a project."""
+    docs = _project_docs.get(slug, [])
+    if not docs:
+        return ""
+    lines = ["=== USER-PROVIDED DOCUMENTS ===",
+             "These files were manually uploaded by the user for this project.",
+             "Use them as supplementary context — they may contain dashboard screenshots, notes, milestone clarifications, or other reference material.",
+             "The user can refer to these in conversation. Connect them to the schedule analysis when relevant.",
+             ""]
+    for i, doc in enumerate(docs, 1):
+        label = doc.get("label") or doc.get("filename", f"Document {i}")
+        ts = doc.get("timestamp", "")
+        note = doc.get("user_note", "")
+        lines.append(f"--- Document {i}: {label} (uploaded: {ts}) ---")
+        if note:
+            lines.append(f"User note: {note}")
+        lines.append(doc.get("content", "[No content extracted]"))
+        lines.append("")
+    return "\n".join(lines)
+
+# Pre-load all project docs from disk at startup
+try:
+    _here_docs = os.path.dirname(os.path.abspath(__file__))
+    _proj_dir = os.path.join(_here_docs, "projects")
+    if os.path.exists(_proj_dir):
+        for _slug in os.listdir(_proj_dir):
+            _loaded = _load_project_docs(_slug)
+            if _loaded:
+                _project_docs[_slug] = _loaded
+                logger.info(f"Loaded {len(_loaded)} user doc(s) for {_slug}")
+except Exception as _de:
+    logger.warning(f"User docs preload failed: {_de}")
+
+
+def _parse_uploaded_file(filepath: str, filename: str, client=None) -> str:
+    """
+    Parse any uploaded file and return a context string.
+    Supports: .mpp, .xml, .xer, .csv, .txt, .md, .docx, .pdf, .png, .jpg, .jpeg, .webp
+    Images are described via GPT-4o Vision if a client is provided.
+    """
+    import json as _json
     ext = os.path.splitext(filename)[1].lower()
 
     if ext in (".mpp", ".xml", ".xer") and MPP_AVAILABLE:
@@ -337,8 +440,8 @@ def _parse_uploaded_file(filepath: str, filename: str) -> str:
 
     elif ext in (".txt", ".md"):
         try:
-            with open(filepath, "r", encoding="utf-8", errors="replace") as f:
-                content = f.read(4000)
+            with open(filepath, "r", encoding="utf-8", errors="replace") as fh:
+                content = fh.read(6000)
             return f"[File: {filename}]\n{content}"
         except Exception as e:
             return f"[Read error for {filename}: {e}]"
@@ -348,7 +451,7 @@ def _parse_uploaded_file(filepath: str, filename: str) -> str:
             from docx import Document
             doc = Document(filepath)
             text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
-            return f"[Document: {filename}]\n{text[:5000]}"
+            return f"[Document: {filename}]\n{text[:6000]}"
         except Exception as e:
             return f"[DOCX parse error for {filename}: {e}]"
 
@@ -357,16 +460,54 @@ def _parse_uploaded_file(filepath: str, filename: str) -> str:
             import pdfplumber
             text_parts = []
             with pdfplumber.open(filepath) as pdf:
-                for page in pdf.pages[:20]:
+                for page in pdf.pages[:30]:
                     t = page.extract_text()
                     if t:
                         text_parts.append(t)
-            return f"[PDF: {filename}]\n" + "\n".join(text_parts)[:5000]
+            extracted = "\n".join(text_parts)[:8000]
+            return f"[PDF: {filename}]\n{extracted}"
         except Exception as e:
             return f"[PDF parse error for {filename}: {e}]"
 
+    elif ext in (".png", ".jpg", ".jpeg", ".webp", ".gif"):
+        # Use GPT-4o Vision to describe the image
+        try:
+            import base64
+            with open(filepath, "rb") as fh:
+                b64 = base64.b64encode(fh.read()).decode("utf-8")
+            mime = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
+                    "webp": "image/webp", "gif": "image/gif"}.get(ext.lstrip("."), "image/png")
+            data_url = f"data:{mime};base64,{b64}"
+
+            if client:
+                resp = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": (
+                                "You are a project controls analyst. Describe this image in detail as it relates to construction schedule management. "
+                                "Extract all visible text, dates, milestone names, activity names, percentages, and any schedule data. "
+                                "If this is a dashboard screenshot, list every milestone name and date visible. "
+                                "If this is a chart or graph, describe what it shows including axis labels and values. "
+                                "Be thorough — this description will be used as reference data for schedule analysis."
+                            )},
+                            {"type": "image_url", "image_url": {"url": data_url, "detail": "high"}}
+                        ]
+                    }],
+                    max_tokens=1500,
+                    timeout=30
+                )
+                description = resp.choices[0].message.content
+                return f"[Image: {filename}]\n{description}"
+            else:
+                # No client — store the raw base64 reference for later vision use
+                return f"[Image: {filename}]\n[Image uploaded — vision analysis will be applied when queried]"
+        except Exception as e:
+            return f"[Image parse error for {filename}: {e}]"
+
     else:
-        return f"[Unsupported file type: {ext}. Supported: .mpp, .xml, .xer, .csv, .txt, .md, .docx, .pdf]"
+        return f"[Unsupported file type: {ext}. Supported: .mpp, .xml, .xer, .csv, .txt, .md, .docx, .pdf, .png, .jpg, .jpeg, .webp]"
 
 def background_scraper(interval_seconds=1800):
     """Runs scraper every interval_seconds (default 30 min) in a background thread."""
@@ -419,7 +560,14 @@ def view_screenshot(page_num):
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
-    """Accept an uploaded schedule file, parse it, return context for the Copilot."""
+    """
+    Accept an uploaded file. Supports schedule files, PDFs, images, docs, and notes.
+    If project_slug is provided, the parsed content is stored in that project's
+    document memory and persisted to disk — it will be automatically injected into
+    every subsequent chat for that project.
+    If no project_slug, returns context for one-time use (legacy behavior).
+    Optional fields: label (display name), user_note (user annotation for the doc).
+    """
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
     f = request.files["file"]
@@ -427,24 +575,96 @@ def upload_file():
         return jsonify({"error": "Empty filename"}), 400
 
     ext = os.path.splitext(f.filename)[1].lower()
-    allowed = {".mpp", ".xml", ".xer", ".csv", ".txt", ".md"}
+    allowed = {".mpp", ".xml", ".xer", ".csv", ".txt", ".md",
+               ".docx", ".pdf", ".png", ".jpg", ".jpeg", ".webp", ".gif"}
     if ext not in allowed:
-        return jsonify({"error": f"Unsupported file type: {ext}"}), 400
+        return jsonify({"error": f"Unsupported file type: {ext}. Supported: {', '.join(sorted(allowed))}"}), 400
 
+    project_slug = request.form.get("project_slug", "").strip() or None
+    label = request.form.get("label", "").strip() or f.filename
+    user_note = request.form.get("user_note", "").strip() or ""
+
+    tmp_path = None
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
             f.save(tmp.name)
             tmp_path = tmp.name
 
-        context = _parse_uploaded_file(tmp_path, f.filename)
-        return jsonify({"context": context, "filename": f.filename})
+        # Pass client so images can be described via Vision
+        _client = get_client()
+        content = _parse_uploaded_file(tmp_path, f.filename, client=_client)
+
+        if project_slug:
+            # Store in project-scoped memory
+            import datetime
+            doc_entry = {
+                "filename": f.filename,
+                "label": label,
+                "user_note": user_note,
+                "content": content,
+                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            }
+            if project_slug not in _project_docs:
+                _project_docs[project_slug] = []
+            # Replace existing doc with same filename, or append
+            existing = [d for d in _project_docs[project_slug] if d["filename"] != f.filename]
+            existing.append(doc_entry)
+            _project_docs[project_slug] = existing
+            _save_project_docs(project_slug)
+            logger.info(f"[{project_slug}] Stored user doc: {f.filename}")
+            return jsonify({
+                "status": "stored",
+                "project_slug": project_slug,
+                "filename": f.filename,
+                "label": label,
+                "doc_count": len(_project_docs[project_slug]),
+                "preview": content[:300]
+            })
+        else:
+            # Legacy: return context for one-time use
+            return jsonify({"context": content, "filename": f.filename})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
-        try:
-            os.unlink(tmp_path)
-        except Exception:
-            pass
+        if tmp_path:
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass
+
+
+@app.route("/docs/<slug>", methods=["GET"])
+def list_project_docs(slug):
+    """List all user-uploaded documents stored for a project."""
+    docs = _project_docs.get(slug, [])
+    return jsonify({
+        "project_slug": slug,
+        "doc_count": len(docs),
+        "docs": [{"filename": d["filename"], "label": d["label"],
+                  "timestamp": d["timestamp"], "user_note": d.get("user_note", ""),
+                  "preview": d["content"][:200]} for d in docs]
+    })
+
+
+@app.route("/docs/<slug>/<filename>", methods=["DELETE"])
+def delete_project_doc(slug, filename):
+    """Remove a specific uploaded document from a project's memory."""
+    if slug not in _project_docs:
+        return jsonify({"error": "Project not found"}), 404
+    before = len(_project_docs[slug])
+    _project_docs[slug] = [d for d in _project_docs[slug] if d["filename"] != filename]
+    _save_project_docs(slug)
+    removed = before - len(_project_docs[slug])
+    return jsonify({"status": "ok", "removed": removed, "remaining": len(_project_docs[slug])})
+
+
+@app.route("/docs/<slug>/clear", methods=["POST"])
+def clear_project_docs(slug):
+    """Clear all user-uploaded documents for a project."""
+    _project_docs[slug] = []
+    _save_project_docs(slug)
+    return jsonify({"status": "cleared", "project_slug": slug})
 
 @app.route("/scrape", methods=["POST"])
 def trigger_scrape():
@@ -485,6 +705,11 @@ def chat():
         proj_ctx = get_project_context(project_slug, page_view)
         if proj_ctx:
             system += f"\n\n{proj_ctx}"
+
+        # Inject project-scoped user-uploaded documents
+        docs_ctx = _get_project_docs_context(project_slug)
+        if docs_ctx:
+            system += f"\n\n{docs_ctx}"
 
     if context:
         system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
