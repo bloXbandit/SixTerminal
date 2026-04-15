@@ -520,6 +520,41 @@ import threading as _threading
 _threading.Thread(target=_background_startup, daemon=True).start()
 
 
+def _gradual_project_loader():
+    """Background thread to gradually load all projects after startup.
+    Loads one project every 90 seconds to avoid overwhelming the server.
+    """
+    import time
+    time.sleep(30)  # Wait 30s after startup for things to stabilize
+    
+    try:
+        from project_loader import list_projects, ensure_project_loaded
+        projects = list_projects()
+        logger.info(f"[AutoLoader] Starting gradual load of {len(projects)} projects...")
+        
+        for i, p in enumerate(projects):
+            slug = p["slug"]
+            try:
+                # This triggers background loading if not already loaded
+                is_ready = ensure_project_loaded(slug)
+                if is_ready:
+                    logger.info(f"[AutoLoader] {i+1}/{len(projects)} {slug}: already cached")
+                else:
+                    logger.info(f"[AutoLoader] {i+1}/{len(projects)} {slug}: loading started")
+                    # Wait 90s between projects to avoid CPU spikes
+                    time.sleep(90)
+            except Exception as e:
+                logger.warning(f"[AutoLoader] Failed to load {slug}: {e}")
+                time.sleep(10)  # Brief pause on error
+                
+        logger.info("[AutoLoader] All projects processed.")
+    except Exception as e:
+        logger.warning(f"[AutoLoader] Gradual loader failed: {e}")
+
+# Start gradual loader after startup
+_threading.Thread(target=_gradual_project_loader, daemon=True).start()
+
+
 def _parse_uploaded_file(filepath: str, filename: str) -> str:
     """Parse an uploaded schedule file and return a context string for the Copilot."""
     ext = os.path.splitext(filename)[1].lower()
@@ -848,9 +883,18 @@ def chat():
 
     system = SYSTEM_BASE
 
-    # Portfolio overview — injected from startup cache, never rebuilt per-request
-    if _PORTFOLIO_CTX:
-        system += f"\n\n{_PORTFOLIO_CTX}"
+    # Portfolio overview — rebuild with current health data on each request
+    try:
+        from tracker_loader import get_portfolio_summary
+        from project_loader import has_schedule, list_projects
+        _sched_flags = {p["slug"]: has_schedule(p["slug"]) for p in list_projects()}
+        _fresh_portfolio = get_portfolio_summary(_sched_flags)
+        if _fresh_portfolio:
+            system += f"\n\n{_fresh_portfolio}"
+    except Exception as _e:
+        # Fallback to cached version if dynamic build fails
+        if _PORTFOLIO_CTX:
+            system += f"\n\n{_PORTFOLIO_CTX}"
 
     if dashboard_context:
         system += f"\n\n{dashboard_context}"
