@@ -25,6 +25,7 @@ _project_health: Dict[str, dict] = {}  # {slug: {status, compression_pct, max_sl
 _project_tasks: Dict[str, list] = {}          # {slug: [task_dicts]} — current schedule tasks for milestone lookup
 _project_tasks_previous: Dict[str, list] = {}  # {slug: [task_dicts]} — previous update tasks
 _project_tasks_baseline: Dict[str, list] = {}  # {slug: [task_dicts]} — baseline tasks
+_loading_in_progress: set = set()  # Track which slugs are currently loading in background
 
 
 def _get_mpp_parser():
@@ -337,9 +338,9 @@ def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
             logger.warning(f"PDF crosscheck failed: {e}")
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=20)
+    t.join(timeout=5)
     if t.is_alive():
-        logger.warning(f"PDF read timed out (20s), skipping: {os.path.basename(pdf_path)}")
+        logger.warning(f"PDF read timed out (5s), skipping: {os.path.basename(pdf_path)}")
         return []
     return result
 
@@ -370,9 +371,9 @@ def _extract_variance_pdf(pdf_path: str) -> list:
             logger.warning(f"Variance PDF extraction failed: {e}")
     t = _thr.Thread(target=_read, daemon=True)
     t.start()
-    t.join(timeout=20)
+    t.join(timeout=5)
     if t.is_alive():
-        logger.warning(f"Variance PDF timed out (20s), skipping: {os.path.basename(pdf_path)}")
+        logger.warning(f"Variance PDF timed out (5s), skipping: {os.path.basename(pdf_path)}")
         return []
     return result
 
@@ -996,13 +997,31 @@ def _load_milestone_map(slug: str) -> str:
         return ""
 
 
+def _background_load_schedule(slug: str, project_path: str):
+    """Background thread worker to load schedule data."""
+    global _loading_in_progress
+    try:
+        _load_schedule_data(slug, project_path)
+    finally:
+        _loading_in_progress.discard(slug)
+
+
 def ensure_project_loaded(slug: str) -> bool:
-    """On-demand loading: parse schedule data if not already loaded. Returns True if loaded."""
+    """On-demand loading: parse schedule data if not already loaded.
+    Returns True if data is ready, False if loading started in background.
+    Non-blocking: always returns immediately.
+    """
+    global _loading_in_progress
+
     # Already loaded?
-    if slug in _project_cache:
+    if slug in _project_cache and _project_cache[slug]:
         return True
 
-    # Need metadata first
+    # Currently loading in background?
+    if slug in _loading_in_progress:
+        return False
+
+    # Need metadata first (fast, do synchronously)
     if slug not in _project_meta:
         project_path = os.path.join(PROJECTS_DIR, slug)
         if not os.path.exists(project_path):
@@ -1011,10 +1030,13 @@ def ensure_project_loaded(slug: str) -> bool:
         if slug not in _project_meta:
             return False
 
-    # Load schedule data on demand
+    # Start schedule loading in background thread
     project_path = os.path.join(PROJECTS_DIR, slug)
-    _load_schedule_data(slug, project_path)
-    return slug in _project_cache and _project_cache[slug]
+    _loading_in_progress.add(slug)
+    t = threading.Thread(target=_background_load_schedule, args=(slug, project_path), daemon=True)
+    t.start()
+    logger.info(f"[{slug}] Schedule loading started in background thread")
+    return False
 
 
 def get_project_context(slug: str, page: Optional[str] = None) -> str:
@@ -1056,9 +1078,13 @@ def get_project_context(slug: str, page: Optional[str] = None) -> str:
         parts.append("")
         parts.append(schedule_ctx)
     else:
-        # Schedule not loaded yet (on-demand parsing in progress or no data)
+        # Schedule not loaded yet (background parsing in progress or no data)
         parts.append("")
-        parts.append("[Schedule data is loaded on-demand for this project. If this is the first query, parsing may take 30-60 seconds. Try your question again in a moment.]")
+        is_loading = slug in _loading_in_progress
+        if is_loading:
+            parts.append("[Schedule data is loading in the background (started ~30 seconds ago). Please wait 20-30 seconds and ask again.]")
+        else:
+            parts.append("[No schedule data available for this project. User can upload an MPP/XER file to provide schedule data.]")
 
     return "\n".join(parts)
 
