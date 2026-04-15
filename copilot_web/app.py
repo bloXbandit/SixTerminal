@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
+from functools import wraps
 import openai
 import os
 import sys
@@ -10,7 +11,33 @@ import tempfile
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder=os.path.join(os.path.dirname(__file__), "static"),
+            static_url_path="/static")
+
+# ── Auth configuration ──
+# Set APP_PASSWORD in your environment (Render dashboard → Environment Variables)
+# Set SECRET_KEY to a long random string (e.g. python -c "import secrets; print(secrets.token_hex(32))")
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+app.permanent_session_lifetime = 28800  # 8 hours in seconds
+_APP_PASSWORD = os.getenv("APP_PASSWORD", "")
+
+def require_auth(f):
+    """Decorator that redirects unauthenticated requests to /login."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not _APP_PASSWORD:
+            # No password set — auth disabled (dev mode)
+            return f(*args, **kwargs)
+        if not session.get("authenticated"):
+            # API endpoints return 401; browser routes redirect to login
+            if request.path.startswith(("/chat", "/upload", "/docs", "/projects",
+                                        "/context", "/scrape", "/screenshot",
+                                        "/health")):
+                return jsonify({"error": "Unauthorized"}), 401
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
 
 @app.after_request
 def allow_iframe(response):
@@ -526,15 +553,45 @@ def background_scraper(interval_seconds=1800):
 scraper_thread = threading.Thread(target=background_scraper, daemon=True)
 scraper_thread.start()
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Login page — accepts shared APP_PASSWORD from environment."""
+    if not _APP_PASSWORD:
+        # Auth disabled in dev mode — go straight to app
+        return redirect(url_for("index"))
+    if session.get("authenticated"):
+        return redirect(url_for("index"))
+    error = None
+    if request.method == "POST":
+        pwd = request.form.get("password", "")
+        if pwd == _APP_PASSWORD:
+            session.permanent = True
+            session["authenticated"] = True
+            return redirect(url_for("index"))
+        else:
+            error = "Incorrect password. Please try again."
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    """Clear session and redirect to login."""
+    session.clear()
+    return redirect(url_for("login"))
+
+
 @app.route("/")
+@require_auth
 def index():
     return render_template("index.html")
 
 @app.route("/health")
 def health():
+    """Health check — no auth required so Render uptime checks work."""
     return "ok", 200
 
 @app.route("/context", methods=["GET"])
+@require_auth
 def view_context():
     """Debug endpoint to inspect current dashboard context."""
     ctx = load_context()
@@ -543,6 +600,7 @@ def view_context():
     return jsonify({"status": "loaded", "context": ctx[:3000]})
 
 @app.route("/context-debug/<slug>", methods=["GET"])
+@require_auth
 def context_debug(slug):
     """
     Returns the full system prompt that would be sent to GPT-4o for a given project.
@@ -599,6 +657,7 @@ def context_debug(slug):
 
 
 @app.route("/projects", methods=["GET"])
+@require_auth
 def get_projects():
     """Returns list of all projects and their pages for the dropdown."""
     projects = list_projects()
@@ -607,6 +666,7 @@ def get_projects():
     return jsonify({"projects": projects})
 
 @app.route("/screenshot/<int:page_num>", methods=["GET"])
+@require_auth
 def view_screenshot(page_num):
     """Debug endpoint to view the screenshot Playwright captured for a given page."""
     path = f"/tmp/screenshot_page_{page_num}.png"
@@ -615,6 +675,7 @@ def view_screenshot(page_num):
     return send_file(path, mimetype="image/png")
 
 @app.route("/upload", methods=["POST"])
+@require_auth
 def upload_file():
     """
     Accept an uploaded file. Supports schedule files, PDFs, images, docs, and notes.
@@ -692,6 +753,7 @@ def upload_file():
 
 
 @app.route("/docs/<slug>", methods=["GET"])
+@require_auth
 def list_project_docs(slug):
     """List all user-uploaded documents stored for a project."""
     docs = _project_docs.get(slug, [])
@@ -705,6 +767,7 @@ def list_project_docs(slug):
 
 
 @app.route("/docs/<slug>/<filename>", methods=["DELETE"])
+@require_auth
 def delete_project_doc(slug, filename):
     """Remove a specific uploaded document from a project's memory."""
     if slug not in _project_docs:
@@ -717,6 +780,7 @@ def delete_project_doc(slug, filename):
 
 
 @app.route("/docs/<slug>/clear", methods=["POST"])
+@require_auth
 def clear_project_docs(slug):
     """Clear all user-uploaded documents for a project."""
     _project_docs[slug] = []
@@ -724,6 +788,7 @@ def clear_project_docs(slug):
     return jsonify({"status": "cleared", "project_slug": slug})
 
 @app.route("/scrape", methods=["POST"])
+@require_auth
 def trigger_scrape():
     """Manual trigger to force a fresh scrape."""
     if not SCRAPER_AVAILABLE:
@@ -735,6 +800,7 @@ def trigger_scrape():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/chat", methods=["POST"])
+@require_auth
 def chat():
     data = request.get_json()
     messages = data.get("messages", [])
