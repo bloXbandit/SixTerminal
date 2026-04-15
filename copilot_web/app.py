@@ -540,7 +540,7 @@ except Exception as _e:
     MPPParser = None
 
 try:
-    from project_loader import load_all_projects, get_project_context, list_projects, has_schedule
+    from project_loader import load_all_projects, get_project_context, list_projects, has_schedule, update_milestone_prior_dates
     load_all_projects()
     logger.info("Project buckets loaded.")
 except Exception as _pe:
@@ -549,6 +549,7 @@ except Exception as _pe:
     def get_project_context(slug, page=None): return ""
     def list_projects(): return []
     def has_schedule(slug): return False
+    def update_milestone_prior_dates(slug): return 0
 
 try:
     from tracker_loader import load_tracker
@@ -910,6 +911,21 @@ def upload_file():
         # Pass client so images can be described via Vision
         _client = get_client()
         content = _parse_uploaded_file(tmp_path, f.filename, client=_client)
+
+        # --- Auto-snapshot prior dates before a new update_N schedule file is saved ---
+        # This ensures the current forecast is preserved as prior_update_date before
+        # the new update overwrites it as "current". Fires only for schedule files
+        # with update_N naming convention uploaded to a known project.
+        import re as _re_up
+        _is_schedule_ext = ext in (".mpp", ".xml", ".xer")
+        _is_update_file = bool(_re_up.match(r'^update[_\-]\d+', f.filename.lower()))
+        if project_slug and _is_schedule_ext and _is_update_file:
+            try:
+                snapped = update_milestone_prior_dates(project_slug)
+                if snapped:
+                    logger.info(f"[{project_slug}] Auto-snapped prior_update_date for {snapped} milestones before loading {f.filename}")
+            except Exception as _snap_e:
+                logger.warning(f"[{project_slug}] prior_update_date snapshot failed: {_snap_e}")
 
         if project_slug:
             # Store in project-scoped memory
