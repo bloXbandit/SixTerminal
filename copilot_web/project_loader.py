@@ -15,6 +15,15 @@ logger = logging.getLogger(__name__)
 
 PROJECTS_DIR = os.path.join(os.path.dirname(__file__), "projects")
 
+# Encryption helpers — graceful no-op if key not set or cryptography not installed
+try:
+    from crypto import read_encrypted_json, write_encrypted_json
+except ImportError:
+    def read_encrypted_json(path):
+        with open(path, "r", encoding="utf-8") as f: return json.load(f)
+    def write_encrypted_json(path, obj):
+        with open(path, "w", encoding="utf-8") as f: json.dump(obj, f, indent=2, default=str)
+
 _project_cache: Dict[str, str] = {}
 _project_meta: Dict[str, dict] = {}
 _project_health: Dict[str, dict] = {}  # {slug: {status, compression_pct, max_slip_days, max_accel_days}}
@@ -130,13 +139,29 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
     Parse any schedule file (mpp/xml/xer) and return a normalized dict:
     { raw_context: str, source: str, tasks: List[Dict] }
     tasks is used by the variance engine for delta computation.
+    If ENCRYPTION_KEY is set the file is decrypted to a temp file before parsing.
     """
+    import tempfile
     ext = os.path.splitext(filepath)[1].lower()
+
+    # Decrypt to a temp file if encryption is enabled
+    try:
+        from crypto import read_encrypted_bytes, is_enabled as _enc_on
+        if _enc_on():
+            _raw = read_encrypted_bytes(filepath)
+            _tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+            _tmp.write(_raw)
+            _tmp.close()
+            _parse_path = _tmp.name
+        else:
+            _parse_path = filepath
+    except ImportError:
+        _parse_path = filepath
 
     try:
         if ext in (".mpp", ".xml"):
             MPPParser = _get_mpp_parser()
-            p = MPPParser(filepath)
+            p = MPPParser(_parse_path)
             raw = p.get_llm_context()
             return {
                 "raw_context": raw,
@@ -146,7 +171,7 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
 
         elif ext == ".xer":
             P6Parser = _get_xer_parser()
-            p = P6Parser(filepath)
+            p = P6Parser(_parse_path)
             ctx = p.get_llm_context()
             info = ctx.get("project_info", {})
             metrics = ctx.get("project_metrics", {})
@@ -187,6 +212,13 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
     except Exception as e:
         logger.error(f"Parse failed for {filepath}: {e}")
         return None
+    finally:
+        # Clean up temp decryption file if one was created
+        if _parse_path != filepath:
+            try:
+                os.unlink(_parse_path)
+            except Exception:
+                pass
 
     return None
 
@@ -772,8 +804,7 @@ def _load_milestone_map(slug: str) -> str:
                        f"Run the milestone map builder or upload a Milestone Map.xlsx to populate it.")
         return ""
     try:
-        with open(mm_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = read_encrypted_json(mm_path)
         milestones = data.get("milestones", [])
         if not milestones:
             return ""
@@ -964,8 +995,7 @@ def update_milestone_prior_dates(slug: str) -> int:
         logger.warning(f"[{slug}] milestone_map.json not found — cannot update prior dates")
         return 0
     try:
-        with open(mm_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = read_encrypted_json(mm_path)
         milestones = data.get("milestones", [])
         if not milestones:
             return 0
@@ -984,8 +1014,7 @@ def update_milestone_prior_dates(slug: str) -> int:
                     m["prior_update_date"] = curr_finish
                     updated += 1
 
-        with open(mm_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, default=str)
+        write_encrypted_json(mm_path, data)
         logger.info(f"[{slug}] Updated prior_update_date for {updated} milestones")
         return updated
     except Exception as e:
@@ -1064,8 +1093,7 @@ if __name__ == "__main__":
             "type": data["type"],
             "milestones": sorted(data["milestones"], key=lambda x: x["sort"] or 99)
         }
-        with open(out, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2)
+        write_encrypted_json(out, payload)
         count = len(data["milestones"])
         print(f"  OK  {slug}: {count} milestones")
         written += 1

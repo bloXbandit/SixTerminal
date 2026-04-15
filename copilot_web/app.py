@@ -585,23 +585,35 @@ def _docs_path(slug: str) -> str:
     here = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(here, "projects", slug, "user_docs.json")
 
+# Import encryption helpers (graceful no-op if cryptography not installed or key not set)
+try:
+    from crypto import read_encrypted_json, write_encrypted_json, write_encrypted_bytes, read_encrypted_bytes, is_enabled as _crypto_enabled
+except ImportError:
+    def read_encrypted_json(path):
+        with open(path, "r", encoding="utf-8") as f: return json.load(f)
+    def write_encrypted_json(path, obj):
+        with open(path, "w", encoding="utf-8") as f: json.dump(obj, f, indent=2, default=str)
+    def write_encrypted_bytes(path, data):
+        with open(path, "wb") as f: f.write(data)
+    def read_encrypted_bytes(path):
+        with open(path, "rb") as f: return f.read()
+    def _crypto_enabled(): return False
+
 def _load_project_docs(slug: str) -> list:
-    """Load persisted docs from disk for a project slug."""
+    """Load persisted docs from disk for a project slug (decrypts if ENCRYPTION_KEY is set)."""
     path = _docs_path(slug)
     if os.path.exists(path):
         try:
-            with open(path, "r", encoding="utf-8") as f:
-                return json.load(f)
+            return read_encrypted_json(path)
         except Exception:
             pass
     return []
 
 def _save_project_docs(slug: str):
-    """Persist in-memory docs to disk for a project slug."""
+    """Persist in-memory docs to disk for a project slug (encrypts if ENCRYPTION_KEY is set)."""
     path = _docs_path(slug)
     try:
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(_project_docs.get(slug, []), f, indent=2, default=str)
+        write_encrypted_json(path, _project_docs.get(slug, []))
     except Exception as e:
         logger.warning(f"[{slug}] Could not persist user_docs: {e}")
 
@@ -919,7 +931,40 @@ def upload_file():
         import re as _re_up
         _is_schedule_ext = ext in (".mpp", ".xml", ".xer")
         _is_update_file = bool(_re_up.match(r'^update[_\-]\d+', f.filename.lower()))
-        if project_slug and _is_schedule_ext and _is_update_file:
+        # --- Save raw schedule file to project folder so parser picks it up as current ---
+        _saved_to_disk = False
+        _saved_path = None
+        if project_slug and _is_schedule_ext:
+            try:
+                _proj_dir = os.path.join(_here, "projects", project_slug)
+                if os.path.isdir(_proj_dir):
+                    # Snapshot prior dates BEFORE saving the new file (so current becomes previous)
+                    if _is_update_file:
+                        try:
+                            snapped = update_milestone_prior_dates(project_slug)
+                            if snapped:
+                                logger.info(f"[{project_slug}] Auto-snapped prior_update_date for {snapped} milestones before loading {f.filename}")
+                        except Exception as _snap_e:
+                            logger.warning(f"[{project_slug}] prior_update_date snapshot failed: {_snap_e}")
+                    # Save the raw file to the project bucket (encrypted if ENCRYPTION_KEY is set)
+                    _saved_path = os.path.join(_proj_dir, f.filename)
+                    with open(tmp_path, "rb") as _raw_fh:
+                        _raw_bytes = _raw_fh.read()
+                    write_encrypted_bytes(_saved_path, _raw_bytes)
+                    _saved_to_disk = True
+                    logger.info(f"[{project_slug}] Saved schedule file to project folder: {_saved_path} (encrypted={_crypto_enabled()})")
+                    # Reload all projects so the new file is picked up immediately
+                    try:
+                        load_all_projects()
+                        logger.info(f"[{project_slug}] Project context reloaded after new schedule file upload")
+                    except Exception as _rel_e:
+                        logger.warning(f"[{project_slug}] Reload after upload failed: {_rel_e}")
+                else:
+                    logger.warning(f"[{project_slug}] Project folder not found — file not saved to disk: {_proj_dir}")
+            except Exception as _disk_e:
+                logger.warning(f"[{project_slug}] Failed to save schedule file to project folder: {_disk_e}")
+        elif project_slug and _is_schedule_ext and _is_update_file:
+            # Fallback: snapshot only (no project folder found)
             try:
                 snapped = update_milestone_prior_dates(project_slug)
                 if snapped:
