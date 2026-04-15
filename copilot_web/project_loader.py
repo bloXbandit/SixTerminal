@@ -662,6 +662,45 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     elif verify_pdf:
         active_verify_pdf = verify_pdf  # fall back to unversioned verify.pdf
 
+    # --- RELATIONSHIPS block — raw predecessor table for agent manual CP tracing and delay sourcing ---
+    # Injected as text so the agent can walk any activity's upstream chain when the pre-computed
+    # chain is shallow or the user asks about a specific activity not in the chain.
+    try:
+        curr_rels = current_data.get("relationships", [])
+        curr_tasks = current_data.get("tasks", [])
+        if curr_rels:
+            # Build ID → name lookup for readable output
+            id_to_name: dict = {}
+            for _t in curr_tasks:
+                _tid = str(_t.get("id") or _t.get("task_id") or _t.get("activity_id") or "").strip()
+                _tname = (_t.get("name") or _t.get("task_name") or "").strip()
+                if _tid and _tname:
+                    id_to_name[_tid] = _tname
+            rel_lines = []
+            for _r in curr_rels[:600]:  # cap at 600 to stay token-efficient
+                succ_id = str(_r.get("task_id") or _r.get("succ_task_id") or "").strip()
+                pred_id = str(_r.get("predecessor_task_id") or _r.get("pred_task_id") or "").strip()
+                rel_type = str(_r.get("type") or _r.get("pred_type") or "FS").strip()
+                if succ_id and pred_id:
+                    succ_name = id_to_name.get(succ_id, "")
+                    pred_name = id_to_name.get(pred_id, "")
+                    succ_str = f"{succ_id} \"{succ_name}\"" if succ_name else succ_id
+                    pred_str = f"{pred_id} \"{pred_name}\"" if pred_name else pred_id
+                    rel_lines.append(f"  {succ_str} → {pred_str} ({rel_type})")
+            if rel_lines:
+                parts.append("")
+                parts.append(
+                    f"=== RELATIONSHIPS ({len(rel_lines)} links) ===\n"
+                    f"Format: Activity ID \"Name\" → Predecessor ID \"Name\" (type)\n"
+                    f"Use this table to trace any activity's upstream chain manually.\n"
+                    f"To source a delay: find the slipped activity, look up its predecessor IDs here,\n"
+                    f"then look those IDs up in SCHEDULE DATA for their finish dates and float.\n"
+                    f"Walk back until you reach the root driver (earliest activity with no predecessors or earliest start)."
+                )
+                parts.extend(rel_lines)
+    except Exception as _rele:
+        logger.warning(f"[{slug}] Relationships injection failed: {_rele}")
+
     if active_verify_pdf:
         pdf_lines = _extract_pdf_milestones(active_verify_pdf)
         if pdf_lines:
