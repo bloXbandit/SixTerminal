@@ -31,7 +31,28 @@
   .header-left { display: flex; align-items: center; gap: 10px; }
   .header-left .logo { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
   .header-left .tagline { font-size: 11px; opacity: 0.8; }
-  .header-right { font-size: 11px; opacity: 0.7; }
+  .header-right { display: flex; align-items: center; gap: 12px; font-size: 11px; opacity: 0.7; }
+  .btn-logout {
+    font-size: 11px;
+    font-family: inherit;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-logout:hover {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+  }
 
   /* ── Main body split ── */
   .main {
@@ -392,7 +413,9 @@
     <span class="logo">STELIC INSIGHTS</span>
     <span class="tagline">Project Intelligence Platform</span>
   </div>
-  <div class="header-right">AI Sandbox · Public Storage Dashboard</div>
+  <div class="header-right">
+    <a href="/logout" class="btn-logout" onclick="return confirm('Sign out?')">&#x2192; Sign Out</a>
+  </div>
 </div>
 
 <div class="main">
