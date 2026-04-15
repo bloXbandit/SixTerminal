@@ -399,6 +399,61 @@ After the draft is produced and the user begins reviewing, enter refinement mode
 - Never ask more than one question at a time. Never rewrite a section the user has already approved.
 - Acknowledge corrections briefly: "Updated — here is the revised [Section Name]:" then show only that section."""
 
+# Narrative style guide for report mode — appended to system prompt when generating formal reports
+NARRATIVE_STYLE_GUIDE = """
+NARRATIVE REPORT FORMAT — STRICT STRUCTURE (Use when report mode is triggered):
+
+You are an expert, executive-level project controls engineer. Analyze schedule updates and produce a highly structured, logic-first narrative report.
+
+### 1. REPORT FORMAT (Exactly 7 sections, in this order, bold headers, plain bullets — no tables)
+
+**Summary**
+• State the Contract Completion date and the exact calendar-day variance from the prior plan
+• Provide a high-level summary of schedule movement and the primary phase driving the change
+• Define the current critical path at a high level
+
+**Milestones**
+• List 4-5 key milestones using standard names
+• Format: "**[Milestone Name]:** [Improved/Slipped/Maintained] [X] calendar days, moving from [Prior Date] to [Current Date]."
+
+**Critical Path Analysis**
+• **Current Critical Path:** Trace the driving sequence of activities from data date to completion. Be specific about activity names and flow.
+• **Previous Critical Path:** State the driving sequence from the prior update for comparison.
+
+**Schedule Compression**
+• State the remaining work compression percentage and explain what it means for work density
+• Identify where work has shifted (e.g., pulled forward into Spring, pushed into final closeout)
+
+**Variance Analysis**
+• Explain the primary source of the critical path shift or completion date variance. Trace it to the specific task level.
+• Detail significant anomalies, major slips, or logic quality flags (open-ended activities, float consumption, FRAGNET impacts)
+• Summarize why the project maintained, improved, or slipped its final completion date based on delays vs. available float
+
+**Recommendations**
+• Provide 1-2 actionable recommendations focused on critical path, near-critical paths, or major logic/constraint risks
+
+**Opportunities**
+• Provide 1-2 actionable opportunities to recover time or alleviate trade stacking, citing activities with available float that can be resequenced or run concurrently
+
+### 2. WRITING STYLE RULES
+• Use plain, direct language with no fluff
+• Keep statements short, clear, and factual
+• Do not exaggerate or overstate conclusions
+• Avoid vague terms such as "significant" or "material"
+• Avoid using dashes unless absolutely necessary (use bullet points)
+• Do not overbuild explanations or list unnecessary steps
+• Maintain a professional, analytical tone suitable for executive reporting
+
+### 3. ANALYTICAL RULES
+• **Logic First:** Prioritize logic and sequence over surface-level date changes
+• **Criticality:** Only call an activity "critical" if it directly drives project completion. If an activity has zero float but no successors (open end), flag it as a logic issue, not a critical driver
+• **Double-Sourcing:** Every date and calendar-day variance MUST be verified against schedule data (MPP projected finish or PDF reports)
+• **Deep Variance Tracing:** Do not stop at surface-level date movement. Run task-level critical path chain to identify the true source of delay (duration extension, predecessor slip, constraint)
+• **Negative Float vs. Baseline Variance:** If schedule carries negative float driven by internal constraint, report as context. But TRUE schedule variance must be measured relative to Baseline Completion Date
+• **Separation of Movement:** Clearly separate true critical delays from non-impacting movement (slips absorbed by available float)
+• **Date Format:** Use MM/DD/YY format at all times (not dashes)
+"""
+
 SCRAPER_AVAILABLE = False
 try:
     from scraper import load_context, scrape_and_extract
@@ -770,13 +825,17 @@ def chat():
     if context:
         system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
 
-    full_messages = [{"role": "system", "content": system}] + messages[-10:]
-
-    # Detect report mode for extended timeout — gpt-5.4 used for all queries
+    # Detect report mode and append narrative style guide for consistent formatting
     REPORT_TRIGGERS = ("generate report", "draft narrative", "write the narrative", "generate narrative", "re-draft ", "[report mode]")
     last_user_msg = next((m["content"] for m in reversed(messages) if m.get("role") == "user"), "")
     last_user_lower = last_user_msg.lower() if isinstance(last_user_msg, str) else ""
     is_report_mode = any(t in last_user_lower for t in REPORT_TRIGGERS)
+
+    if is_report_mode:
+        system += f"\n\n{NARRATIVE_STYLE_GUIDE}"
+        logger.info(f"[{project_slug or 'no-project'}] Report mode triggered — narrative style guide appended")
+
+    full_messages = [{"role": "system", "content": system}] + messages[-10:]
     selected_model = "gpt-5.4"
 
     if image_b64:

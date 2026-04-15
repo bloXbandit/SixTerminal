@@ -184,6 +184,11 @@ class MPPParser:
 
     def _build_cp_chain(self):
         """Build the critical path chain from contract completion backwards."""
+        # Fix import path for Render environment
+        import sys, os
+        here = os.path.dirname(os.path.abspath(__file__))
+        if here not in sys.path:
+            sys.path.insert(0, here)
         try:
             from critical_path import build_critical_chain
             critical_ids = {str(t["id"]) for t in self.tasks if t.get("critical")}
@@ -235,6 +240,11 @@ class MPPParser:
 
     def get_critical_chain(self, target_name: Optional[str] = None) -> Dict:
         """Build and return CP chain for any target activity (or full project CP)."""
+        # Fix import path for Render environment
+        import sys, os
+        here = os.path.dirname(os.path.abspath(__file__))
+        if here not in sys.path:
+            sys.path.insert(0, here)
         try:
             from critical_path import build_critical_chain
             critical_ids = {str(t["id"]) for t in self.tasks if t.get("critical")}
@@ -315,6 +325,11 @@ class MPPParser:
 
         if self._cp_chain and not self._cp_chain.get("error"):
             try:
+                # Fix import path for Render environment
+                import sys, os
+                here = os.path.dirname(os.path.abspath(__file__))
+                if here not in sys.path:
+                    sys.path.insert(0, here)
                 from critical_path import format_chain_for_context
                 lines.append(format_chain_for_context(self._cp_chain))
                 lines.append("")

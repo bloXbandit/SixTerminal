@@ -196,6 +196,7 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
                 "raw_context": raw,
                 "source": os.path.basename(filepath),
                 "tasks": p.tasks,
+                "relationships": p.relationships,
             }
 
         elif ext == ".xer":
@@ -232,10 +233,19 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
             if p.df_activities is not None and not p.df_activities.empty:
                 for _, row in p.df_activities.iterrows():
                     xer_tasks.append(p._normalize_task_row(row))
+            # Normalize XER relationships to standard format
+            xer_rels = []
+            if p.df_relationships is not None and not p.df_relationships.empty:
+                for _, row in p.df_relationships.iterrows():
+                    xer_rels.append({
+                        "successor_id": str(row.get("task_id", "")),
+                        "predecessor_id": str(row.get("pred_task_id", "")),
+                    })
             return {
                 "raw_context": "\n".join(lines),
                 "source": os.path.basename(filepath),
                 "tasks": xer_tasks,
+                "relationships": xer_rels,
             }
 
     except Exception as e:
@@ -285,11 +295,15 @@ def _is_image_based_pdf(pdf_path: str) -> bool:
 
 def _extract_text_or_ocr(pdf_path: str, max_pages: int = 30) -> list:
     """
-    Try pdfplumber text extraction first. If no text found (image-based PDF),
-    fall back to OCR via pytesseract.
-    Fast pre-check avoids hanging on image PDFs during full extraction.
+    Extract text from PDF. Prefers pre-extracted .txt sidecar from build-time.
+    Falls back to pdfplumber/OCR only if no sidecar exists.
     """
-    # Fast pre-check on page 1 only — avoids hanging on image-only PDFs
+    # First: try pre-extracted .txt sidecar (build-time extraction)
+    sidecar = _read_txt_sidecar(pdf_path)
+    if sidecar:
+        return sidecar
+
+    # Fallback: live extraction with OCR for image-based PDFs
     if _is_image_based_pdf(pdf_path):
         logger.info(f"  Image-based PDF detected, using OCR: {os.path.basename(pdf_path)}")
         return _ocr_pdf_lines(pdf_path, max_pages)
@@ -312,11 +326,33 @@ def _extract_text_or_ocr(pdf_path: str, max_pages: int = 30) -> list:
     return _ocr_pdf_lines(pdf_path, max_pages)
 
 
+def _read_txt_sidecar(pdf_path: str) -> list:
+    """Read pre-extracted .txt sidecar if it exists. Returns empty list if not found."""
+    txt_path = pdf_path.replace('.pdf', '.txt')
+    if os.path.exists(txt_path):
+        try:
+            with open(txt_path, 'r', encoding='utf-8') as f:
+                lines = [line.strip() for line in f.readlines() if len(line.strip()) > 3]
+                if lines:
+                    logger.info(f"  Using pre-extracted .txt: {os.path.basename(txt_path)}")
+                    return lines
+        except Exception as e:
+            logger.warning(f"Failed to read .txt sidecar {txt_path}: {e}")
+    return []
+
+
 def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
     """
     Extract meaningful lines from verify.pdf for schedule crosscheck.
-    Text-layer only with 30s timeout — image-based PDFs skipped instantly.
+    Prefers pre-extracted .txt sidecar files from build-time extraction.
+    Falls back to pdfplumber with 5s timeout only if no sidecar exists.
     """
+    # First: try pre-extracted .txt sidecar (build-time extraction)
+    sidecar = _read_txt_sidecar(pdf_path)
+    if sidecar:
+        return sidecar
+
+    # Fallback: live PDF extraction (slow, may timeout)
     import threading as _thr
     if _is_image_based_pdf(pdf_path):
         logger.info(f"  Verify PDF is image-based, skipping: {os.path.basename(pdf_path)}")
@@ -348,8 +384,15 @@ def _extract_pdf_milestones(pdf_path: str, max_pages: int = 30) -> list:
 def _extract_variance_pdf(pdf_path: str) -> list:
     """
     Extract text lines from a variance_N.pdf report.
-    Text-layer only with 30s timeout — image-based PDFs skipped instantly.
+    Prefers pre-extracted .txt sidecar files from build-time extraction.
+    Falls back to pdfplumber with 5s timeout only if no sidecar exists.
     """
+    # First: try pre-extracted .txt sidecar (build-time extraction)
+    sidecar = _read_txt_sidecar(pdf_path)
+    if sidecar:
+        return sidecar
+
+    # Fallback: live PDF extraction (slow, may timeout)
     import threading as _thr
     if _is_image_based_pdf(pdf_path):
         logger.info(f"  Variance PDF is image-based, skipping: {os.path.basename(pdf_path)}")

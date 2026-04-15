@@ -21,6 +21,11 @@ RUN echo "cache-bust-$(date)" && pip install --no-cache-dir JPype1 && pip instal
 
 COPY . .
 
+# Build-time PDF extraction: convert all PDFs to .txt sidecar files
+# This eliminates runtime PDF parsing delays and timeouts
+RUN echo "Extracting PDF text at build time..." && \
+    python extract_pdfs.py || echo "Some PDFs may have failed extraction, continuing..."
+
 EXPOSE 5000
 
 CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "120"]

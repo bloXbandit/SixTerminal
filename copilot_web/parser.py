@@ -157,6 +157,11 @@ class P6Parser:
 
     def _build_cp_chain(self):
         """Build critical path chain from zero-float activities and relationship network."""
+        # Fix import path for Render environment
+        import sys, os
+        here = os.path.dirname(os.path.abspath(__file__))
+        if here not in sys.path:
+            sys.path.insert(0, here)
         try:
             from critical_path import build_critical_chain
             if self.df_activities is None or self.df_activities.empty:
@@ -209,6 +214,11 @@ class P6Parser:
 
     def get_critical_chain(self, target_name: Optional[str] = None) -> Dict:
         """Build and return CP chain for any target activity (or full project CP)."""
+        # Fix import path for Render environment
+        import sys, os
+        here = os.path.dirname(os.path.abspath(__file__))
+        if here not in sys.path:
+            sys.path.insert(0, here)
         try:
             from critical_path import build_critical_chain
             if self.df_activities is None or self.df_activities.empty:
@@ -340,6 +350,11 @@ class P6Parser:
         cp_context = ""
         if self._cp_chain and not self._cp_chain.get("error"):
             try:
+                # Fix import path for Render environment
+                import sys, os
+                here = os.path.dirname(os.path.abspath(__file__))
+                if here not in sys.path:
+                    sys.path.insert(0, here)
                 from critical_path import format_chain_for_context
                 cp_context = format_chain_for_context(self._cp_chain)
             except Exception:
