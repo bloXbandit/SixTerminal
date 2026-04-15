@@ -799,6 +799,7 @@ def trigger_scrape():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/chat", methods=["POST"])
 @require_auth
 def chat():

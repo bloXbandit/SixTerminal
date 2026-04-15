@@ -177,8 +177,9 @@ def _walk_predecessors(
             # Sort key: (float ascending — None treated as large positive, finish descending, critical descending)
             # We want: lowest float first, then latest finish, then critical as tiebreaker
             float_sort = float_days if float_days is not None else 9999.0
-            # Negate finish for descending sort (we'll use negative of string comparison)
-            return (float_sort, -is_critical, finish)
+            # Invert finish string for descending sort: '~' sorts after all ISO date chars
+            finish_desc = tuple(~ord(c) for c in finish) if finish else (0,)
+            return (float_sort, -is_critical, finish_desc)
 
         # Pick the predecessor with lowest float (most constrained)
         # Among ties: prefer critical, then latest finish
