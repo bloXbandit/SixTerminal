@@ -768,6 +768,8 @@ def _load_milestone_map(slug: str) -> str:
     """
     mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
     if not os.path.exists(mm_path):
+        logger.warning(f"[{slug}] milestone_map.json not found — STANDARDIZED MILESTONES block will be empty. "
+                       f"Run the milestone map builder or upload a Milestone Map.xlsx to populate it.")
         return ""
     try:
         with open(mm_path, "r", encoding="utf-8") as f:

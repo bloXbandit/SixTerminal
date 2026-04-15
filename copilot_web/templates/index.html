@@ -545,6 +545,13 @@
         });
         sel.appendChild(grp);
       }
+
+      // Fix #1: Load docs for whichever project is selected on initial page load
+      // (covers page refresh with a project already pre-selected in the dropdown)
+      if (sel.value) {
+        selectedProjectSlug = sel.value;
+        loadProjectDocs(sel.value);
+      }
     } catch(e) {
       console.warn("Could not load projects:", e);
     }
