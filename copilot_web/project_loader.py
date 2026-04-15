@@ -46,29 +46,43 @@ def _get_xer_parser():
 SCHEDULE_EXTS = (".mpp", ".xml", ".xer")
 
 
-def _load_single_project(slug: str, project_path: str):
-    """Load one project — called in a per-project thread with timeout."""
+def _load_metadata_only(slug: str, project_path: str):
+    """Load only metadata at startup — fast, no schedule parsing."""
     meta_path = os.path.join(project_path, "meta.json")
     if not os.path.exists(meta_path):
         return
-    logger.info(f"[{slug}] Starting load...")
-    with open(meta_path, "r") as f:
-        meta = json.load(f)
-    _project_meta[slug] = meta
-    logger.info(f"[{slug}] Meta loaded, building versioned context...")
+    try:
+        with open(meta_path, "r") as f:
+            meta = json.load(f)
+        _project_meta[slug] = meta
+        logger.info(f"[{slug}] Metadata loaded")
+    except Exception as e:
+        logger.warning(f"[{slug}] Failed to load metadata: {e}")
+
+
+def _load_schedule_data(slug: str, project_path: str):
+    """Parse schedule files on demand — slower, called when project is first queried."""
+    logger.info(f"[{slug}] Parsing schedule data on demand...")
     try:
         context = _build_versioned_context(slug, project_path)
         _project_cache[slug] = context
-        status = "with schedule data" if context else "metadata only"
-        logger.info(f"[{slug}] Loaded — {status}")
+        status = "with schedule data" if context else "no schedule data found"
+        logger.info(f"[{slug}] Schedule parsing complete — {status}")
+        return context
     except Exception as e:
-        logger.error(f"[{slug}] Load failed: {e}")
+        logger.error(f"[{slug}] Schedule parsing failed: {e}")
         _project_cache[slug] = ""
+        return ""
+
+
+def _load_single_project(slug: str, project_path: str):
+    """Load one project — metadata only at startup. Kept for compatibility."""
+    _load_metadata_only(slug, project_path)
 
 
 def load_all_projects():
-    """Scans projects/ folder, builds versioned schedule context per project.
-    Parallel loading — all projects start simultaneously, each with a 120s timeout.
+    """Scans projects/ folder, loads metadata only (fast).
+    Schedule data is parsed on-demand when project is first queried.
     """
     import threading as _thr
     if not os.path.exists(PROJECTS_DIR):
@@ -81,33 +95,30 @@ def load_all_projects():
         and os.path.exists(os.path.join(PROJECTS_DIR, s, "meta.json"))
     ]
 
-    # Pre-warm JVM in the main thread before parallel threads start
-    # This ensures only one thread ever calls startJVM(), preventing race conditions
+    # Pre-warm JVM in the main thread before any parsing happens
     try:
         from mpp_parser import _get_mpxj
         _get_mpxj()
-        logger.info("JVM pre-warmed — parallel MPP parsing safe to start.")
+        logger.info("JVM pre-warmed — ready for on-demand MPP parsing.")
     except Exception as _jvm_e:
         logger.warning(f"JVM pre-warm failed (MPP parsing may be unavailable): {_jvm_e}")
 
-    # Start all project threads simultaneously
+    # Start all metadata threads simultaneously — fast, no heavy parsing
     threads = []
     for slug in slugs:
         project_path = os.path.join(PROJECTS_DIR, slug)
-        t = _thr.Thread(target=_load_single_project, args=(slug, project_path), daemon=True)
+        t = _thr.Thread(target=_load_metadata_only, args=(slug, project_path), daemon=True)
         t.start()
         threads.append((slug, t))
-        logger.info(f"[{slug}] Load thread started.")
+        logger.info(f"[{slug}] Metadata load started.")
 
-    # Wait for all — 300s cap; per-file timeouts (60s/45s/30s) are the real hang protection
+    # Wait for all metadata — should complete quickly
     for slug, t in threads:
-        t.join(timeout=300)
+        t.join(timeout=30)  # 30s is plenty for metadata only
         if t.is_alive():
-            logger.warning(f"[{slug}] Load timed out after 300s — skipping, marking empty")
-            _project_cache.setdefault(slug, "")
+            logger.warning(f"[{slug}] Metadata load timed out after 30s")
 
-    loaded = sum(1 for v in _project_cache.values() if v)
-    logger.info(f"Project loader: {len(_project_meta)} projects, {loaded} with schedule data.")
+    logger.info(f"Project loader: {len(_project_meta)} projects metadata loaded. Schedule data loads on-demand.")
 
 
 def _find_versioned_files(project_path: str) -> dict:
@@ -985,11 +996,36 @@ def _load_milestone_map(slug: str) -> str:
         return ""
 
 
+def ensure_project_loaded(slug: str) -> bool:
+    """On-demand loading: parse schedule data if not already loaded. Returns True if loaded."""
+    # Already loaded?
+    if slug in _project_cache:
+        return True
+
+    # Need metadata first
+    if slug not in _project_meta:
+        project_path = os.path.join(PROJECTS_DIR, slug)
+        if not os.path.exists(project_path):
+            return False
+        _load_metadata_only(slug, project_path)
+        if slug not in _project_meta:
+            return False
+
+    # Load schedule data on demand
+    project_path = os.path.join(PROJECTS_DIR, slug)
+    _load_schedule_data(slug, project_path)
+    return slug in _project_cache and _project_cache[slug]
+
+
 def get_project_context(slug: str, page: Optional[str] = None) -> str:
     """
     Returns the full context string for a project slug.
     Optionally adds a page hint so the LLM knows what view the user is on.
+    On-demand: triggers schedule parsing if not already loaded.
     """
+    # Trigger on-demand loading
+    _ = ensure_project_loaded(slug)
+
     meta = _project_meta.get(slug)
     if not meta:
         return ""
@@ -1015,19 +1051,14 @@ def get_project_context(slug: str, page: Optional[str] = None) -> str:
         parts.append("")
         parts.append(milestone_ctx)
 
-    # Check if still loading - don't block, just note it for the agent to handle
-    still_loading = slug not in _project_cache
-    if still_loading:
-        logger.info(f"[{slug}] Context requested while still loading - will inform agent")
-        parts.append("")
-        parts.append("[PROJECT SCHEDULE IS STILL LOADING — data will be available in approximately 60-90 seconds. Please wait and ask again shortly.]")
-
     schedule_ctx = _project_cache.get(slug, "")
     if schedule_ctx:
         parts.append("")
         parts.append(schedule_ctx)
-    elif not still_loading:
-        parts.append("[No schedule file loaded for this project yet. User can attach an MPP/XER file to provide schedule data.]")
+    else:
+        # Schedule not loaded yet (on-demand parsing in progress or no data)
+        parts.append("")
+        parts.append("[Schedule data is loaded on-demand for this project. If this is the first query, parsing may take 30-60 seconds. Try your question again in a moment.]")
 
     return "\n".join(parts)
 
