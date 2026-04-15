@@ -765,8 +765,13 @@ def _load_milestone_map(slug: str) -> str:
                 if baseline_finish:
                     baseline_finish = str(baseline_finish)[:10]
 
-                # Previous forecast — from prior update task
-                prev_finish = _extract_finish(prev_task)
+                # Previous forecast — prefer stored prior_update_date in milestone_map.json
+                # (written by update_milestone_prior_dates helper), fall back to parsed prev task
+                stored_prior = m.get("prior_update_date", "")
+                if stored_prior:
+                    prev_finish = str(stored_prior)[:10]
+                else:
+                    prev_finish = _extract_finish(prev_task)
 
                 # --- 2-source confidence check ---
                 # Source A: current schedule file
@@ -899,6 +904,52 @@ def has_schedule(slug: str) -> bool:
 def get_project_health(slug: str) -> Optional[dict]:
     """Returns health dict for a slug: {status, compression_pct, max_slip_days, max_accel_days}."""
     return _project_health.get(slug)
+
+
+def update_milestone_prior_dates(slug: str) -> int:
+    """
+    Rolls the current forecast dates into prior_update_date for each milestone
+    in milestone_map.json. Call this BEFORE loading a new update file so that
+    the previous forecast is preserved as the prior update date.
+
+    Returns the number of milestones updated.
+
+    Usage:
+        from project_loader import update_milestone_prior_dates
+        update_milestone_prior_dates('frisco_tx')  # call before loading UP07
+    """
+    mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
+    if not os.path.exists(mm_path):
+        logger.warning(f"[{slug}] milestone_map.json not found — cannot update prior dates")
+        return 0
+    try:
+        with open(mm_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        milestones = data.get("milestones", [])
+        if not milestones:
+            return 0
+
+        # Build current task lookup from in-memory parsed tasks
+        curr_by_name, curr_by_id = _build_task_lookup(_project_tasks.get(slug, []))
+
+        updated = 0
+        for m in milestones:
+            act_name = (m.get("activity_name") or "").strip()
+            act_id = str(m.get("activity_id") or "")
+            curr_task = _resolve_task(act_name, act_id, curr_by_name, curr_by_id)
+            if curr_task:
+                curr_finish = _extract_finish(curr_task)
+                if curr_finish:
+                    m["prior_update_date"] = curr_finish
+                    updated += 1
+
+        with open(mm_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, default=str)
+        logger.info(f"[{slug}] Updated prior_update_date for {updated} milestones")
+        return updated
+    except Exception as e:
+        logger.warning(f"[{slug}] update_milestone_prior_dates failed: {e}")
+        return 0
 
 
 if __name__ == "__main__":

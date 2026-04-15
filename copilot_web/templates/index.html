@@ -194,6 +194,103 @@
     padding: 0;
   }
 
+  /* ── Docs panel ── */
+  .docs-panel {
+    border-top: 1px solid #e0eaf4;
+    background: #f7fbff;
+    flex-shrink: 0;
+    max-height: 160px;
+    overflow-y: auto;
+    display: none;
+  }
+  .docs-panel-header {
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #1a3a5c;
+    background: #e8f2fc;
+    border-bottom: 1px solid #cce0f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .docs-panel-header .docs-count {
+    background: #0078D4;
+    color: white;
+    border-radius: 8px;
+    padding: 1px 6px;
+    font-size: 9px;
+  }
+  .docs-panel-body { padding: 4px 6px; }
+  .doc-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 4px;
+    border-bottom: 1px solid #e8f0f8;
+    font-size: 10px;
+  }
+  .doc-item:last-child { border-bottom: none; }
+  .doc-item-info { flex: 1; min-width: 0; }
+  .doc-item-label {
+    font-weight: 600;
+    color: #1a3a5c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .doc-item-meta { color: #888; font-size: 9px; }
+  .doc-item-note { color: #555; font-style: italic; font-size: 9px; margin-top: 1px; }
+  .doc-remove {
+    color: #dc3545;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 11px;
+    padding: 0 2px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .doc-remove:hover { color: #a00; }
+
+  /* ── Note modal overlay ── */
+  .note-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .note-modal-overlay.active { display: flex; }
+  .note-modal {
+    background: white;
+    border-radius: 6px;
+    padding: 16px;
+    width: 300px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .note-modal h4 { font-size: 12px; color: #1a3a5c; margin-bottom: 8px; }
+  .note-modal input[type=text] {
+    width: 100%; border: 1.5px solid #cce0f5; border-radius: 4px;
+    padding: 5px 8px; font-size: 11px; margin-bottom: 6px;
+  }
+  .note-modal textarea {
+    width: 100%; border: 1.5px solid #cce0f5; border-radius: 4px;
+    padding: 5px 8px; font-size: 11px; resize: vertical; height: 60px;
+    font-family: inherit; margin-bottom: 10px;
+  }
+  .note-modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+  .note-modal-btns button {
+    padding: 4px 12px; border-radius: 4px; font-size: 11px;
+    cursor: pointer; border: none; font-family: inherit;
+  }
+  .note-modal-btns .btn-primary { background: #0078D4; color: white; }
+  .note-modal-btns .btn-cancel { background: #e0eaf4; color: #1a3a5c; }
+
   .chat-area {
     flex: 1;
     overflow-y: auto;
@@ -336,11 +433,33 @@
 
     <div class="upload-bar">
       <label id="fileLabel">
-        <input type="file" id="fileInput" accept=".mpp,.xer,.xml,.csv,.txt,.md,.docx,.pdf" onchange="handleFile(this)">
+        <input type="file" id="fileInput" accept=".mpp,.xer,.xml,.csv,.txt,.md,.docx,.pdf,.png,.jpg,.jpeg,.webp" onchange="handleFile(this)">
         📎 Attach file
       </label>
       <span id="ctxBadge" class="ctx-badge" style="display:none"></span>
       <button id="clearCtx" class="clear-ctx" style="display:none" onclick="clearContext()">✕</button>
+    </div>
+
+    <!-- Project-scoped docs panel -->
+    <div class="docs-panel" id="docsPanel">
+      <div class="docs-panel-header" onclick="toggleDocsBody()">
+        <span>📁 Project Documents <span class="docs-count" id="docsCount">0</span></span>
+        <span id="docsToggleIcon">▾</span>
+      </div>
+      <div class="docs-panel-body" id="docsPanelBody"></div>
+    </div>
+
+    <!-- Note modal for labeling uploads -->
+    <div class="note-modal-overlay" id="noteModalOverlay">
+      <div class="note-modal">
+        <h4>📌 Save to Project</h4>
+        <input type="text" id="noteLabel" placeholder="Label (e.g. Frisco Dashboard UP06)">
+        <textarea id="noteText" placeholder="Note for the agent (e.g. 'Use these milestone names for all reports')"></textarea>
+        <div class="note-modal-btns">
+          <button class="btn-cancel" onclick="cancelNoteModal()">Cancel</button>
+          <button class="btn-primary" onclick="confirmNoteModal()">Save to Project</button>
+        </div>
+      </div>
     </div>
 
     <div class="chat-area" id="chatArea">
@@ -367,6 +486,8 @@
   let selectedProjectSlug = "";
   let selectedPageView = "";
   let projectData = [];
+  let _pendingFile = null;  // file waiting for note modal confirmation
+  let _docsPanelOpen = true;
 
   async function loadProjects() {
     try {
@@ -431,10 +552,98 @@
       if (proj && proj.has_schedule) {
         appendMsg("assistant", "⏳ Loading project context — your first question may take a few seconds...");
       }
+      loadProjectDocs(selectedProjectSlug);
     } else {
       pageSel.style.display = "none";
+      document.getElementById("docsPanel").style.display = "none";
     }
     messages = [];
+  }
+
+  // ── Project docs panel ──
+  async function loadProjectDocs(slug) {
+    if (!slug) return;
+    try {
+      const res = await fetch(`/docs/${slug}`);
+      const data = await res.json();
+      renderDocsList(data.docs || []);
+    } catch(e) {
+      console.warn("Could not load project docs:", e);
+    }
+  }
+
+  function renderDocsList(docs) {
+    const panel = document.getElementById("docsPanel");
+    const body = document.getElementById("docsPanelBody");
+    const countEl = document.getElementById("docsCount");
+    countEl.textContent = docs.length;
+    body.innerHTML = "";
+    if (docs.length === 0) {
+      panel.style.display = "none";
+      return;
+    }
+    panel.style.display = "block";
+    docs.forEach(doc => {
+      const item = document.createElement("div");
+      item.className = "doc-item";
+      const info = document.createElement("div");
+      info.className = "doc-item-info";
+      info.innerHTML = `<div class="doc-item-label" title="${doc.label}">${doc.label}</div>`
+        + `<div class="doc-item-meta">${doc.timestamp}</div>`
+        + (doc.user_note ? `<div class="doc-item-note">“${doc.user_note}”</div>` : "");
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "doc-remove";
+      removeBtn.title = "Remove from project";
+      removeBtn.textContent = "✕";
+      removeBtn.onclick = () => removeProjectDoc(doc.filename);
+      item.appendChild(info);
+      item.appendChild(removeBtn);
+      body.appendChild(item);
+    });
+  }
+
+  async function removeProjectDoc(filename) {
+    if (!selectedProjectSlug) return;
+    try {
+      await fetch(`/docs/${selectedProjectSlug}/${encodeURIComponent(filename)}`, { method: "DELETE" });
+      loadProjectDocs(selectedProjectSlug);
+      appendMsg("assistant", `🗑️ Removed: ${filename}`);
+    } catch(e) {
+      appendMsg("assistant", "⚠️ Could not remove document.");
+    }
+  }
+
+  function toggleDocsBody() {
+    _docsPanelOpen = !_docsPanelOpen;
+    const body = document.getElementById("docsPanelBody");
+    const icon = document.getElementById("docsToggleIcon");
+    body.style.display = _docsPanelOpen ? "block" : "none";
+    icon.textContent = _docsPanelOpen ? "▾" : "▸";
+  }
+
+  // ── Note modal ──
+  function showNoteModal(file) {
+    _pendingFile = file;
+    document.getElementById("noteLabel").value = file.name;
+    document.getElementById("noteText").value = "";
+    document.getElementById("noteModalOverlay").classList.add("active");
+  }
+
+  function cancelNoteModal() {
+    // Upload as one-time context without saving to project
+    const file = _pendingFile;
+    _pendingFile = null;
+    document.getElementById("noteModalOverlay").classList.remove("active");
+    if (file) uploadFile(file, null, "", "");
+  }
+
+  function confirmNoteModal() {
+    const file = _pendingFile;
+    const label = document.getElementById("noteLabel").value.trim() || file.name;
+    const note = document.getElementById("noteText").value.trim();
+    _pendingFile = null;
+    document.getElementById("noteModalOverlay").classList.remove("active");
+    if (file) uploadFile(file, selectedProjectSlug, label, note);
   }
 
   function onPageChange() {
@@ -514,19 +723,32 @@
   async function handleFile(input) {
     const file = input.files[0];
     if (!file) return;
+    input.value = "";
+    // If a project is selected, show the note modal so the user can label the doc
+    if (selectedProjectSlug) {
+      showNoteModal(file);
+    } else {
+      // No project selected — upload as one-time session context only
+      uploadFile(file, null, "", "");
+    }
+  }
 
+  async function uploadFile(file, projectSlug, label, userNote) {
     const badge = document.getElementById("ctxBadge");
     const clearBtn = document.getElementById("clearCtx");
-    const label = document.getElementById("fileLabel");
+    const fileLabel = document.getElementById("fileLabel");
 
     badge.textContent = "⏳ Parsing " + file.name + "...";
     badge.style.display = "inline-block";
     clearBtn.style.display = "none";
-    label.style.pointerEvents = "none";
-    label.style.opacity = "0.6";
+    fileLabel.style.pointerEvents = "none";
+    fileLabel.style.opacity = "0.6";
 
     const formData = new FormData();
     formData.append("file", file);
+    if (projectSlug) formData.append("project_slug", projectSlug);
+    if (label)       formData.append("label", label);
+    if (userNote)    formData.append("user_note", userNote);
 
     try {
       const res = await fetch("/upload", { method: "POST", body: formData });
@@ -535,19 +757,25 @@
       if (data.error) {
         badge.textContent = "❌ " + data.error;
         appendMsg("assistant", "⚠️ Could not parse file: " + data.error);
+      } else if (data.saved_to_project) {
+        // Saved to project memory
+        badge.textContent = "📌 " + (label || data.filename);
+        clearBtn.style.display = "inline";
+        appendMsg("assistant", `✅ **${label || data.filename}** saved to project — I'll remember this across all sessions.${userNote ? ` Note recorded: “${userNote}”` : ""}`);
+        loadProjectDocs(projectSlug);
       } else {
+        // Session-only context
         context = data.context;
         badge.textContent = "📌 " + data.filename;
         clearBtn.style.display = "inline";
-        appendMsg("assistant", `✅ **${data.filename}** loaded — I can now answer questions about this schedule. Try: "What are the key milestones?" or "Show critical path."`); 
+        appendMsg("assistant", `✅ **${data.filename}** loaded for this session. Select a project to save it permanently.`);
       }
     } catch (err) {
       badge.textContent = "❌ Upload failed";
       appendMsg("assistant", "❌ File upload failed. Check your connection.");
     } finally {
-      label.style.pointerEvents = "";
-      label.style.opacity = "";
-      input.value = "";
+      fileLabel.style.pointerEvents = "";
+      fileLabel.style.opacity = "";
     }
   }
 
@@ -619,7 +847,7 @@
 
     try {
       const payload = {
-        messages: messages.slice(-10),
+        messages: messages.slice(-30),
         context: context,
         image: pastedImageBase64 || null,
         project_slug: selectedProjectSlug || null,

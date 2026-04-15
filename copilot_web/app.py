@@ -542,6 +542,62 @@ def view_context():
         return jsonify({"status": "empty", "context": None})
     return jsonify({"status": "loaded", "context": ctx[:3000]})
 
+@app.route("/context-debug/<slug>", methods=["GET"])
+def context_debug(slug):
+    """
+    Returns the full system prompt that would be sent to GPT-4o for a given project.
+    Use this to diagnose why the agent missed a milestone, ignored a PDF, or produced
+    a shallow CP chain. Shows every block: SYSTEM_BASE, portfolio context, milestone
+    block, CP chain, near-critical table, variance, relationships, verify/variance/
+    compression PDFs, and user-uploaded documents.
+    """
+    page_view = request.args.get("page", None)
+
+    system = SYSTEM_BASE
+
+    if _PORTFOLIO_CTX:
+        system += f"\n\n{_PORTFOLIO_CTX}"
+
+    dashboard_context = load_context()
+    if dashboard_context:
+        system += f"\n\n{dashboard_context}"
+
+    proj_ctx = get_project_context(slug, page_view)
+    if proj_ctx:
+        system += f"\n\n{proj_ctx}"
+
+    docs_ctx = _get_project_docs_context(slug)
+    if docs_ctx:
+        system += f"\n\n{docs_ctx}"
+
+    # Build a summary of what blocks are present
+    blocks_present = []
+    block_markers = [
+        ("STANDARDIZED MILESTONES", "Milestone block"),
+        ("CRITICAL PATH CHAIN", "CP chain"),
+        ("CRITICAL PATH SHIFT", "CP shift comparison"),
+        ("NEAR-CRITICAL ACTIVITIES", "Near-critical table"),
+        ("VARIANCE ANALYSIS", "Variance analysis"),
+        ("RELATIONSHIPS", "Relationships block"),
+        ("ACTIVITY VERIFICATION REFERENCE", "Verify PDF"),
+        ("VARIANCE REPORT PDF", "Variance PDF"),
+        ("COMPRESSION REPORT", "Compression PDF"),
+        ("USER-PROVIDED DOCUMENTS", "User-uploaded docs"),
+        ("RISK FLAGS", "Risk flags"),
+    ]
+    for marker, label in block_markers:
+        blocks_present.append({"block": label, "present": marker in system})
+
+    return jsonify({
+        "project_slug": slug,
+        "page_view": page_view,
+        "total_chars": len(system),
+        "estimated_tokens": len(system) // 4,
+        "blocks": blocks_present,
+        "full_system_prompt": system
+    })
+
+
 @app.route("/projects", methods=["GET"])
 def get_projects():
     """Returns list of all projects and their pages for the dropdown."""
@@ -614,6 +670,7 @@ def upload_file():
             logger.info(f"[{project_slug}] Stored user doc: {f.filename}")
             return jsonify({
                 "status": "stored",
+                "saved_to_project": True,
                 "project_slug": project_slug,
                 "filename": f.filename,
                 "label": label,
@@ -714,7 +771,7 @@ def chat():
     if context:
         system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
 
-    full_messages = [{"role": "system", "content": system}] + messages[-10:]
+    full_messages = [{"role": "system", "content": system}] + messages[-30:]
 
     if image_b64:
         last_user_text = next(
