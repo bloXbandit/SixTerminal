@@ -477,13 +477,15 @@ except Exception as _e:
     MPPParser = None
 
 try:
-    from project_loader import load_all_projects, get_project_context, list_projects, has_schedule
+    from project_loader import load_all_projects, get_project_context, list_projects, has_schedule, get_project_load_status, ensure_project_loaded
 except Exception as _pe:
     logger.warning(f"Project loader not available: {_pe}")
     def load_all_projects(): pass
     def get_project_context(slug, page=None): return ""
     def list_projects(): return []
     def has_schedule(slug): return False
+    def get_project_load_status(slug): return {"loaded": False, "loading": False, "message": "Not available"}
+    def ensure_project_loaded(slug): return False
 
 try:
     from tracker_loader import load_tracker, get_portfolio_summary
@@ -608,11 +610,50 @@ def view_context():
 
 @app.route("/projects", methods=["GET"])
 def get_projects():
-    """Returns list of all projects and their pages for the dropdown."""
+    """Returns list of all projects and their pages for the dropdown.
+    Includes cache status: cached (bool), loading (bool) for UI indicators.
+    """
+    from project_loader import _project_cache, _loading_in_progress
     projects = list_projects()
     for p in projects:
-        p["has_schedule"] = has_schedule(p["slug"])
+        slug = p["slug"]
+        p["has_schedule"] = has_schedule(slug)
+        # Cache status for UI indicators
+        p["cached"] = slug in _project_cache and _project_cache[slug]
+        p["loading"] = slug in _loading_in_progress
     return jsonify({"projects": projects})
+
+
+@app.route("/project/load/<slug>", methods=["POST"])
+def trigger_project_load(slug):
+    """Trigger loading of a project's schedule data and return status.
+    Call this immediately when user selects a project from dropdown.
+    """
+    try:
+        # Trigger loading (non-blocking, starts background thread if needed)
+        is_ready = ensure_project_loaded(slug)
+        # Get current status with ETA
+        status = get_project_load_status(slug)
+        return jsonify({
+            "slug": slug,
+            "ready": is_ready,
+            **status
+        })
+    except Exception as e:
+        logger.error(f"Error triggering load for {slug}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/project/status/<slug>", methods=["GET"])
+def get_project_status(slug):
+    """Get current loading status and ETA for a project without triggering load."""
+    try:
+        status = get_project_load_status(slug)
+        return jsonify({"slug": slug, **status})
+    except Exception as e:
+        logger.error(f"Error getting status for {slug}: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/screenshot/<int:page_num>", methods=["GET"])
 def view_screenshot(page_num):

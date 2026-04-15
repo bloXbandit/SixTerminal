@@ -26,6 +26,7 @@ _project_tasks: Dict[str, list] = {}          # {slug: [task_dicts]} — current
 _project_tasks_previous: Dict[str, list] = {}  # {slug: [task_dicts]} — previous update tasks
 _project_tasks_baseline: Dict[str, list] = {}  # {slug: [task_dicts]} — baseline tasks
 _loading_in_progress: set = set()  # Track which slugs are currently loading in background
+_loading_start_times: Dict[str, float] = {}  # {slug: timestamp} — when loading started
 
 
 def _get_mpp_parser():
@@ -1042,11 +1043,12 @@ def _load_milestone_map(slug: str) -> str:
 
 def _background_load_schedule(slug: str, project_path: str):
     """Background thread worker to load schedule data."""
-    global _loading_in_progress
+    global _loading_in_progress, _loading_start_times
     try:
         _load_schedule_data(slug, project_path)
     finally:
         _loading_in_progress.discard(slug)
+        _loading_start_times.pop(slug, None)  # Clear start time when done
 
 
 def ensure_project_loaded(slug: str) -> bool:
@@ -1054,7 +1056,7 @@ def ensure_project_loaded(slug: str) -> bool:
     Returns True if data is ready, False if loading started in background.
     Non-blocking: always returns immediately.
     """
-    global _loading_in_progress
+    global _loading_in_progress, _loading_start_times
 
     # Already loaded?
     if slug in _project_cache and _project_cache[slug]:
@@ -1076,10 +1078,55 @@ def ensure_project_loaded(slug: str) -> bool:
     # Start schedule loading in background thread
     project_path = os.path.join(PROJECTS_DIR, slug)
     _loading_in_progress.add(slug)
+    _loading_start_times[slug] = time.time()  # Record start time for ETA
     t = threading.Thread(target=_background_load_schedule, args=(slug, project_path), daemon=True)
     t.start()
     logger.info(f"[{slug}] Schedule loading started in background thread")
     return False
+
+
+def get_project_load_status(slug: str) -> dict:
+    """Get loading status and estimated time remaining for a project.
+    Returns dict with: loaded (bool), loading (bool), elapsed_seconds (float), 
+    estimated_remaining_seconds (int), message (str)
+    """
+    global _loading_in_progress, _loading_start_times, _project_cache
+    
+    # Typical load times based on file size/complexity (seconds)
+    TYPICAL_LOAD_TIME = 45  # Most MPP files load in 30-60s
+    
+    is_loaded = slug in _project_cache and _project_cache[slug]
+    is_loading = slug in _loading_in_progress
+    
+    if is_loaded:
+        return {
+            "loaded": True,
+            "loading": False,
+            "elapsed_seconds": 0,
+            "estimated_remaining_seconds": 0,
+            "message": "Ready"
+        }
+    
+    if is_loading:
+        start_time = _loading_start_times.get(slug, time.time())
+        elapsed = time.time() - start_time
+        remaining = max(5, int(TYPICAL_LOAD_TIME - elapsed))
+        return {
+            "loaded": False,
+            "loading": True,
+            "elapsed_seconds": round(elapsed, 1),
+            "estimated_remaining_seconds": remaining,
+            "message": f"Loading... approximately {remaining}s remaining"
+        }
+    
+    # Not loaded and not loading - either no schedule or not triggered
+    return {
+        "loaded": False,
+        "loading": False,
+        "elapsed_seconds": 0,
+        "estimated_remaining_seconds": 0,
+        "message": "Not loaded"
+    }
 
 
 def get_project_context(slug: str, page: Optional[str] = None) -> str:

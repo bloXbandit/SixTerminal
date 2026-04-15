@@ -405,6 +405,13 @@
   let selectedPageView = "";
   let projectData = [];
 
+  function getProjectStatusIndicator(p) {
+    if (p.loading) return " ⏳";  // Loading in progress
+    if (p.cached) return " 🟢";    // Ready in cache
+    if (p.has_schedule) return " ✓"; // Has schedule data but not loaded yet
+    return "";  // No schedule
+  }
+
   async function loadProjects() {
     try {
       const res = await fetch("/projects");
@@ -421,7 +428,7 @@
         construction.forEach(p => {
           const opt = document.createElement("option");
           opt.value = p.slug;
-          opt.textContent = p.display_name + (p.has_schedule ? " ✓" : "");
+          opt.textContent = p.display_name + getProjectStatusIndicator(p);
           grp.appendChild(opt);
         });
         sel.appendChild(grp);
@@ -433,7 +440,7 @@
         development.forEach(p => {
           const opt = document.createElement("option");
           opt.value = p.slug;
-          opt.textContent = p.display_name + (p.has_schedule ? " ✓" : "");
+          opt.textContent = p.display_name + getProjectStatusIndicator(p);
           grp.appendChild(opt);
         });
         sel.appendChild(grp);
@@ -443,7 +450,75 @@
     }
   }
 
+  // Refresh project list periodically to update cache status indicators
+  setInterval(async () => {
+    if (!selectedProjectSlug) {
+      try {
+        const res = await fetch("/projects");
+        const data = await res.json();
+        const newProjects = data.projects || [];
+        // Update projectData with new cache status
+        projectData = newProjects;
+        // Update dropdown indicators without rebuilding
+        const sel = document.getElementById("projectSelect");
+        Array.from(sel.querySelectorAll("option[value]")).forEach(opt => {
+          const p = newProjects.find(np => np.slug === opt.value);
+          if (p) {
+            const baseName = p.display_name;
+            opt.textContent = baseName + getProjectStatusIndicator(p);
+          }
+        });
+      } catch(e) {
+        // Silent fail on refresh
+      }
+    }
+  }, 5000); // Refresh every 5 seconds
+
+  let loadCheckInterval = null;
+  let currentLoadMessageId = null;
+
+  async function triggerProjectLoad(slug) {
+    try {
+      const res = await fetch(`/project/load/${slug}`, { method: "POST" });
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      console.error("Failed to trigger project load:", e);
+      return null;
+    }
+  }
+
+  async function checkProjectStatus(slug) {
+    try {
+      const res = await fetch(`/project/status/${slug}`);
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      console.error("Failed to check project status:", e);
+      return null;
+    }
+  }
+
+  function updateLoadMessage(messageId, text) {
+    const msgs = document.getElementById("chatMessages").children;
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].dataset && msgs[i].dataset.loadMessage === messageId) {
+        const content = msgs[i].querySelector(".msg-content");
+        if (content) content.innerHTML = text;
+        return;
+      }
+    }
+  }
+
+  function clearLoadCheck() {
+    if (loadCheckInterval) {
+      clearInterval(loadCheckInterval);
+      loadCheckInterval = null;
+    }
+  }
+
   function onProjectChange() {
+    clearLoadCheck();
     const sel = document.getElementById("projectSelect");
     selectedProjectSlug = sel.value;
     selectedPageView = "";
@@ -464,8 +539,48 @@
       pageSel.style.display = "block";
       sel.className = proj && proj.has_schedule ? "has-data" : "";
       const projName = proj ? proj.display_name : selectedProjectSlug;
-      appendMsg("assistant", `📂 Project set to: ${projName} — ready for questions.`);
-      appendMsg("assistant", "⏳ Loading project context — your first question may take a few seconds...");
+      
+      // Show initial loading message
+      currentLoadMessageId = Date.now().toString();
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "assistant-msg";
+      msgDiv.dataset.loadMessage = currentLoadMessageId;
+      msgDiv.innerHTML = `<div class="msg-content">📂 Project set to: ${projName}<br>⏳ Starting load...</div>`;
+      document.getElementById("chatMessages").appendChild(msgDiv);
+      scrollToBottom();
+      
+      // Trigger loading and start countdown
+      triggerProjectLoad(selectedProjectSlug).then(status => {
+        if (!status) return;
+        
+        if (status.ready) {
+          updateLoadMessage(currentLoadMessageId, `📂 Project set to: ${projName}<br>✅ Ready — schedule data loaded.`);
+          return;
+        }
+        
+        if (status.loading) {
+          let remaining = status.estimated_remaining_seconds || 45;
+          
+          const updateTimer = () => {
+            updateLoadMessage(currentLoadMessageId, `📂 Project set to: ${projName}<br>⏳ Loading schedule data... ~${remaining}s remaining`);
+            remaining = Math.max(0, remaining - 1);
+          };
+          
+          updateTimer();
+          loadCheckInterval = setInterval(async () => {
+            const newStatus = await checkProjectStatus(selectedProjectSlug);
+            if (newStatus && newStatus.loaded) {
+              clearLoadCheck();
+              updateLoadMessage(currentLoadMessageId, `📂 Project set to: ${projName}<br>✅ Ready — schedule data loaded.`);
+            } else if (newStatus && newStatus.loading) {
+              remaining = newStatus.estimated_remaining_seconds || Math.max(0, remaining - 1);
+              updateTimer();
+            }
+          }, 1000);
+        } else if (status.message === "Not loaded") {
+          updateLoadMessage(currentLoadMessageId, `📂 Project set to: ${projName}<br>⚠️ No schedule data found for this project.`);
+        }
+      });
     } else {
       pageSel.style.display = "none";
     }
