@@ -20,6 +20,15 @@ _mpp_semaphore = threading.Semaphore(3)
 
 PROJECTS_DIR = os.path.join(os.path.dirname(__file__), "projects")
 
+# Encryption helpers — graceful no-op if key not set or cryptography not installed
+try:
+    from crypto import read_encrypted_json, write_encrypted_json
+except ImportError:
+    def read_encrypted_json(path):
+        with open(path, "r", encoding="utf-8") as f: return json.load(f)
+    def write_encrypted_json(path, obj):
+        with open(path, "w", encoding="utf-8") as f: json.dump(obj, f, indent=2, default=str)
+
 _project_cache: Dict[str, str] = {}
 _project_meta: Dict[str, dict] = {}
 _project_health: Dict[str, dict] = {}  # {slug: {status, compression_pct, max_slip_days, max_accel_days}}
@@ -187,13 +196,29 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
     Parse any schedule file (mpp/xml/xer) and return a normalized dict:
     { raw_context: str, source: str, tasks: List[Dict] }
     tasks is used by the variance engine for delta computation.
+    If ENCRYPTION_KEY is set the file is decrypted to a temp file before parsing.
     """
+    import tempfile
     ext = os.path.splitext(filepath)[1].lower()
+
+    # Decrypt to a temp file if encryption is enabled
+    try:
+        from crypto import read_encrypted_bytes, is_enabled as _enc_on
+        if _enc_on():
+            _raw = read_encrypted_bytes(filepath)
+            _tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+            _tmp.write(_raw)
+            _tmp.close()
+            _parse_path = _tmp.name
+        else:
+            _parse_path = filepath
+    except ImportError:
+        _parse_path = filepath
 
     try:
         if ext in (".mpp", ".xml"):
             MPPParser = _get_mpp_parser()
-            p = MPPParser(filepath)
+            p = MPPParser(_parse_path)
             raw = p.get_llm_context()
             return {
                 "raw_context": raw,
@@ -204,7 +229,7 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
 
         elif ext == ".xer":
             P6Parser = _get_xer_parser()
-            p = P6Parser(filepath)
+            p = P6Parser(_parse_path)
             ctx = p.get_llm_context()
             info = ctx.get("project_info", {})
             metrics = ctx.get("project_metrics", {})
@@ -254,6 +279,13 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
     except Exception as e:
         logger.error(f"Parse failed for {filepath}: {e}")
         return None
+    finally:
+        # Clean up temp decryption file if one was created
+        if _parse_path != filepath:
+            try:
+                os.unlink(_parse_path)
+            except Exception:
+                pass
 
     return None
 
@@ -682,7 +714,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                 label_current=current_label.replace("_", " ").title(),
                 label_previous=os.path.splitext(os.path.basename(previous_path))[0].replace("_", " ").title(),
             )
-            variance_ctx = format_variance_for_context(variance)
+            variance_ctx = format_variance_for_context(variance, max_items_per_phase=12)
             if variance_ctx:
                 parts.append("")
                 parts.append(variance_ctx)
@@ -787,7 +819,7 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                         label_current=current_label.replace("_", " ").title(),
                         label_previous="Baseline",
                     )
-                    drift_ctx = format_variance_for_context(drift)
+                    drift_ctx = format_variance_for_context(drift, max_items_per_phase=12)
                     if drift_ctx:
                         parts.append("")
                         parts.append("=== BASELINE DRIFT ===")
@@ -914,6 +946,45 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     elif verify_pdf:
         active_verify_pdf = verify_pdf  # fall back to unversioned verify.pdf
 
+    # --- RELATIONSHIPS block — raw predecessor table for agent manual CP tracing and delay sourcing ---
+    # Injected as text so the agent can walk any activity's upstream chain when the pre-computed
+    # chain is shallow or the user asks about a specific activity not in the chain.
+    try:
+        curr_rels = current_data.get("relationships", [])
+        curr_tasks = current_data.get("tasks", [])
+        if curr_rels:
+            # Build ID → name lookup for readable output
+            id_to_name: dict = {}
+            for _t in curr_tasks:
+                _tid = str(_t.get("id") or _t.get("task_id") or _t.get("activity_id") or "").strip()
+                _tname = (_t.get("name") or _t.get("task_name") or "").strip()
+                if _tid and _tname:
+                    id_to_name[_tid] = _tname
+            rel_lines = []
+            for _r in curr_rels[:600]:  # cap at 600 to stay token-efficient
+                succ_id = str(_r.get("task_id") or _r.get("succ_task_id") or "").strip()
+                pred_id = str(_r.get("predecessor_task_id") or _r.get("pred_task_id") or "").strip()
+                rel_type = str(_r.get("type") or _r.get("pred_type") or "FS").strip()
+                if succ_id and pred_id:
+                    succ_name = id_to_name.get(succ_id, "")
+                    pred_name = id_to_name.get(pred_id, "")
+                    succ_str = f"{succ_id} \"{succ_name}\"" if succ_name else succ_id
+                    pred_str = f"{pred_id} \"{pred_name}\"" if pred_name else pred_id
+                    rel_lines.append(f"  {succ_str} → {pred_str} ({rel_type})")
+            if rel_lines:
+                parts.append("")
+                parts.append(
+                    f"=== RELATIONSHIPS ({len(rel_lines)} links) ===\n"
+                    f"Format: Activity ID \"Name\" → Predecessor ID \"Name\" (type)\n"
+                    f"Use this table to trace any activity's upstream chain manually.\n"
+                    f"To source a delay: find the slipped activity, look up its predecessor IDs here,\n"
+                    f"then look those IDs up in SCHEDULE DATA for their finish dates and float.\n"
+                    f"Walk back until you reach the root driver (earliest activity with no predecessors or earliest start)."
+                )
+                parts.extend(rel_lines)
+    except Exception as _rele:
+        logger.warning(f"[{slug}] Relationships injection failed: {_rele}")
+
     if active_verify_pdf:
         pdf_lines = _extract_pdf_milestones(active_verify_pdf)
         if pdf_lines:
@@ -1011,10 +1082,11 @@ def _load_milestone_map(slug: str) -> str:
     """
     mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
     if not os.path.exists(mm_path):
+        logger.warning(f"[{slug}] milestone_map.json not found — STANDARDIZED MILESTONES block will be empty. "
+                       f"Run the milestone map builder or upload a Milestone Map.xlsx to populate it.")
         return ""
     try:
-        with open(mm_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = read_encrypted_json(mm_path)
         milestones = data.get("milestones", [])
         if not milestones:
             return ""
@@ -1047,8 +1119,13 @@ def _load_milestone_map(slug: str) -> str:
                 if baseline_finish:
                     baseline_finish = str(baseline_finish)[:10]
 
-                # Previous forecast — from prior update task
-                prev_finish = _extract_finish(prev_task)
+                # Previous forecast — prefer stored prior_update_date in milestone_map.json
+                # (written by update_milestone_prior_dates helper), fall back to parsed prev task
+                stored_prior = m.get("prior_update_date", "")
+                if stored_prior:
+                    prev_finish = str(stored_prior)[:10]
+                else:
+                    prev_finish = _extract_finish(prev_task)
 
                 # --- 2-source confidence check ---
                 # Source A: current schedule file
@@ -1067,7 +1144,34 @@ def _load_milestone_map(slug: str) -> str:
                 bl_str = f" | Baseline: {baseline_finish}" if baseline_finish else ""
                 prev_str = f" | Prior Update: {prev_finish}" if prev_finish else ""
                 pct_str = f" | {pct:.0f}% complete" if pct is not None else ""
-                lines.append(f"  - {std}: {date_str}{bl_str}{prev_str}{pct_str}  {confidence}")
+
+                # Pre-compute update-to-update variance (calendar days)
+                var_str = ""
+                if curr_finish and prev_finish:
+                    try:
+                        from datetime import datetime as _dt
+                        d1 = _dt.strptime(str(curr_finish)[:10], "%Y-%m-%d")
+                        d2 = _dt.strptime(str(prev_finish)[:10], "%Y-%m-%d")
+                        delta = (d1 - d2).days
+                        sign = "+" if delta >= 0 else ""
+                        var_str = f" | Variance: {sign}{delta}cd"
+                    except Exception:
+                        pass
+
+                # Pre-compute baseline drift (calendar days)
+                drift_str = ""
+                if curr_finish and baseline_finish:
+                    try:
+                        from datetime import datetime as _dt
+                        d1 = _dt.strptime(str(curr_finish)[:10], "%Y-%m-%d")
+                        d2 = _dt.strptime(str(baseline_finish)[:10], "%Y-%m-%d")
+                        drift = (d1 - d2).days
+                        sign = "+" if drift >= 0 else ""
+                        drift_str = f" | Drift: {sign}{drift}cd vs BL"
+                    except Exception:
+                        pass
+
+                lines.append(f"  - {std}: {date_str}{bl_str}{prev_str}{var_str}{drift_str}{pct_str}  {confidence}")
             else:
                 # No current task match — still emit the name
                 if act_name and act_name != std:
@@ -1278,6 +1382,49 @@ def get_project_relationships(slug: str) -> List[dict]:
     """Returns relationship list for a slug: [{successor_id, predecessor_id, type, lag}, ...]."""
     return _project_relationships.get(slug, [])
 
+def update_milestone_prior_dates(slug: str) -> int:
+    """
+    Rolls the current forecast dates into prior_update_date for each milestone
+    in milestone_map.json. Call this BEFORE loading a new update file so that
+    the previous forecast is preserved as the prior update date.
+
+    Returns the number of milestones updated.
+
+    Usage:
+        from project_loader import update_milestone_prior_dates
+        update_milestone_prior_dates('frisco_tx')  # call before loading UP07
+    """
+    mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
+    if not os.path.exists(mm_path):
+        logger.warning(f"[{slug}] milestone_map.json not found — cannot update prior dates")
+        return 0
+    try:
+        data = read_encrypted_json(mm_path)
+        milestones = data.get("milestones", [])
+        if not milestones:
+            return 0
+
+        # Build current task lookup from in-memory parsed tasks
+        curr_by_name, curr_by_id = _build_task_lookup(_project_tasks.get(slug, []))
+
+        updated = 0
+        for m in milestones:
+            act_name = (m.get("activity_name") or "").strip()
+            act_id = str(m.get("activity_id") or "")
+            curr_task = _resolve_task(act_name, act_id, curr_by_name, curr_by_id)
+            if curr_task:
+                curr_finish = _extract_finish(curr_task)
+                if curr_finish:
+                    m["prior_update_date"] = curr_finish
+                    updated += 1
+
+        write_encrypted_json(mm_path, data)
+        logger.info(f"[{slug}] Updated prior_update_date for {updated} milestones")
+        return updated
+    except Exception as e:
+        logger.warning(f"[{slug}] update_milestone_prior_dates failed: {e}")
+        return 0
+
 
 if __name__ == "__main__":
     """
@@ -1350,8 +1497,7 @@ if __name__ == "__main__":
             "type": data["type"],
             "milestones": sorted(data["milestones"], key=lambda x: x["sort"] or 99)
         }
-        with open(out, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2)
+        write_encrypted_json(out, payload)
         count = len(data["milestones"])
         print(f"  OK  {slug}: {count} milestones")
         written += 1

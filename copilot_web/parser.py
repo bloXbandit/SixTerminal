@@ -198,7 +198,13 @@ class P6Parser:
         task_type_lo = task_type_raw.lower()
         is_milestone = task_type_lo in ("tt_mile", "milestone", "tt_finishmile")
         is_summary   = task_type_lo in ("tt_wbs", "wbs_summary", "tt_rsrc")
-        float_hrs = float(row.get("total_float_hr_cnt", 1) or 1)
+        # total_float_hr_cnt is standard; fall back to remain_float_hr_cnt which
+        # some XER exports use instead (especially older P6 versions)
+        raw_float = row.get("total_float_hr_cnt") or row.get("remain_float_hr_cnt") or row.get("free_float_hr_cnt")
+        try:
+            float_hrs = float(raw_float) if raw_float is not None else 8.0  # default 1 day if truly missing
+        except (ValueError, TypeError):
+            float_hrs = 8.0
         return {
             "id": str(row.get("task_id", "")),
             "name": str(row.get("task_name", "") or ""),

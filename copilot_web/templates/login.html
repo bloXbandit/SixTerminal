@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stelic Insights — Sign In</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0d2137 0%, #0a3d6b 50%, #0078D4 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle background texture */
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(0,120,212,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(0,180,255,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 12px;
+    padding: 44px 40px 36px;
+    width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 1;
+  }
+
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .logo-wrap img {
+    height: 48px;
+    object-fit: contain;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #cce0f5, transparent);
+    margin: 0 0 24px;
+  }
+
+  .card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a3a5c;
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
+  }
+
+  .card .subtitle {
+    font-size: 11px;
+    color: #6b8aaa;
+    text-align: center;
+    margin-bottom: 26px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a3a5c;
+    margin-bottom: 5px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #d0e4f5;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1a3a5c;
+    background: #f7fbff;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .form-group input:focus {
+    border-color: #0078D4;
+    box-shadow: 0 0 0 3px rgba(0,120,212,0.12);
+    background: #fff;
+  }
+
+  .error-msg {
+    background: #fff0f0;
+    border: 1px solid #f5c6c6;
+    color: #c0392b;
+    border-radius: 5px;
+    padding: 8px 12px;
+    font-size: 11px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 11px;
+    background: linear-gradient(90deg, #0a3d6b 0%, #0078D4 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: opacity 0.15s, transform 0.1s;
+    margin-top: 6px;
+  }
+
+  .btn-login:hover { opacity: 0.92; }
+  .btn-login:active { transform: scale(0.99); }
+
+  .footer-text {
+    text-align: center;
+    font-size: 10px;
+    color: #aabccc;
+    margin-top: 22px;
+  }
+
+  .footer-text span {
+    color: #0078D4;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-wrap">
+    <img src="/static/stelic_logo.png" alt="Stelic">
+  </div>
+  <div class="divider"></div>
+
+  <h2>Project Intelligence Platform</h2>
+  <p class="subtitle">Sign in to access your project dashboard</p>
+
+  {% if error %}
+  <div class="error-msg">
+    ⚠ {{ error }}
+  </div>
+  {% endif %}
+
+  <form method="POST" action="/login">
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter access password" autofocus autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn-login">Sign In →</button>
+  </form>
+
+  <div class="footer-text">
+    <span>Stelic</span> · Insight · Action · Impact
+  </div>
+</div>
+
+</body>
+</html>

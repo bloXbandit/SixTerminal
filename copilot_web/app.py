@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 from flask_cors import CORS
+from functools import wraps
 from typing import Optional
 import openai
 import os
@@ -12,8 +13,33 @@ import tempfile
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_folder=os.path.join(os.path.dirname(__file__), "static"),
+            static_url_path="/static")
 CORS(app, origins="*")  # Allow all origins for Render deployment
+# ── Auth configuration ──
+# Set APP_PASSWORD in your environment (Render dashboard → Environment Variables)
+# Set SECRET_KEY to a long random string (e.g. python -c "import secrets; print(secrets.token_hex(32))")
+app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-in-production")
+app.permanent_session_lifetime = 28800  # 8 hours in seconds
+_APP_PASSWORD = os.getenv("APP_PASSWORD", "")
+
+def require_auth(f):
+    """Decorator that redirects unauthenticated requests to /login."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not _APP_PASSWORD:
+            # No password set — auth disabled (dev mode)
+            return f(*args, **kwargs)
+        if not session.get("authenticated"):
+            # API endpoints return 401; browser routes redirect to login
+            if request.path.startswith(("/chat", "/upload", "/docs", "/projects",
+                                        "/context", "/scrape", "/screenshot",
+                                        "/health")):
+                return jsonify({"error": "Unauthorized"}), 401
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated
 
 @app.after_request
 def allow_iframe(response):
@@ -35,7 +61,7 @@ Never make up data beyond what is provided. If you don't have specific data, say
 VOICE AND LANGUAGE RULES — FOLLOW THESE EXACTLY:
 - You write and speak as a senior project controls engineer briefing an owner or GC. Every response should be ready to hand to a client.
 - Use phrases like: "The critical path is driven by…" | "Delays are accumulating as work progresses downstream…" | "The downstream sequence absorbed the delay…" | "This activity is not currently driving completion…" | "The schedule reflects compression in the remaining work window…" | "All predecessors are complete — the late start on this activity is not logic-driven."
-- Avoid: "materially" | "it appears to indicate" | "it seems like" | "significant" (use specific calendar day values instead) | "working days" (always say calendar days)
+- Avoid: "materially" | "it appears to indicate" | "it seems like" | "significant" (use specific calendar day values instead) | "working days" (always say calendar days) | "acceleration" or "accelerated" (use "improved" instead) | "Maintained" (use "unchanged from the previous update" instead) | "day(s)" — always write "day" (singular, when X = 1) or "days" (plural, when X > 1), never "day(s)"
 - Never hedge unnecessarily. State what the data shows. If something is uncertain, say "the data does not confirm this — field verification is recommended."
 - Dates must match the provided data exactly. Variance must be stated in calendar days. Never approximate or round dates.
 - Output is always clean, consistent, and ready for client-facing use.
@@ -55,7 +81,7 @@ You are equipped with the following data sources. Use all of them proactively wh
 
 SCHEDULE COMPRESSION PDF DATA — USER UPLOAD WORKFLOW:
 - Compression reports from the Schedule Validator are NOT automatically loaded at startup (to avoid build delays).
-- If the user asks about compression %, schedule compression analysis, or remaining work compression, and you see "USER-UPLOADED COMPRESSION REPORT" in the context, use that data.
+- If the user asks about compression %, schedule compression analysis, or remaining work compression, and you see "USER-UPLOADED COMPRESSION REPORT" or "COMPRESSION REPORT — VERIFIED" in the context, use that data.
 - If you do NOT see compression data in the context, tell the user: "I don't have compression data for this project yet. Please upload the Schedule Compression PDF from the validator and I'll analyze it for you."
 - When a user uploads a compression PDF, it is cached and associated with the project update number, making it available for future reference and comparisons.
 - Historical compression data across multiple updates is stored and can be referenced for trend analysis.
@@ -70,12 +96,21 @@ MILESTONE FORMATTING RULES — FOLLOW EXACTLY:
 - Milestone names are ALWAYS bold in every response. No exceptions. Example: **Contract Completion**, **Weather Tight**, **Foundation Complete**.
 - When listing multiple milestones in a single response, pick ONE format and use it consistently for every milestone in that list. Do not mix formats.
 - Acceptable formats (pick one per response and apply to all):
-  FORMAT A (variance): "• **[Milestone Name]**: Improved by X calendar days, moving from MM/DD/YY to MM/DD/YY."
-  FORMAT B (date change): "• **[Milestone Name]**: MM/DD/YYYY to MM/DD/YYYY, representing a X calendar day [acceleration/slip]."
-  FORMAT C (no change): "• **[Milestone Name]**: MM/DD/YYYY — No change from the last update."
+  FORMAT A (improved): "• **[Milestone Name]**: Improved X calendar days, moving from MM/DD/YY to MM/DD/YY."
+  FORMAT B (delayed): "• **[Milestone Name]**: Delayed X calendar days, moving from MM/DD/YY to MM/DD/YY." (use "day" only when X = 1: "Delayed 1 calendar day, moving from...")
+  FORMAT C (no change): "• **[Milestone Name]**: MM/DD/YYYY, unchanged from the previous update."
 - When reporting milestones with a mix of variance and no-change, use FORMAT A/B for changed milestones and FORMAT C for unchanged — but keep the structure consistent across the whole list.
+- NEVER use the word "acceleration" or "accelerated" when describing milestone movement. Use "improved" instead.
+- NEVER use the word "Maintained" when a milestone has not changed. Use FORMAT C exactly: "MM/DD/YYYY, unchanged from the previous update."
 - When listing milestones with forecast, baseline, and % complete (e.g., milestone status overview), use this exact format for every entry:
   "• **[Milestone Name]**: Forecast: MM/DD/YYYY | Baseline: MM/DD/YYYY | X% complete"
+
+BASELINE REFERENCE RULES — FOLLOW EXACTLY:
+- In milestone bullets and summary narrative, DO NOT reference baseline dates unless this is Update 1 (the first update after the baseline — no prior update exists).
+- On Update 1 only: it is appropriate to compare against baseline since there is no prior update to reference.
+- On Update 2 and beyond: baseline comparisons belong in internal trend analysis and overall health assessment only — NOT in milestone bullets or the summary narrative section.
+- When in doubt whether it is Update 1: check the PROJECT TRACKER block. If a prior update date exists, do not surface baseline in milestone bullets or summary.
+- Drift from baseline (cumulative movement) is always available internally for health tags and trend analysis — just do not expose it in milestone-level bullets unless explicitly asked.
 
 MILESTONE DATE ACCURACY RULES:
 - The STANDARDIZED MILESTONES block includes three date sources per milestone: Forecast (current), Baseline, and Prior Update.
@@ -396,7 +431,12 @@ MILESTONE SELECTION FOR REPORT — FOLLOW EXACTLY:
 - Always include Contract Completion or Substantial Completion (whichever is present)
 - Prioritize milestones that moved in the current update over those that held steady
 - Use standardized milestone names only — never raw activity IDs or contractor-invented names
-- Format each milestone entry as: "• **[Milestone Name]**: [Prior date] to [Current date], representing a [X] calendar day [acceleration/delay]." OR "• **[Milestone Name]**: Remains unchanged at [date]."
+- Format each milestone entry as:
+    Improved: "• **[Milestone Name]**: Improved X calendar days, moving from MM/DD/YY to MM/DD/YY."
+    Delayed:  "• **[Milestone Name]**: Delayed X calendar days, moving from MM/DD/YY to MM/DD/YY." (use "day" only when X = 1)
+    No change: "• **[Milestone Name]**: MM/DD/YYYY, unchanged from the previous update."
+- NEVER use "acceleration", "accelerated", or "Maintained" in milestone entries.
+- NEVER reference baseline dates in milestone bullets unless this is Update 1 (no prior update exists).
 
 NARRATIVE STYLE — TWO ACCEPTABLE STYLES, AGENT CHOOSES BASED ON PROJECT:
 Style A (cascade/enclosure-driven projects — framing, sheathing, envelope driving CP):
@@ -429,61 +469,68 @@ After the draft is produced and the user begins reviewing, enter refinement mode
 - If the user challenges a data interpretation ("that's not what I'm seeing on the CP"), ask exactly ONE targeted question to resolve it — do not rewrite the section until you have the answer.
 - If the user says "looks good", "finalize", or "that's correct" — produce the final clean version of the full report with all accepted changes incorporated.
 - Never ask more than one question at a time. Never rewrite a section the user has already approved.
-- Acknowledge corrections briefly: "Updated — here is the revised [Section Name]:" then show only that section."""
+- Acknowledge corrections briefly: "Updated — here is the revised [Section Name]:" then show only that section.
 
-# Narrative style guide for report mode — appended to system prompt when generating formal reports
-NARRATIVE_STYLE_GUIDE = """
-NARRATIVE REPORT FORMAT — STRICT STRUCTURE (Use when report mode is triggered):
+═══════════════════════════════════════════════════════════════
+NEW CAPABILITIES — ADDED CONTEXT SOURCES (USE THESE ACTIVELY)
+═══════════════════════════════════════════════════════════════
 
-You are an expert, executive-level project controls engineer. Analyze schedule updates and produce a highly structured, logic-first narrative report.
+DATA SOURCE PRIORITY HIERARCHY:
+When data sources conflict, resolve in this order:
+TIER 1 — VERIFIED PDFs (highest authority):
+  - ACTIVITY VERIFICATION REFERENCE (verify_N.pdf) — authoritative current-state activity list. Silently cross-check all dates before responding.
+  - VARIANCE REPORT PDF (variance_N.pdf) — human-verified variance output. Trumps computed analysis. Use proactively to confirm or correct your variance story.
+  - COMPRESSION REPORT — VERIFIED (compression_N.pdf) — authoritative compression %. Never override with computed estimates.
+TIER 2 — PARSED SCHEDULE DATA:
+  - STANDARDIZED MILESTONES block — use Variance field directly (pre-computed). Do not recompute.
+  - CRITICAL PATH CHAIN — float-ranked, finish/float per step. Narrate the full chain.
+  - NEAR-CRITICAL ACTIVITIES — within 10 calendar days of float. Flag proactively.
+  - VARIANCE ANALYSIS — phase-grouped deltas. Lead with KEY FINDINGS.
+  - SCHEDULE DATA — full activity list with start, finish, float, % complete.
+TIER 3 — COMPUTED ESTIMATES (lowest authority, use only when Tier 1 and 2 are unavailable):
+  - Any computed compression %, variance, or float estimates derived from raw schedule data.
 
-### 1. REPORT FORMAT (Exactly 7 sections, in this order, bold headers, plain bullets — no tables)
+RELATIONSHIPS BLOCK — HOW TO USE FOR CP TRACING AND DELAY SOURCING:
+The context includes a RELATIONSHIPS block in this format:
+  Activity ID "Activity Name" → Predecessor ID "Predecessor Name" (FS/SS/FF/SF)
+This is the raw predecessor network. Use it to:
+1. TRACE CP MANUALLY when the pre-computed chain is shallow (≤2 activities) or flagged with CP WARNING:
+   Step 1: Find the contract completion milestone in the SCHEDULE DATA — get its activity ID.
+   Step 2: Look up that ID in RELATIONSHIPS — find its predecessor IDs.
+   Step 3: For each predecessor, look up its float in SCHEDULE DATA. Pick the one with lowest float (most constrained).
+   Step 4: Repeat from Step 2 using that predecessor as the new current activity.
+   Step 5: Stop when you reach an activity with no predecessors or an activity that has already started.
+   Step 6: Narrate the chain from earliest driver to completion.
+2. SOURCE DELAYS to root driver activities:
+   Step 1: Find the slipped activity in the VARIANCE ANALYSIS block.
+   Step 2: Look up its predecessors in RELATIONSHIPS.
+   Step 3: Check each predecessor's finish date in SCHEDULE DATA vs its Prior Update date in MILESTONES.
+   Step 4: The predecessor that slipped the most is the delay driver.
+   Step 5: Trace one level further if that predecessor also slipped.
+   Step 6: Report: "[Activity X] slipped [N] calendar days because its predecessor [Activity Y] finished [N] days late, driven by [root cause activity]."
+3. ANSWER ACTIVITY-SPECIFIC CP QUESTIONS:
+   "What drives [Activity X]?" → Look up X in RELATIONSHIPS, find predecessors, report names and float.
 
-**Summary**
-• State the Contract Completion date and the exact calendar-day variance from the prior plan
-• Provide a high-level summary of schedule movement and the primary phase driving the change
-• Define the current critical path at a high level
+CP WARNING HANDLING:
+If the CRITICAL PATH CHAIN block contains a CP WARNING (chain depth ≤ 2 or disconnected milestone):
+- Do NOT report the shallow chain as the full critical path.
+- State: "The pre-computed critical path chain is shallow — the schedule data may have unreliable float values or missing predecessor links."
+- Then manually trace the chain using the RELATIONSHIPS block per the steps above.
+- If manual trace also fails, state: "The predecessor network for this project does not provide a traceable critical path — recommend field verification of schedule logic."
 
-**Milestones**
-• List 4-5 key milestones using standard names
-• Format: "**[Milestone Name]:** [Improved/Slipped/Maintained] [X] calendar days, moving from [Prior Date] to [Current Date]."
+USER-PROVIDED DOCUMENTS — HOW TO USE:
+The context may include a USER-PROVIDED DOCUMENTS block containing files uploaded by the user (images, PDFs, notes, dashboard screenshots).
+- Treat these as authoritative supplemental context — the user uploaded them intentionally.
+- If a document includes a user_note, that note takes priority over your interpretation of the document content.
+- Common uses: dashboard screenshots with milestone names to use, PDF excerpts with contract dates, notes clarifying project scope.
+- When answering questions, reference uploaded documents if they are relevant: "Based on the uploaded dashboard, the milestone names for this project are..."
+- Do NOT ignore uploaded documents. If a user asks about something that appears in an uploaded document, use that document as your primary source.
 
-**Critical Path Analysis**
-• **Current Critical Path:** Trace the driving sequence of activities from data date to completion. Be specific about activity names and flow.
-• **Previous Critical Path:** State the driving sequence from the prior update for comparison.
-
-**Schedule Compression**
-• State the remaining work compression percentage and explain what it means for work density
-• Identify where work has shifted (e.g., pulled forward into Spring, pushed into final closeout)
-
-**Variance Analysis**
-• Explain the primary source of the critical path shift or completion date variance. Trace it to the specific task level.
-• Detail significant anomalies, major slips, or logic quality flags (open-ended activities, float consumption, FRAGNET impacts)
-• Summarize why the project maintained, improved, or slipped its final completion date based on delays vs. available float
-
-**Recommendations**
-• Provide 1-2 actionable recommendations focused on critical path, near-critical paths, or major logic/constraint risks
-
-**Opportunities**
-• Provide 1-2 actionable opportunities to recover time or alleviate trade stacking, citing activities with available float that can be resequenced or run concurrently
-
-### 2. WRITING STYLE RULES
-• Use plain, direct language with no fluff
-• Keep statements short, clear, and factual
-• Do not exaggerate or overstate conclusions
-• Avoid vague terms such as "significant" or "material"
-• Avoid using dashes unless absolutely necessary (use bullet points)
-• Do not overbuild explanations or list unnecessary steps
-• Maintain a professional, analytical tone suitable for executive reporting
-
-### 3. ANALYTICAL RULES
-• **Logic First:** Prioritize logic and sequence over surface-level date changes
-• **Criticality:** Only call an activity "critical" if it directly drives project completion. If an activity has zero float but no successors (open end), flag it as a logic issue, not a critical driver
-• **Double-Sourcing:** Every date and calendar-day variance MUST be verified against schedule data (MPP projected finish or PDF reports)
-• **Deep Variance Tracing:** Do not stop at surface-level date movement. Run task-level critical path chain to identify the true source of delay (duration extension, predecessor slip, constraint)
-• **Negative Float vs. Baseline Variance:** If schedule carries negative float driven by internal constraint, report as context. But TRUE schedule variance must be measured relative to Baseline Completion Date
-• **Separation of Movement:** Clearly separate true critical delays from non-impacting movement (slips absorbed by available float)
-• **Date Format:** Use MM/DD/YY format at all times (not dashes)
+PRE-COMPUTED VARIANCE — READ DIRECTLY:
+Each milestone row in the STANDARDIZED MILESTONES block now includes a pre-computed Variance field in calendar days (e.g., "Variance: +14cd" or "Variance: -7cd").
+- Read this value directly. Do not recompute it.
+- Positive = slipped. Negative = improved. Zero = no change.
+- The Drift field (if present) shows cumulative movement from baseline — use for overall health assessment.
 """
 
 SCRAPER_AVAILABLE = False
@@ -509,7 +556,7 @@ except Exception as _e:
     MPPParser = None
 
 try:
-    from project_loader import load_all_projects, get_project_context, list_projects, has_schedule, get_project_load_status, ensure_project_loaded
+    from project_loader import load_all_projects, get_project_context, list_projects, has_schedule, get_project_load_status, ensure_project_loaded, update_milestone_prior_dates
 except Exception as _pe:
     logger.warning(f"Project loader not available: {_pe}")
     def load_all_projects(): pass
@@ -518,6 +565,7 @@ except Exception as _pe:
     def has_schedule(slug): return False
     def get_project_load_status(slug): return {"loaded": False, "loading": False, "message": "Not available"}
     def ensure_project_loaded(slug): return False
+    def update_milestone_prior_dates(slug): return 0
 
 try:
     from tracker_loader import load_tracker, get_portfolio_summary
@@ -587,8 +635,95 @@ def _gradual_project_loader():
 _threading.Thread(target=_gradual_project_loader, daemon=True).start()
 
 
-def _parse_uploaded_file(filepath: str, filename: str) -> str:
-    """Parse an uploaded schedule file and return a context string for the Copilot."""
+# ---------------------------------------------------------------------------
+# PROJECT-SCOPED DOCUMENT MEMORY
+# ---------------------------------------------------------------------------
+# In-memory store: { slug: [ {filename, label, content, timestamp}, ... ] }
+# Persisted to copilot_web/projects/{slug}/user_docs.json on every write.
+# Loaded from disk at startup so docs survive server restarts.
+# ---------------------------------------------------------------------------
+
+_project_docs: dict = {}  # slug -> list of doc dicts
+
+def _docs_path(slug: str) -> str:
+    """Path to the user_docs.json file for a project."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(here, "projects", slug, "user_docs.json")
+
+# Import encryption helpers (graceful no-op if cryptography not installed or key not set)
+try:
+    from crypto import read_encrypted_json, write_encrypted_json, write_encrypted_bytes, read_encrypted_bytes, is_enabled as _crypto_enabled
+except ImportError:
+    def read_encrypted_json(path):
+        with open(path, "r", encoding="utf-8") as f: return json.load(f)
+    def write_encrypted_json(path, obj):
+        with open(path, "w", encoding="utf-8") as f: json.dump(obj, f, indent=2, default=str)
+    def write_encrypted_bytes(path, data):
+        with open(path, "wb") as f: f.write(data)
+    def read_encrypted_bytes(path):
+        with open(path, "rb") as f: return f.read()
+    def _crypto_enabled(): return False
+
+def _load_project_docs(slug: str) -> list:
+    """Load persisted docs from disk for a project slug (decrypts if ENCRYPTION_KEY is set)."""
+    path = _docs_path(slug)
+    if os.path.exists(path):
+        try:
+            return read_encrypted_json(path)
+        except Exception:
+            pass
+    return []
+
+def _save_project_docs(slug: str):
+    """Persist in-memory docs to disk for a project slug (encrypts if ENCRYPTION_KEY is set)."""
+    path = _docs_path(slug)
+    try:
+        write_encrypted_json(path, _project_docs.get(slug, []))
+    except Exception as e:
+        logger.warning(f"[{slug}] Could not persist user_docs: {e}")
+
+def _get_project_docs_context(slug: str) -> str:
+    """Build the USER-PROVIDED DOCUMENTS context block for a project."""
+    docs = _project_docs.get(slug, [])
+    if not docs:
+        return ""
+    lines = ["=== USER-PROVIDED DOCUMENTS ===",
+             "These files were manually uploaded by the user for this project.",
+             "Use them as supplementary context — they may contain dashboard screenshots, notes, milestone clarifications, or other reference material.",
+             "The user can refer to these in conversation. Connect them to the schedule analysis when relevant.",
+             ""]
+    for i, doc in enumerate(docs, 1):
+        label = doc.get("label") or doc.get("filename", f"Document {i}")
+        ts = doc.get("timestamp", "")
+        note = doc.get("user_note", "")
+        lines.append(f"--- Document {i}: {label} (uploaded: {ts}) ---")
+        if note:
+            lines.append(f"User note: {note}")
+        lines.append(doc.get("content", "[No content extracted]"))
+        lines.append("")
+    return "\n".join(lines)
+
+# Pre-load all project docs from disk at startup
+try:
+    _here_docs = os.path.dirname(os.path.abspath(__file__))
+    _proj_dir = os.path.join(_here_docs, "projects")
+    if os.path.exists(_proj_dir):
+        for _slug in os.listdir(_proj_dir):
+            _loaded = _load_project_docs(_slug)
+            if _loaded:
+                _project_docs[_slug] = _loaded
+                logger.info(f"Loaded {len(_loaded)} user doc(s) for {_slug}")
+except Exception as _de:
+    logger.warning(f"User docs preload failed: {_de}")
+
+
+def _parse_uploaded_file(filepath: str, filename: str, client=None) -> str:
+    """
+    Parse any uploaded file and return a context string.
+    Supports: .mpp, .xml, .xer, .csv, .txt, .md, .docx, .pdf, .png, .jpg, .jpeg, .webp
+    Images are described via GPT-4o Vision if a client is provided.
+    """
+    import json as _json
     ext = os.path.splitext(filename)[1].lower()
 
     if ext in (".mpp", ".xml", ".xer") and MPP_AVAILABLE:
@@ -610,8 +745,8 @@ def _parse_uploaded_file(filepath: str, filename: str) -> str:
 
     elif ext in (".txt", ".md"):
         try:
-            with open(filepath, "r", encoding="utf-8", errors="replace") as f:
-                content = f.read(4000)
+            with open(filepath, "r", encoding="utf-8", errors="replace") as fh:
+                content = fh.read(6000)
             return f"[File: {filename}]\n{content}"
         except Exception as e:
             return f"[Read error for {filename}: {e}]"
@@ -621,7 +756,7 @@ def _parse_uploaded_file(filepath: str, filename: str) -> str:
             from docx import Document
             doc = Document(filepath)
             text = "\n".join(p.text for p in doc.paragraphs if p.text.strip())
-            return f"[Document: {filename}]\n{text[:5000]}"
+            return f"[Document: {filename}]\n{text[:6000]}"
         except Exception as e:
             return f"[DOCX parse error for {filename}: {e}]"
 
@@ -630,16 +765,54 @@ def _parse_uploaded_file(filepath: str, filename: str) -> str:
             import pdfplumber
             text_parts = []
             with pdfplumber.open(filepath) as pdf:
-                for page in pdf.pages[:20]:
+                for page in pdf.pages[:30]:
                     t = page.extract_text()
                     if t:
                         text_parts.append(t)
-            return f"[PDF: {filename}]\n" + "\n".join(text_parts)[:5000]
+            extracted = "\n".join(text_parts)[:8000]
+            return f"[PDF: {filename}]\n{extracted}"
         except Exception as e:
             return f"[PDF parse error for {filename}: {e}]"
 
+    elif ext in (".png", ".jpg", ".jpeg", ".webp", ".gif"):
+        # Use GPT-4o Vision to describe the image
+        try:
+            import base64
+            with open(filepath, "rb") as fh:
+                b64 = base64.b64encode(fh.read()).decode("utf-8")
+            mime = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
+                    "webp": "image/webp", "gif": "image/gif"}.get(ext.lstrip("."), "image/png")
+            data_url = f"data:{mime};base64,{b64}"
+
+            if client:
+                resp = client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=[{
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": (
+                                "You are a project controls analyst. Describe this image in detail as it relates to construction schedule management. "
+                                "Extract all visible text, dates, milestone names, activity names, percentages, and any schedule data. "
+                                "If this is a dashboard screenshot, list every milestone name and date visible. "
+                                "If this is a chart or graph, describe what it shows including axis labels and values. "
+                                "Be thorough — this description will be used as reference data for schedule analysis."
+                            )},
+                            {"type": "image_url", "image_url": {"url": data_url, "detail": "high"}}
+                        ]
+                    }],
+                    max_tokens=1500,
+                    timeout=30
+                )
+                description = resp.choices[0].message.content
+                return f"[Image: {filename}]\n{description}"
+            else:
+                # No client — store the raw base64 reference for later vision use
+                return f"[Image: {filename}]\n[Image uploaded — vision analysis will be applied when queried]"
+        except Exception as e:
+            return f"[Image parse error for {filename}: {e}]"
+
     else:
-        return f"[Unsupported file type: {ext}. Supported: .mpp, .xml, .xer, .csv, .txt, .md, .docx, .pdf]"
+        return f"[Unsupported file type: {ext}. Supported: .mpp, .xml, .xer, .csv, .txt, .md, .docx, .pdf, .png, .jpg, .jpeg, .webp]"
 
 def background_scraper(interval_seconds=1800):
     """Runs scraper every interval_seconds (default 30 min) in a background thread."""
@@ -659,15 +832,45 @@ def background_scraper(interval_seconds=1800):
 # scraper_thread = threading.Thread(target=background_scraper, daemon=True)
 # scraper_thread.start()
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Login page — accepts shared APP_PASSWORD from environment."""
+    if not _APP_PASSWORD:
+        # Auth disabled in dev mode — go straight to app
+        return redirect(url_for("index"))
+    if session.get("authenticated"):
+        return redirect(url_for("index"))
+    error = None
+    if request.method == "POST":
+        pwd = request.form.get("password", "")
+        if pwd == _APP_PASSWORD:
+            session.permanent = True
+            session["authenticated"] = True
+            return redirect(url_for("index"))
+        else:
+            error = "Incorrect password. Please try again."
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    """Clear session and redirect to login."""
+    session.clear()
+    return redirect(url_for("login"))
+
+
 @app.route("/")
+@require_auth
 def index():
     return render_template("index.html")
 
 @app.route("/health")
 def health():
+    """Health check — no auth required so Render uptime checks work."""
     return "ok", 200
 
 @app.route("/context", methods=["GET"])
+@require_auth
 def view_context():
     """Debug endpoint to inspect current dashboard context."""
     ctx = load_context()
@@ -675,7 +878,65 @@ def view_context():
         return jsonify({"status": "empty", "context": None})
     return jsonify({"status": "loaded", "context": ctx[:3000]})
 
+@app.route("/context-debug/<slug>", methods=["GET"])
+@require_auth
+def context_debug(slug):
+    """
+    Returns the full system prompt that would be sent to GPT-4o for a given project.
+    Use this to diagnose why the agent missed a milestone, ignored a PDF, or produced
+    a shallow CP chain. Shows every block: SYSTEM_BASE, portfolio context, milestone
+    block, CP chain, near-critical table, variance, relationships, verify/variance/
+    compression PDFs, and user-uploaded documents.
+    """
+    page_view = request.args.get("page", None)
+
+    system = SYSTEM_BASE
+
+    if _PORTFOLIO_CTX:
+        system += f"\n\n{_PORTFOLIO_CTX}"
+
+    dashboard_context = load_context()
+    if dashboard_context:
+        system += f"\n\n{dashboard_context}"
+
+    proj_ctx = get_project_context(slug, page_view)
+    if proj_ctx:
+        system += f"\n\n{proj_ctx}"
+
+    docs_ctx = _get_project_docs_context(slug)
+    if docs_ctx:
+        system += f"\n\n{docs_ctx}"
+
+    # Build a summary of what blocks are present
+    blocks_present = []
+    block_markers = [
+        ("STANDARDIZED MILESTONES", "Milestone block"),
+        ("CRITICAL PATH CHAIN", "CP chain"),
+        ("CRITICAL PATH SHIFT", "CP shift comparison"),
+        ("NEAR-CRITICAL ACTIVITIES", "Near-critical table"),
+        ("VARIANCE ANALYSIS", "Variance analysis"),
+        ("RELATIONSHIPS", "Relationships block"),
+        ("ACTIVITY VERIFICATION REFERENCE", "Verify PDF"),
+        ("VARIANCE REPORT PDF", "Variance PDF"),
+        ("COMPRESSION REPORT", "Compression PDF"),
+        ("USER-PROVIDED DOCUMENTS", "User-uploaded docs"),
+        ("RISK FLAGS", "Risk flags"),
+    ]
+    for marker, label in block_markers:
+        blocks_present.append({"block": label, "present": marker in system})
+
+    return jsonify({
+        "project_slug": slug,
+        "page_view": page_view,
+        "total_chars": len(system),
+        "estimated_tokens": len(system) // 4,
+        "blocks": blocks_present,
+        "full_system_prompt": system
+    })
+
+
 @app.route("/projects", methods=["GET"])
+@require_auth
 def get_projects():
     """Returns list of all projects and their pages for the dropdown.
     Includes cache status: cached (bool), loading (bool) for UI indicators.
@@ -723,6 +984,7 @@ def get_project_status(slug):
 
 
 @app.route("/screenshot/<int:page_num>", methods=["GET"])
+@require_auth
 def view_screenshot(page_num):
     """Debug endpoint to view the screenshot Playwright captured for a given page."""
     path = f"/tmp/screenshot_page_{page_num}.png"
@@ -731,8 +993,16 @@ def view_screenshot(page_num):
     return send_file(path, mimetype="image/png")
 
 @app.route("/upload", methods=["POST"])
+@require_auth
 def upload_file():
-    """Accept an uploaded schedule file or compression PDF, parse it, return context for the Copilot."""
+    """
+    Accept an uploaded file. Supports schedule files, PDFs, images, docs, and notes.
+    If project_slug is provided, the parsed content is stored in that project's
+    document memory and persisted to disk — it will be automatically injected into
+    every subsequent chat for that project.
+    If no project_slug, returns context for one-time use (legacy behavior).
+    Optional fields: label (display name), user_note (user annotation for the doc).
+    """
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
     f = request.files["file"]
@@ -743,30 +1013,148 @@ def upload_file():
     project_slug = request.form.get("project_slug", "")
 
     ext = os.path.splitext(f.filename)[1].lower()
-    
-    # Handle compression PDF uploads
-    if ext == ".pdf":
-        return _handle_compression_pdf_upload(f, project_slug)
-    
-    # Handle schedule file uploads (MPP, XER, etc.)
-    allowed = {".mpp", ".xml", ".xer", ".csv", ".txt", ".md"}
+    allowed = {".mpp", ".xml", ".xer", ".csv", ".txt", ".md",
+               ".docx", ".pdf", ".png", ".jpg", ".jpeg", ".webp", ".gif"}
     if ext not in allowed:
-        return jsonify({"error": f"Unsupported file type: {ext}"}), 400
+        return jsonify({"error": f"Unsupported file type: {ext}. Supported: {', '.join(sorted(allowed))}"}), 400
 
+    project_slug = request.form.get("project_slug", "").strip() or None
+    label = request.form.get("label", "").strip() or f.filename
+    user_note = request.form.get("user_note", "").strip() or ""
+
+    tmp_path = None
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp:
             f.save(tmp.name)
             tmp_path = tmp.name
 
-        context = _parse_uploaded_file(tmp_path, f.filename)
-        return jsonify({"context": context, "filename": f.filename})
+        # Pass client so images can be described via Vision
+        _client = get_client()
+        content = _parse_uploaded_file(tmp_path, f.filename, client=_client)
+
+        # --- Auto-snapshot prior dates before a new update_N schedule file is saved ---
+        # This ensures the current forecast is preserved as prior_update_date before
+        # the new update overwrites it as "current". Fires only for schedule files
+        # with update_N naming convention uploaded to a known project.
+        import re as _re_up
+        _is_schedule_ext = ext in (".mpp", ".xml", ".xer")
+        _is_update_file = bool(_re_up.match(r'^update[_\-]\d+', f.filename.lower()))
+        # --- Save raw schedule file to project folder so parser picks it up as current ---
+        _saved_to_disk = False
+        _saved_path = None
+        if project_slug and _is_schedule_ext:
+            try:
+                _proj_dir = os.path.join(_here, "projects", project_slug)
+                if os.path.isdir(_proj_dir):
+                    # Snapshot prior dates BEFORE saving the new file (so current becomes previous)
+                    if _is_update_file:
+                        try:
+                            snapped = update_milestone_prior_dates(project_slug)
+                            if snapped:
+                                logger.info(f"[{project_slug}] Auto-snapped prior_update_date for {snapped} milestones before loading {f.filename}")
+                        except Exception as _snap_e:
+                            logger.warning(f"[{project_slug}] prior_update_date snapshot failed: {_snap_e}")
+                    # Save the raw file to the project bucket (encrypted if ENCRYPTION_KEY is set)
+                    _saved_path = os.path.join(_proj_dir, f.filename)
+                    with open(tmp_path, "rb") as _raw_fh:
+                        _raw_bytes = _raw_fh.read()
+                    write_encrypted_bytes(_saved_path, _raw_bytes)
+                    _saved_to_disk = True
+                    logger.info(f"[{project_slug}] Saved schedule file to project folder: {_saved_path} (encrypted={_crypto_enabled()})")
+                    # Reload all projects so the new file is picked up immediately
+                    try:
+                        load_all_projects()
+                        logger.info(f"[{project_slug}] Project context reloaded after new schedule file upload")
+                    except Exception as _rel_e:
+                        logger.warning(f"[{project_slug}] Reload after upload failed: {_rel_e}")
+                else:
+                    logger.warning(f"[{project_slug}] Project folder not found — file not saved to disk: {_proj_dir}")
+            except Exception as _disk_e:
+                logger.warning(f"[{project_slug}] Failed to save schedule file to project folder: {_disk_e}")
+        elif project_slug and _is_schedule_ext and _is_update_file:
+            # Fallback: snapshot only (no project folder found)
+            try:
+                snapped = update_milestone_prior_dates(project_slug)
+                if snapped:
+                    logger.info(f"[{project_slug}] Auto-snapped prior_update_date for {snapped} milestones before loading {f.filename}")
+            except Exception as _snap_e:
+                logger.warning(f"[{project_slug}] prior_update_date snapshot failed: {_snap_e}")
+
+        if project_slug:
+            # Store in project-scoped memory
+            import datetime
+            doc_entry = {
+                "filename": f.filename,
+                "label": label,
+                "user_note": user_note,
+                "content": content,
+                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+            }
+            if project_slug not in _project_docs:
+                _project_docs[project_slug] = []
+            # Replace existing doc with same filename, or append
+            existing = [d for d in _project_docs[project_slug] if d["filename"] != f.filename]
+            existing.append(doc_entry)
+            _project_docs[project_slug] = existing
+            _save_project_docs(project_slug)
+            logger.info(f"[{project_slug}] Stored user doc: {f.filename}")
+            return jsonify({
+                "status": "stored",
+                "saved_to_project": True,
+                "project_slug": project_slug,
+                "filename": f.filename,
+                "label": label,
+                "doc_count": len(_project_docs[project_slug]),
+                "preview": content[:300]
+            })
+        else:
+            # Legacy: return context for one-time use
+            return jsonify({"context": content, "filename": f.filename})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
-        try:
-            os.unlink(tmp_path)
-        except Exception:
-            pass
+        if tmp_path:
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass
+
+
+@app.route("/docs/<slug>", methods=["GET"])
+@require_auth
+def list_project_docs(slug):
+    """List all user-uploaded documents stored for a project."""
+    docs = _project_docs.get(slug, [])
+    return jsonify({
+        "project_slug": slug,
+        "doc_count": len(docs),
+        "docs": [{"filename": d["filename"], "label": d["label"],
+                  "timestamp": d["timestamp"], "user_note": d.get("user_note", ""),
+                  "preview": d["content"][:200]} for d in docs]
+    })
+
+
+@app.route("/docs/<slug>/<filename>", methods=["DELETE"])
+@require_auth
+def delete_project_doc(slug, filename):
+    """Remove a specific uploaded document from a project's memory."""
+    if slug not in _project_docs:
+        return jsonify({"error": "Project not found"}), 404
+    before = len(_project_docs[slug])
+    _project_docs[slug] = [d for d in _project_docs[slug] if d["filename"] != filename]
+    _save_project_docs(slug)
+    removed = before - len(_project_docs[slug])
+    return jsonify({"status": "ok", "removed": removed, "remaining": len(_project_docs[slug])})
+
+
+@app.route("/docs/<slug>/clear", methods=["POST"])
+@require_auth
+def clear_project_docs(slug):
+    """Clear all user-uploaded documents for a project."""
+    _project_docs[slug] = []
+    _save_project_docs(slug)
+    return jsonify({"status": "cleared", "project_slug": slug})
 
 
 def _handle_compression_pdf_upload(f, project_slug: str) -> tuple:
@@ -888,6 +1276,7 @@ def _infer_project_from_filename(filename: str) -> Optional[str]:
     return None
 
 @app.route("/scrape", methods=["POST"])
+@require_auth
 def trigger_scrape():
     """Manual trigger to force a fresh scrape."""
     if not SCRAPER_AVAILABLE:
@@ -898,7 +1287,9 @@ def trigger_scrape():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/chat", methods=["POST"])
+@require_auth
 def chat():
     data = request.get_json()
     messages = data.get("messages", [])
@@ -939,6 +1330,11 @@ def chat():
         if proj_ctx:
             system += f"\n\n{proj_ctx}"
 
+        # Inject project-scoped user-uploaded documents
+        docs_ctx = _get_project_docs_context(project_slug)
+        if docs_ctx:
+            system += f"\n\n{docs_ctx}"
+
     if context:
         system += f"\n\nUSER-PROVIDED CONTEXT:\n{context}"
 
@@ -947,12 +1343,11 @@ def chat():
     last_user_msg = next((m["content"] for m in reversed(messages) if m.get("role") == "user"), "")
     last_user_lower = last_user_msg.lower() if isinstance(last_user_msg, str) else ""
     is_report_mode = any(t in last_user_lower for t in REPORT_TRIGGERS)
-
     if is_report_mode:
         system += f"\n\n{NARRATIVE_STYLE_GUIDE}"
         logger.info(f"[{project_slug or 'no-project'}] Report mode triggered — narrative style guide appended")
 
-    full_messages = [{"role": "system", "content": system}] + messages[-10:]
+    full_messages = [{"role": "system", "content": system}] + messages[-30:]
     selected_model = "gpt-5.4"
 
     if image_b64:
@@ -973,7 +1368,7 @@ def chat():
         response = client.chat.completions.create(
             model=selected_model,
             messages=full_messages,
-            temperature=0.3,
+            temperature=0.5 if is_report_mode else 0.3,
             timeout=60 if is_report_mode else 25
         )
         return jsonify({"reply": response.choices[0].message.content})

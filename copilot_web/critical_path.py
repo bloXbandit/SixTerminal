@@ -9,6 +9,16 @@ Two modes:
   - Full project CP: walks back from the contract completion / last milestone
   - Per-activity runoff: walks back from any named/matched activity
 
+Chain walk strategy (Option 2 — float-ranked, no critical flag dependency):
+  At each step, all predecessors are considered. The one with the LOWEST total
+  float (most constrained) is selected as the driving predecessor. If float is
+  unavailable, the latest-finishing predecessor is used as a proxy. This means
+  the chain walk works correctly even when the MPP critical flag is unreliable
+  or missing, which is common in contractor-submitted schedules.
+
+  The critical flag is used ONLY as a tiebreaker when two predecessors have
+  identical float — it is never the primary selection criterion.
+
 Output is a structured chain dict the LLM can narrate naturally.
 """
 
@@ -29,6 +39,7 @@ CONTRACT_KEYWORDS = [
     "final inspection",
     "owner acceptance",
     "project closeout",
+    "contract completion",
 ]
 
 
@@ -93,6 +104,29 @@ def _build_predecessor_map(relationships: List[Dict]) -> Dict[str, List[str]]:
     return pred_map
 
 
+def _get_float_days(task: Dict) -> Optional[float]:
+    """
+    Extract total float as a float (days). Handles MPP duration strings ('5.0d', '40.0h')
+    and XER float hours. Returns None if unavailable.
+    """
+    import re
+    raw = task.get("total_slack") or task.get("total_float_hrs")
+    if raw is None or raw == "":
+        return None
+    try:
+        s = str(raw).lower().strip()
+        m = re.match(r'(-?[\d.]+)\s*([dh]?)', s)
+        if m:
+            val = float(m.group(1))
+            unit = m.group(2)
+            if unit == 'h':
+                return round(val / 8.0, 1)
+            return round(val, 1)
+    except Exception:
+        pass
+    return None
+
+
 def _walk_predecessors(
     start_id: str,
     pred_map: Dict[str, List[str]],
@@ -102,7 +136,17 @@ def _walk_predecessors(
 ) -> List[Dict]:
     """
     Walk backwards through predecessor chain from start_id.
-    If critical_ids provided, prefer critical predecessors at each step.
+
+    Selection strategy — float-ranked (Option 2):
+      1. Among all unvisited predecessors, pick the one with the LOWEST total float.
+         Lowest float = most constrained = most likely driving predecessor.
+      2. If float is unavailable for all candidates, fall back to latest finish date
+         (latest finish = most likely to be on the driving path).
+      3. The critical flag is used ONLY as a tiebreaker when float values are equal.
+
+    This approach works correctly even when the MPP critical flag is unreliable,
+    absent, or set incorrectly by the contractor's scheduler.
+
     Returns ordered list [start → ... → earliest driver], most recent first.
     """
     visited: Set[str] = set()
@@ -119,24 +163,28 @@ def _walk_predecessors(
             chain.append(task)
 
         preds = pred_map.get(current_id, [])
-        if not preds:
-            break
-
-        # Prefer critical predecessors; among those pick latest finish (most driving)
-        if critical_ids:
-            crit_preds = [p for p in preds if p in critical_ids and p not in visited]
-            candidates = crit_preds if crit_preds else [p for p in preds if p not in visited]
-        else:
-            candidates = [p for p in preds if p not in visited]
+        candidates = [p for p in preds if p not in visited]
 
         if not candidates:
             break
 
         def pred_sort_key(pid):
             t = task_lookup.get(pid, {})
-            return t.get("finish") or t.get("target_end_date") or ""
+            float_days = _get_float_days(t)
+            finish = t.get("finish") or t.get("target_end_date") or ""
+            is_critical = 1 if (critical_ids and pid in critical_ids) else 0
 
-        current_id = max(candidates, key=pred_sort_key)
+            # Sort key: (float ascending — None treated as large positive, finish descending, critical descending)
+            # We want: lowest float first, then latest finish, then critical as tiebreaker
+            float_sort = float_days if float_days is not None else 9999.0
+            # Invert finish string for descending sort: '~' sorts after all ISO date chars
+            finish_desc = tuple(~ord(c) for c in finish) if finish else (0,)
+            return (float_sort, -is_critical, finish_desc)
+
+        # Pick the predecessor with lowest float (most constrained)
+        # Among ties: prefer critical, then latest finish
+        best = min(candidates, key=lambda pid: pred_sort_key(pid))
+        current_id = best
 
     return chain
 
@@ -154,13 +202,13 @@ def build_critical_chain(
         tasks: normalized task list (from MPPParser or P6Parser)
         relationships: list of {task_id, pred_task_id/predecessor_task_id} dicts
         target_name: optional activity name to trace back from (per-activity runoff)
-        critical_ids: optional set of task IDs already flagged critical
+        critical_ids: optional set of task IDs already flagged critical (used as tiebreaker only)
 
     Returns dict:
         {
           "mode": "full_project" | "activity_runoff",
           "target": {task dict},
-          "chain": [ordered task dicts, most recent → earliest driver],
+          "chain": [ordered task dicts, most recent -> earliest driver],
           "chain_names": [list of activity names in order],
           "narrative_hint": "string for LLM to use as narration base",
           "depth": int,
@@ -169,6 +217,13 @@ def build_critical_chain(
     """
     if not tasks:
         return {"error": "No tasks available"}
+
+    if not relationships:
+        return {
+            "error": "No relationships available — cannot build predecessor chain. "
+                     "Check that the schedule file contains logic ties and that the "
+                     "relationships list was passed through correctly."
+        }
 
     # Build lookup and predecessor map
     task_lookup: Dict[str, Dict] = {}
@@ -179,6 +234,12 @@ def build_critical_chain(
 
     pred_map = _build_predecessor_map(relationships)
 
+    if not pred_map:
+        return {
+            "error": "Predecessor map is empty — relationships parsed but no valid predecessor links found. "
+                     "Check field name alignment (task_id / predecessor_task_id for MPP, task_id / pred_task_id for XER)."
+        }
+
     # Find target
     target = _find_target_task(tasks, target_name)
     if not target:
@@ -186,6 +247,23 @@ def build_critical_chain(
 
     target_id = str(target.get("id") or target.get("task_id") or "").strip()
     mode = "activity_runoff" if target_name else "full_project"
+
+    # Check if target has any predecessors at all
+    if target_id not in pred_map:
+        # Target has no predecessors in the map — this is the disconnected milestone problem
+        return {
+            "mode": mode,
+            "target": target,
+            "chain": [target],
+            "chain_names": [target.get("name") or target.get("task_name") or ""],
+            "narrative_hint": "",
+            "depth": 1,
+            "warning": (
+                f"'{target.get('name', 'Target activity')}' has no predecessor logic in the schedule network. "
+                "This milestone is disconnected — the critical path cannot be traced. "
+                "A logic review is required before this schedule can support path-based analysis."
+            )
+        }
 
     # Build the chain
     chain = _walk_predecessors(target_id, pred_map, task_lookup, critical_ids=critical_ids)
@@ -211,7 +289,16 @@ def build_critical_chain(
     # Build narrative hint for LLM
     narrative_hint = _build_narrative_hint(chain_names, target, mode)
 
-    return {
+    # Warn if chain is suspiciously short (likely still disconnected)
+    warning = None
+    if len(chain_names) <= 2:
+        warning = (
+            f"Critical path chain is very short ({len(chain_names)} activities). "
+            "This may indicate the schedule has incomplete predecessor logic near the completion milestone. "
+            "Verify that the completion milestone has upstream logic ties."
+        )
+
+    result = {
         "mode": mode,
         "target": target,
         "chain": chain,
@@ -219,6 +306,9 @@ def build_critical_chain(
         "narrative_hint": narrative_hint,
         "depth": len(chain),
     }
+    if warning:
+        result["warning"] = warning
+    return result
 
 
 def _build_narrative_hint(chain_names: List[str], target: Dict, mode: str) -> str:
@@ -244,7 +334,6 @@ def _build_narrative_hint(chain_names: List[str], target: Dict, mode: str) -> st
         return f"{prefix} {chain_names[0]}."
 
     # Build a condensed chain description
-    # Group consecutive names into logical phases where possible
     if len(chain_names) <= 6:
         mid = ", ".join(chain_names[1:-1])
         if mid:
@@ -292,6 +381,14 @@ def compare_critical_chains(current_chain: Dict, previous_chain: Dict) -> str:
     prev_top = prev_names[:3] if prev_names else []
 
     lines = ["=== CRITICAL PATH SHIFT (Current vs Previous) ==="]
+
+    # Surface any warnings from the chain builds
+    curr_warn = current_chain.get("warning", "")
+    prev_warn = previous_chain.get("warning", "")
+    if curr_warn:
+        lines.append(f"[CURRENT CP WARNING]: {curr_warn}")
+    if prev_warn:
+        lines.append(f"[PREVIOUS CP WARNING]: {prev_warn}")
 
     if curr_top:
         lines.append(f"Current driving sequence (top): {' → '.join(curr_top)}")
@@ -343,7 +440,7 @@ def compare_critical_chains(current_chain: Dict, previous_chain: Dict) -> str:
         if curr_tail and curr_tail != curr_lead:
             hint += f", continuing through to '{curr_tail}'"
         hint += ". "
-        hint += ("Review whether this reflects a legitimate resequencing or a paper revision.")
+        hint += "Review whether this reflects a legitimate resequencing or a paper revision."
         lines.append("")
         lines.append(f"NARRATIVE HINT: {hint}")
 
@@ -354,6 +451,7 @@ def format_chain_for_context(chain_result: Dict, max_activities: int = 25) -> st
     """
     Formats chain result into a compact LLM context block.
     Injected into the system prompt when schedule data is loaded.
+    Includes finish date and float per step so the LLM can narrate timing precisely.
     """
     if "error" in chain_result:
         return f"[Critical Path: {chain_result['error']}]"
@@ -361,6 +459,7 @@ def format_chain_for_context(chain_result: Dict, max_activities: int = 25) -> st
     mode = chain_result.get("mode", "")
     target = chain_result.get("target", {})
     target_name = target.get("name") or target.get("task_name") or "N/A"
+    chain = chain_result.get("chain", [])
     chain_names = chain_result.get("chain_names", [])
     depth = chain_result.get("depth", 0)
     hint = chain_result.get("narrative_hint", "")
@@ -370,12 +469,27 @@ def format_chain_for_context(chain_result: Dict, max_activities: int = 25) -> st
 
     lines = [
         f"=== {label} ===",
-        f"Driving activities ({depth} steps):",
+        f"Driving activities ({depth} steps, float-ranked — lowest float = most driving):",
     ]
 
-    display = chain_names[:max_activities]
-    for i, name in enumerate(display, 1):
-        lines.append(f"  {i:>2}. {name}")
+    # Build a name→task lookup from the chain for per-step metadata
+    chain_task_lookup = {}
+    for t in chain:
+        name = t.get("name") or t.get("task_name") or ""
+        if name:
+            chain_task_lookup[name] = t
+
+    display_names = chain_names[:max_activities]
+    for i, name in enumerate(display_names, 1):
+        t = chain_task_lookup.get(name, {})
+        finish = t.get("finish") or t.get("target_end_date") or ""
+        float_days = _get_float_days(t)
+        float_str = f" | Float: {float_days}d" if float_days is not None else ""
+        finish_str = f" | Finish: {finish}" if finish else ""
+        pct = t.get("percent_complete", None)
+        pct_str = f" | {pct:.0f}%" if pct is not None else ""
+        lines.append(f"  {i:>2}. {name}{finish_str}{float_str}{pct_str}")
+
     if len(chain_names) > max_activities:
         lines.append(f"  ... +{len(chain_names) - max_activities} more")
 
@@ -384,6 +498,6 @@ def format_chain_for_context(chain_result: Dict, max_activities: int = 25) -> st
         lines.append(f"NARRATIVE BASE: {hint}")
 
     if warning:
-        lines.append(f"[Note: {warning}]")
+        lines.append(f"[CP WARNING: {warning}]")
 
     return "\n".join(lines)
