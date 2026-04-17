@@ -58,6 +58,13 @@ You specialize in Primavera P6, Microsoft Project, critical path methodology, sc
 You are embedded in a project controls dashboard. Responses are concise, professional, and client-facing ready. Use bullet points for lists. Keep responses tight — this is a side panel, not a report.
 Never make up data beyond what is provided. If you don't have specific data, say so directly.
 
+SCHEDULE DATA LOADING — CRITICAL RULE:
+If the project context contains the message "[Schedule data is loading in the background" — this means the schedule file is still being parsed and is NOT yet available. In this case:
+- Do NOT attempt to answer any schedule-specific questions (dates, activities, critical path, variance, compression, milestones).
+- Respond with: "The schedule data for [project name] is still loading — this typically takes 30–60 seconds. Please wait a moment and send your question again."
+- You may still answer general questions about the project using tracker data, milestone map, or portfolio context if available.
+- Never fabricate or estimate schedule data when this message is present.
+
 VOICE AND LANGUAGE RULES — FOLLOW THESE EXACTLY:
 - You write and speak as a senior project controls engineer briefing an owner or GC. Every response should be ready to hand to a client.
 - Use phrases like: "The critical path is driven by…" | "Delays are accumulating as work progresses downstream…" | "The downstream sequence absorbed the delay…" | "This activity is not currently driving completion…" | "The schedule reflects compression in the remaining work window…" | "All predecessors are complete — the late start on this activity is not logic-driven."
@@ -667,21 +674,38 @@ def _gradual_project_loader():
     time.sleep(30)  # Wait 30s after startup for things to stabilize
     
     try:
-        from project_loader import list_projects, ensure_project_loaded
+        from project_loader import list_projects, ensure_project_loaded, get_project_load_status
         projects = list_projects()
         logger.info(f"[AutoLoader] Starting gradual load of {len(projects)} projects...")
         
         for i, p in enumerate(projects):
             slug = p["slug"]
             try:
-                # This triggers background loading if not already loaded
+                # Trigger loading (non-blocking)
                 is_ready = ensure_project_loaded(slug)
                 if is_ready:
                     logger.info(f"[AutoLoader] {i+1}/{len(projects)} {slug}: already cached")
                 else:
-                    logger.info(f"[AutoLoader] {i+1}/{len(projects)} {slug}: loading started")
-                    # Wait 90s between projects to avoid CPU spikes
-                    time.sleep(90)
+                    logger.info(f"[AutoLoader] {i+1}/{len(projects)} {slug}: loading started, waiting...")
+                    # Wait for this project to finish before starting the next one
+                    # Poll every 5s, max 3 minutes per project
+                    waited = 0
+                    max_wait = 180
+                    while waited < max_wait:
+                        time.sleep(5)
+                        waited += 5
+                        status = get_project_load_status(slug)
+                        if status.get("loaded"):
+                            logger.info(f"[AutoLoader] {i+1}/{len(projects)} {slug}: loaded after {waited}s")
+                            break
+                        if not status.get("loading"):
+                            # Loading thread finished but not in cache — likely failed
+                            logger.warning(f"[AutoLoader] {i+1}/{len(projects)} {slug}: loading ended without cache after {waited}s")
+                            break
+                    else:
+                        logger.warning(f"[AutoLoader] {i+1}/{len(projects)} {slug}: timed out after {max_wait}s")
+                    # Brief pause between projects to let CPU settle
+                    time.sleep(5)
             except Exception as e:
                 logger.warning(f"[AutoLoader] Failed to load {slug}: {e}")
                 time.sleep(10)  # Brief pause on error
