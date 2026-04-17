@@ -502,17 +502,23 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                             logger.warning(f"Compression % out of range ({pct}), ignoring — raw: '{raw_val}'")
                     except ValueError:
                         logger.warning(f"Compression % could not parse after OCR cleanup — raw: '{raw_val}', cleaned: '{cleaned}'")
+                # Handle both dates on same line: "Data Date: 01/09/2026 Data Date: 03/24/2026"
                 m = re.findall(r'Data Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
                 if m:
                     if result["earlier_data_date"] is None:
                         result["earlier_data_date"] = m[0]
-                    elif result["later_data_date"] is None and m[0] != result["earlier_data_date"]:
+                    if len(m) >= 2 and result["later_data_date"] is None:
+                        result["later_data_date"] = m[1]
+                    elif len(m) == 1 and result["later_data_date"] is None and m[0] != result["earlier_data_date"]:
                         result["later_data_date"] = m[0]
+                # Handle both finish dates on same line: "Finish Date: 01/11/2027 Finish Date: 12/28/2026"
                 m = re.findall(r'Finish Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
                 if m:
                     if result["earlier_finish"] is None:
                         result["earlier_finish"] = m[0]
-                    elif result["later_finish"] is None and m[0] != result["earlier_finish"]:
+                    if len(m) >= 2 and result["later_finish"] is None:
+                        result["later_finish"] = m[1]
+                    elif len(m) == 1 and result["later_finish"] is None and m[0] != result["earlier_finish"]:
                         result["later_finish"] = m[0]
                 m = re.match(r'^([A-Za-z]{3}\s+\d{2})\s+(\d+)\s+(\d+)$', line)
                 if m:
@@ -521,7 +527,23 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                         "earlier_days": int(m.group(2)),
                         "later_days": int(m.group(3)),
                     })
-            result_holder[0] = result if result["compression_pct"] is not None else None
+            # If no explicit % found in text, compute from monthly table
+            if result["compression_pct"] is None and result["monthly"]:
+                earlier_total = sum(m["earlier_days"] for m in result["monthly"])
+                later_total = sum(m["later_days"] for m in result["monthly"])
+                if earlier_total > 0:
+                    computed_pct = round((later_total - earlier_total) / earlier_total * 100, 1)
+                    if -100 <= computed_pct <= 100:
+                        result["compression_pct"] = computed_pct
+                        logger.info(f"  Compression % computed from monthly table: {computed_pct}% "
+                                    f"(earlier={earlier_total} days, later={later_total} days)")
+
+            # Return result if we have monthly data OR an explicit pct — not just when pct is set
+            has_data = (result["compression_pct"] is not None or
+                        result["monthly"] or
+                        result["earlier_data_date"] or
+                        result["later_data_date"])
+            result_holder[0] = result if has_data else None
         except Exception as e:
             exc_holder.append(e)
 
@@ -545,7 +567,7 @@ def _format_compression_pdf_context(data: dict, label: str = "") -> str:
     pct = data.get("compression_pct")
     if pct is not None:
         direction = "compressed" if pct < 0 else "expanded" if pct > 0 else "unchanged"
-        lines.append(f"Remaining Work Compression: {pct:+d}% ({direction})")
+        lines.append(f"Remaining Work Compression: {pct:+.1f}% ({direction})")
     if data.get("earlier_data_date") and data.get("later_data_date"):
         lines.append(f"Compared: {data['earlier_data_date']} (earlier) → {data['later_data_date']} (later)")
     if data.get("earlier_finish") and data.get("later_finish"):

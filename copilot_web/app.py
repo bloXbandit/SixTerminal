@@ -554,8 +554,13 @@ You are an expert, executive-level project controls engineer. Analyze schedule u
 • **Previous Critical Path:** State the driving sequence from the prior update for comparison.
 
 **Schedule Compression**
-• State the remaining work compression percentage and explain what it means for work density
-• Identify where work has shifted (e.g., pulled forward into Spring, pushed into final closeout)
+• Lead with the verified compression % from the COMPRESSION REPORT block if available. Round to the nearest whole number for narrative (e.g., -2.6% → "-3% compression"). State it as the confirmed figure.
+• Explain what the % means in plain terms: negative = work pulled earlier / remaining span reduced; positive = work pushed later / span expanded.
+• Use the Monthly Activity Days table to identify WHERE work shifted — name the months with the largest positive deltas (work added) and largest negative deltas (work removed). This is the narrative substance.
+• Example: "The schedule shows increased remaining work in March, April, and May 2026, while planned work was pulled out of October through December 2026 and January 2027."
+• Close with the finish date change if available: "the overall finish improved from [earlier finish] to [later finish]" or "the overall finish slipped from [earlier finish] to [later finish]".
+• If no compression PDF is available, use the SCHEDULE COMPRESSION ANALYSIS (Current vs Previous) block — state span delta in calendar days and whether density increased or decreased. Do not invent a % figure.
+• Do NOT write multiple bullets for compression — one cohesive 2-3 sentence paragraph is the correct format.
 
 **Variance Analysis**
 • Explain the primary source of the critical path shift or completion date variance. Trace it to the specific task level.
