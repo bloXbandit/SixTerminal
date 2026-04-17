@@ -960,6 +960,14 @@
 
   async function handleFile(file) {
     if (!file) return;
+    // If a project is selected, show the note modal so the user can label the doc
+    if (selectedProjectSlug) {
+      showNoteModal(file);
+    } else {
+      // No project selected — upload as one-time session context only
+      await uploadFile(file, null, "", "");
+    }
+  }
 
   async function uploadFile(file, projectSlug, label, userNote) {
     const badge = document.getElementById("ctxBadge");
