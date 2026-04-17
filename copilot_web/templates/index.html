@@ -558,7 +558,8 @@
 
   async function loadProjects() {
     try {
-      const res = await fetch("/projects");
+      const res = await fetch("/projects", { credentials: "same-origin" });
+      if (res.status === 401) { window.location.href = "/login"; return; }
       const data = await res.json();
       projectData = data.projects || [];
       const sel = document.getElementById("projectSelect");
@@ -605,7 +606,8 @@
   setInterval(async () => {
     if (!selectedProjectSlug) {
       try {
-        const res = await fetch("/projects");
+        const res = await fetch("/projects", { credentials: "same-origin" });
+        if (res.status === 401) return; // Session expired — let next user action redirect
         const data = await res.json();
         const newProjects = data.projects || [];
         // Update projectData with new cache status
@@ -630,7 +632,7 @@
 
   async function triggerProjectLoad(slug) {
     try {
-      const res = await fetch(`/project/load/${slug}`, { method: "POST" });
+      const res = await fetch(`/project/load/${slug}`, { method: "POST", credentials: "same-origin" });
       const data = await res.json();
       return data;
     } catch (e) {
@@ -641,7 +643,7 @@
 
   async function checkProjectStatus(slug) {
     try {
-      const res = await fetch(`/project/status/${slug}`);
+      const res = await fetch(`/project/status/${slug}`, { credentials: "same-origin" });
       const data = await res.json();
       return data;
     } catch (e) {
@@ -744,7 +746,7 @@
   async function loadProjectDocs(slug) {
     if (!slug) return;
     try {
-      const res = await fetch(`/docs/${slug}`);
+      const res = await fetch(`/docs/${slug}`, { credentials: "same-origin" });
       const data = await res.json();
       renderDocsList(data.docs || []);
     } catch(e) {
@@ -785,7 +787,7 @@
   async function removeProjectDoc(filename) {
     if (!selectedProjectSlug) return;
     try {
-      await fetch(`/docs/${selectedProjectSlug}/${encodeURIComponent(filename)}`, { method: "DELETE" });
+      await fetch(`/docs/${selectedProjectSlug}/${encodeURIComponent(filename)}`, { method: "DELETE", credentials: "same-origin" });
       loadProjectDocs(selectedProjectSlug);
       appendMsg("assistant", `🗑️ Removed: ${filename}`);
     } catch(e) {
@@ -987,7 +989,7 @@
     }
 
     try {
-      const res = await fetch("/upload", { method: "POST", body: formData });
+      const res = await fetch("/upload", { method: "POST", credentials: "same-origin", body: formData });
       const data = await res.json();
 
       if (data.error) {
@@ -1077,8 +1079,10 @@
     const res = await fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
       body: JSON.stringify(payload)
     });
+    if (res.status === 401) { window.location.href = "/login"; return {}; }
     const data = await res.json();
     if (data.error === "__timeout__" && !retrying) {
       await new Promise(r => setTimeout(r, 1500));
