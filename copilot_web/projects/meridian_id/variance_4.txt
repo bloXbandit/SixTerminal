@@ -1,0 +1,239 @@
+Name Duration: Duration: Duration: Start: Current Start: Previous Start: Finish: Current Finish: Previous Finish: Diff 2026 2027
+Current Previous Diff Diff H2 H1 H2 H1
+1 GENERAL REQUIREMENTS AND CONDITIONS 259 days 265 days -6d Mon 9/8/25 Mon 9/8/25 0d Fri 9/11/26 Mon 9/21/26 -6d
+2 Notice to Proceed 1 day 1 day 0d Mon 9/8/25 Mon 9/8/25 0d Mon 9/8/25 Mon 9/8/25 0d
+3 DELAY - PERMIT DELAY 32 days 32 days 0d Tue 9/9/25 Tue 9/9/25 0d Wed 10/22/25 Wed 10/22/25 0d
+4 Obtain Building Permit 0 days 0 days 0d Wed 10/22/25 Wed 10/22/25 0d Wed 10/22/25 Wed 10/22/25 0d
+5 ACHD ROW Permit 0 days 0 days 0d Wed 10/29/25 Wed 10/29/25 0d Wed 10/29/25 Wed 10/29/25 0d
+6 Obtain LDIR Approval to Proceed 0 days 0 days 0d Mon 10/27/25 Mon 10/27/25 0d Mon 10/27/25 Mon 10/27/25 0d
+7 Receive CAD Base Files from Public Storage 10 days 10 days 0d Tue 9/9/25 Tue 9/9/25 0d Mon 9/22/25 Mon 9/22/25 0d
+8 Procure Early Work Subcontractors 5 days 5 days 0d Tue 9/9/25 Tue 9/9/25 0d Mon 9/15/25 Mon 9/15/25 0d
+9 Procure Remaining Subcontractors 20 days 20 days 0d Tue 9/16/25 Tue 9/16/25 0d Mon 10/13/25 Mon 10/13/25 0d
+10 Submittals (SWPPP/NOI) 10 days 10 days 0d Tue 9/16/25 Tue 9/16/25 0d Mon 9/29/25 Mon 9/29/25 0d
+11 Submittals (SES /Switchgear) 125 days 125 days 0d Tue 9/16/25 Tue 9/16/25 0d Fri 3/13/26 Fri 3/13/26 0d
+12 Submittals (numerous) 90 days 90 days 0d Tue 10/14/25 Tue 10/14/25 0d Fri 2/20/26 Fri 2/20/26 0d
+13 PUBLIC STORAGE Fab/Delv Framing & Panels BLDG B 40 days 40 days 0d Thu 10/23/25 Thu 10/23/25 0d Fri 12/19/25 Fri 12/19/25 0d
+14 PUBLIC STORAGE Fab/Delv Framing & Panels BLDG A 40 days 40 days 0d Thu 11/6/25 Thu 11/6/25 0d Tue 1/6/26 Tue 1/6/26 0d
+15 Procure SES's/Switchgears (6 mos ~ 130 WD) 56 days 56 days 0d Mon 11/3/25 Mon 11/3/25 0d Fri 1/23/26 Fri 1/23/26 0d
+16 Light Fixture Submittal Review and Approval 10 days 10 days 0d Mon 1/26/26 Mon 1/26/26 0d Fri 2/6/26 Fri 2/6/26 0d
+17 Light Fixture Package Alternate - Fab and Deliver 10 days 10 days 0d Mon 2/9/26 Mon 2/9/26 0d Fri 2/20/26 Fri 2/20/26 0d
+18 Fire Sprinkler Design and Approval 78 days 78 days 0d Tue 10/14/25 Tue 10/14/25 0d Wed 2/4/26 Wed 2/4/26 0d
+19 Fire Alarm System Design and Approval 40 days 40 days 0d Tue 10/14/25 Tue 10/14/25 0d Wed 12/10/25 Wed 12/10/25 0d
+20 ASPHALT BATCH PLANT SHUTDOWN 70 days 70 days 0d Mon 11/17/25 Mon 11/17/25 0d Thu 2/26/26 Thu 2/26/26 0d
+21 TWENTY WORKING DAYS OF WEATHER DELAY 10 days 10 days 0d Mon 8/31/26 Tue 9/8/26 -6d Fri 9/11/26 Mon 9/21/26 -6d
+22 WEATHER DELAY - Rain and High Winds - Imapct SOG B 2 days 2 days 0d Wed 12/17/25 Wed 12/17/25 0d Thu 12/18/25 Thu 12/18/25 0d
+23 WEATHER DELAY - Rain - Impact SOG B 1 day 1 day 0d Mon 12/22/25 Mon 12/22/25 0d Mon 12/22/25 Mon 12/22/25 0d
+24 WEATHER DELAY - Rain - Impact SOG B 3 days 3 days 0d Thu 1/8/26 Thu 1/8/26 0d Mon 1/12/26 Mon 1/12/26 0d
+25 WEATHER DELAY - Rain - Impact Footing Bldg A 2 days 2 days 0d Tue 2/17/26 Tue 2/17/26 0d Wed 2/18/26 Wed 2/18/26 0d
+26 WEATHER DELAY - Rain - Impact Footing Bldg A 2 days 2 days 0d Tue 2/24/26 Tue 2/24/26 0d Wed 2/25/26 Wed 2/25/26 0d
+27 Substantial Completion 0 days 0 days 0d Fri 9/11/26 Mon 9/21/26 -6d Fri 9/11/26 Mon 9/21/26 -6d
+28 Clean Up and Project Close Out 5 days 5 days 0d Wed 8/19/26 Thu 8/27/26 -6d Tue 8/25/26 Wed 9/2/26 -6d
+29 Demobilize 3 days 3 days 0d Wed 8/26/26 Thu 9/3/26 -6d Fri 8/28/26 Mon 9/7/26 -6d
+30 SITEWORK 219 days 219 days 0d Mon 9/8/25 Mon 9/8/25 0d Fri 7/17/26 Fri 7/17/26 0d
+31 Level of Effort 131 days 131 days 0d Mon 9/8/25 Mon 9/8/25 0d Fri 3/13/26 Fri 3/13/26 0d
+32 Construction Staking & Surveying 90 days 90 days 0d Mon 9/8/25 Mon 9/8/25 0d Fri 1/16/26 Fri 1/16/26 0d
+33 Inspections and Testing 100 days 100 days 0d Fri 9/12/25 Fri 9/12/25 0d Fri 2/13/26 Fri 2/13/26 0d
+34 Maintain Erosion Control 120 days 120 days 0d Tue 9/23/25 Tue 9/23/25 0d Fri 3/13/26 Fri 3/13/26 0d
+35 Erosion Control & SWPP 5 days 5 days 0d Tue 9/16/25 Tue 9/16/25 0d Mon 9/22/25 Mon 9/22/25 0d
+36 Mobilization 5 days 5 days 0d Mon 9/8/25 Mon 9/8/25 0d Mon 9/15/25 Mon 9/15/25 0d
+37 Site Demolition (Trees,Sawcut, Asphalt, Base ) 0 days 0 days 0d Mon 9/8/25 Mon 9/8/25 0d Fri 9/12/25 Fri 9/12/25 0d
+38 Clear/Grub & Overlot Grading 12 days 12 days 0d Mon 9/8/25 Mon 9/8/25 0d Tue 9/23/25 Tue 9/23/25 0d
+39 Structure Demo (Partial Building & RV Storage ) 5 days 5 days 0d Mon 11/3/25 Mon 11/3/25 0d Fri 11/7/25 Fri 11/7/25 0d
+40 Re-Mobilization 4 days 4 days 0d Thu 10/23/25 Thu 10/23/25 0d Tue 10/28/25 Tue 10/28/25 0d
+41 FRAGNET - CITY PRE-CON & 7 DAY NOTICE 7 days 7 days 0d Wed 10/29/25 Wed 10/29/25 0d Thu 11/6/25 Thu 11/6/25 0d
+42 Site - Water Line Ten Mile Tie-In 2 days 2 days 0d Sat 11/8/25 Sat 11/8/25 0d Tue 11/11/25 Tue 11/11/25 0d
+43 Work Week Restriction 5 days 5 days 0d Fri 11/7/25 Fri 11/7/25 0d Thu 11/13/25 Thu 11/13/25 0d
+44 Site - Sewer Lines and Devices/Ten Mile Tie-In 13 days 13 days 0d Fri 11/14/25 Fri 11/14/25 0d Thu 12/4/25 Thu 12/4/25 0d
+45 DELAY - GIRR License Agreement Approval to Proceed 6 days 6 days 0d Fri 12/5/25 Fri 12/5/25 0d Fri 12/12/25 Fri 12/12/25 0d
+46 DELAY - RFI #14 - GIRR Separation 4 days 4 days 0d Mon 12/15/25 Mon 12/15/25 0d Thu 12/18/25 Thu 12/18/25 0d
+47 Storm Drain Lines South 6 days 6 days 0d Mon 12/22/25 Mon 12/22/25 0d Tue 12/30/25 Tue 12/30/25 0d
+48 Site - Water Line & Fire Lines/Hydrants and Devices Remaining 18 days 18 days 0d Mon 1/5/26 Mon 1/5/26 0d Wed 1/28/26 Wed 1/28/26 0d
+49 Site - GIRR Piping & Devices 16 days 16 days 0d Mon 1/12/26 Mon 1/12/26 0d Mon 2/2/26 Mon 2/2/26 0d
+50 TP DELAY - Site - GIRR Box Delivery and Placement 6 days 6 days 0d Mon 1/26/26 Mon 1/26/26 0d Mon 2/2/26 Mon 2/2/26 0d
+51 Complete UG Utility Lines, SD Turn Ups, to Building A 1 day 5 days -4d Tue 3/31/26 Thu 5/14/26 -32d Tue 3/31/26 Wed 5/20/26 -36d
+52 Gravel Road Rough Grade Prep 8 days 8 days 0d Mon 12/8/25 Mon 12/8/25 0d Wed 12/17/25 Wed 12/17/25 0d
+53 FRAGNET - Site - Drive Aisle Unsuitable Soils 74 days 53 days 21d Tue 2/3/26 Tue 2/3/26 0d Fri 5/15/26 Thu 4/16/26 21d
+54 FRAGNET - Site - Drive Aisle Over Ex Unsuitable Soil Identified 1 day 1 day 0d Tue 2/3/26 Tue 2/3/26 0d Tue 2/3/26 Tue 2/3/26 0d
+55 FRAGNET - Site - Drive Aisle Over Ex Discussion and Confirmation on Solution 2 days 2 days 0d Wed 2/4/26 Wed 2/4/26 0d Thu 2/5/26 Thu 2/5/26 0d
+56 FRAGNET - Site - Idaho Power - Pivot to Moblize and Peform the UG JT in Drive Aisle 15 days 15 days 0d Fri 2/6/26 Fri 2/6/26 0d Thu 2/26/26 Thu 2/26/26 0d
+57 FRAGNET - Site - Owner Review of Impact and Discussion with Geo Tech to Identify Alternative Solutions More Econamical 5 days 5 days 0d Thu 2/19/26 Thu 2/19/26 0d Wed 2/25/26 Wed 2/25/26 0d
+Page 1
+Name Duration: Duration: Duration: Start: Current Start: Previous Start: Finish: Current Finish: Previous Finish: Diff 2026 2027
+Current Previous Diff Diff H2 H1 H2 H1
+58 FRAGNET - Prepare and Submit Pricing for Approval 13 days 13 days 0d Fri 2/27/26 Fri 2/27/26 0d Tue 3/17/26 Tue 3/17/26 0d
+59 FRAGNET - Owner Issued CCD 07 Directive for Driveisle and Soft Spots 1 day 1 day 0d Mon 3/9/26 Mon 3/9/26 0d Mon 3/9/26 Mon 3/9/26 0d
+60 FRAGNET - Mobilize Crew, Rough Grade Prep, Scarify and Air Dry 1 day 1 day 0d Fri 3/20/26 Fri 3/20/26 0d Fri 3/20/26 Fri 3/20/26 0d
+61 FRAGNET - Re-Prep, Proof Roll, Confirm Soft Spot Magnitude 1 day 1 day 0d Mon 3/23/26 Mon 3/23/26 0d Mon 3/23/26 Mon 3/23/26 0d
+62 FRAGNET - Site - Partial Soft Spot Repair Examination of Pit Run to Proceed. If failed, provide geo grid per RFI 33 3 days 3 days 0d Tue 5/5/26 Tue 3/24/26 30d Thu 5/7/26 Thu 3/26/26 30d
+63 (TOTAL MAGNITUDE, TBD) FRAGNET - Site - Drive Aisle Over Ex Start 1 day 1 day 0d Fri 5/8/26 Thu 4/9/26 21d Fri 5/8/26 Thu 4/9/26 21d
+64 (TOTAL MAGNITUDE, TBD) FRAGNET - Site - Drive Aisle Over Ex Finish South Bld A 5 days 5 days 0d Mon 5/11/26 Fri 4/10/26 21d Fri 5/15/26 Thu 4/16/26 21d
+65 (TOTAL MAGNITUDE, TBD) FRAGNET - Site - Drive Aisle Over Ex Finish South Bld B 5 days 5 days 0d Mon 5/11/26 Fri 4/10/26 21d Fri 5/15/26 Thu 4/16/26 21d
+66 Site - Idaho Power Boring 2 days 2 days 0d Thu 2/26/26 Thu 2/26/26 0d Fri 2/27/26 Fri 2/27/26 0d
+67 Site - Idaho Power Trench, Conduit and Backfill 5 days 5 days 0d Mon 3/9/26 Mon 3/9/26 0d Fri 3/13/26 Fri 3/13/26 0d
+68 Site - Idaho Power Transformer Set and Make Live 0 days 0 days 0d Fri 3/13/26 Fri 3/13/26 0d Fri 3/13/26 Fri 3/13/26 0d
+69 Storm Drain Lines and Devices - South of Buildings (E-W) 7 days Wed 4/15/26 Thu 4/23/26
+70 Site - Flatwork Sidewalk Prep 8 days Wed 4/15/26 Fri 4/24/26
+71 Storm Drain Lines and Devices - North of Buildings (E-W) 7 days 15 days -8d Fri 4/24/26 Thu 4/23/26 1d Mon 5/4/26 Wed 5/13/26 -7d
+72 Site - Curb and Gutter Prep 8 days Mon 5/18/26 Thu 5/28/26
+73 Site - Base Course Asphalt Prep 8 days 8 days 0d Mon 5/18/26 Thu 4/23/26 17d Thu 5/28/26 Mon 5/4/26 18d
+74 Site Flatwork and Curb and Gutter - (E-W) 15 days Fri 5/29/26 Thu 6/18/26
+75 Site - Fine Grade Asphalt Prep 3 days 3 days 0d Fri 6/19/26 Fri 6/12/26 5d Tue 6/23/26 Tue 6/16/26 5d
+76 Asphalt Paving 2 days 2 days 0d Wed 6/24/26 Wed 6/17/26 5d Thu 6/25/26 Thu 6/18/26 5d
+77 Pavement Markings, Signage & Bumpers 2 days 2 days 0d Fri 6/26/26 Fri 6/19/26 5d Mon 6/29/26 Mon 6/22/26 5d
+78 Site Fencing Chainlink 5 days 5 days 0d Wed 5/20/26 Fri 6/19/26 -22d Wed 5/27/26 Thu 6/25/26 -21d
+79 Gravel Road Finish Grading 5 days 5 days 0d Thu 5/28/26 Thu 5/14/26 10d Wed 6/3/26 Wed 5/20/26 10d
+80 Site Flatwork and Curb and Gutter 15 days Thu 5/21/26 Thu 6/11/26
+81 Landscaping and Irrigation 15 days 15 days 0d Fri 6/26/26 Fri 6/19/26 5d Fri 7/17/26 Fri 7/10/26 5d
+82 Site Fencing Vinyl 10 days 10 days 0d Fri 6/26/26 Fri 6/26/26 0d Fri 7/10/26 Fri 7/10/26 0d
+83 Site Fencing Rod Iron and Gates 5 days 5 days 0d Fri 6/26/26 Mon 7/13/26 -11d Thu 7/2/26 Fri 7/17/26 -11d
+84 BUILDING B 195 days 193 days 2d Wed 10/29/25Wed 10/29/25 0d Wed 8/5/26 Mon 8/3/26 2d
+85 BLDG B Foundation Excavation 6 days 6 days 0d Wed 10/29/25 Wed 10/29/25 0d Wed 11/5/25 Wed 11/5/25 0d
+86 DELAY - BLDG B FOOTING OVER-EX 4 days 4 days 0d Fri 10/31/25 Fri 10/31/25 0d Wed 11/5/25 Wed 11/5/25 0d
+87 BLDG B SOG Prep 5 days 5 days 0d Wed 11/26/25 Wed 11/26/25 0d Thu 12/4/25 Thu 12/4/25 0d
+88 FRAGNET - Bldg B Soft Spot Repair 8 days 8 days 0d Thu 12/4/25 Thu 12/4/25 0d Mon 12/15/25 Mon 12/15/25 0d
+89 BLDG B Backfill Foundations 18 days 18 days 0d Mon 12/15/25 Mon 12/15/25 0d Fri 1/9/26 Fri 1/9/26 0d
+90 CONCRETE WORK 44 days 44 days 0d Thu 11/6/25 Thu 11/6/25 0d Mon 1/12/26 Mon 1/12/26 0d
+91 BLDG B Foundation 14 days 14 days 0d Thu 11/6/25 Thu 11/6/25 0d Tue 11/25/25 Tue 11/25/25 0d
+92 BLDG B Dampproofing 1 day 1 day 0d Tue 11/18/25 Tue 11/18/25 0d Wed 11/26/25 Wed 11/26/25 0d
+93 BLDG B Slab On Grade 19 days 19 days 0d Mon 12/15/25 Mon 12/15/25 0d Mon 1/12/26 Mon 1/12/26 0d
+94 BLDG B Slab On Grade Complete 0 days 0 days 0d Mon 1/12/26 Mon 1/12/26 0d Mon 1/12/26 Mon 1/12/26 0d
+95 STEEL AND METALS 82 days 108.5 days-26.5d Mon 1/12/26 Mon 1/12/26 0d Tue 5/5/26 Fri 6/12/26 -27.5d
+96 Frame Load Bearing Shear Walls, Interior Partitions, & Corridors (JANUS) 20 days 20 days 0d Mon 1/12/26 Mon 1/12/26 0d Mon 2/9/26 Mon 2/9/26 0d
+97 FRAGNET - Extended Shear Wall Durations (JANUS) 12 days 30 days -18d Tue 2/10/26 Tue 2/10/26 0d Wed 2/25/26 Mon 3/23/26 -18d
+98 Frame & Panel Partition & Corridor Walls (JANUS) 20 days Thu 5/14/26 Fri 6/12/26
+99 Panel Shear Walls, Interior Partition, & Corridor Walls (JANUS) 20 days Thu 2/26/26 Wed 3/25/26
+100 Perimeter Panel Interior Walls (JANUS) 20 days Wed 4/8/26 Tue 5/5/26
+101 WOOD & FRP 5 days 5 days 0d Tue 4/14/26 Thu 4/23/26 -7.5d Mon 4/20/26 Thu 4/30/26 -7.5d
+102 Misc Finish Carpentry 5 days 5 days 0d Tue 4/14/26 Thu 4/23/26 -7.5d Mon 4/20/26 Thu 4/30/26 -7.5d
+103 ROOF & SIDING 78 days 78 days 0d Fri 1/30/26 Fri 1/30/26 0d Tue 5/19/26 Tue 5/19/26 0d
+104 Exterior Sheathing 0 days 0 days 0d Fri 1/30/26 Fri 1/30/26 0d Mon 2/16/26 Mon 2/16/26 0d
+105 Weather Barrier Fluid Applied 8 days 8 days 0d Fri 2/6/26 Fri 2/6/26 0d Thu 2/19/26 Thu 2/19/26 0d
+106 Weather Barrier Tyvek 10 days 10 days 0d Wed 3/4/26 Wed 3/4/26 0d Tue 3/17/26 Tue 3/17/26 0d
+107 CMU Veneer Base Course & Grout 15 days 15 days 0d Tue 3/3/26 Tue 3/3/26 0d Tue 4/7/26 Tue 4/7/26 0d
+108 Rigid Insulation Behind CMU 5 days 5 days 0d Wed 4/8/26 Wed 4/8/26 0d Tue 4/14/26 Tue 4/14/26 0d
+109 Rigid Insulation Behind Metal Panels 3 days 3 days 0d Wed 4/15/26 Wed 4/15/26 0d Fri 4/17/26 Fri 4/17/26 0d
+110 CMU Veneer Remaining 15 days 15 days 0d Wed 4/15/26 Wed 4/15/26 0d Tue 5/5/26 Tue 5/5/26 0d
+111 Exterior Metal Panels (JANUS) 10 days 10 days 0d Wed 5/6/26 Wed 5/6/26 0d Tue 5/19/26 Tue 5/19/26 0d
+112 Install Roof & Roof Insulation (JANUS) 15 days 15 days 0d Wed 2/25/26 Wed 2/25/26 0d Mon 3/30/26 Thu 4/9/26 -7.5d
+113 BLDG B Roofing Complete 0 days 0 days 0d Mon 3/30/26 Thu 4/9/26 -7.5d Mon 3/30/26 Thu 4/9/26 -7.5d
+114 DOORS & WINDOWS 20 days 20 days 0d Thu 7/9/26 Tue 7/7/26 2d Wed 8/5/26 Mon 8/3/26 2d
+Page 2
+Name Duration: Duration: Duration: Start: Current Start: Previous Start: Finish: Current Finish: Previous Finish: Diff 2026 2027
+Current Previous Diff Diff H2 H1 H2 H1
+115 F&I Storage Unit Doors (JANUS) 20 days 20 days 0d Thu 7/9/26 Tue 7/7/26 2d Wed 8/5/26 Mon 8/3/26 2d
+116 F&I HM Doors and Hardware (JANUS) 15 days 15 days 0d Thu 7/9/26 Tue 7/7/26 2d Wed 7/29/26 Mon 7/27/26 2d
+117 FINISHES 30 days 30 days 0d Tue 3/31/26 Thu 4/9/26 -7.5d Mon 5/11/26 Thu 5/21/26 -7.5d
+118 Install Gypsum Board 10 days 10 days 0d Tue 3/31/26 Thu 4/9/26 -7.5d Mon 4/13/26 Thu 4/23/26 -7.5d
+119 Flooring Polished Concrete 5 days 5 days 0d Tue 4/14/26 Thu 4/23/26 -7.5d Mon 4/20/26 Thu 4/30/26 -7.5d
+120 FRP / Vinyl Base 5 days 5 days 0d Tue 4/21/26 Thu 4/30/26 -7.5d Mon 4/27/26 Thu 5/7/26 -7.5d
+121 Painting 10 days 10 days 0d Tue 4/28/26 Thu 5/7/26 -7.5d Mon 5/11/26 Thu 5/21/26 -7.5d
+122 SPECIALTIES 23 days 23 days 0d Tue 4/14/26 Thu 4/23/26 -7.5d Thu 5/14/26 Wed 5/27/26 -8.5d
+123 Install Misc Equipment & Lockers 20 days 20 days 0d Tue 4/14/26 Thu 4/23/26 -7.5d Mon 5/11/26 Thu 5/21/26 -7.5d
+124 Bathroom Accessories 2 days 2 days 0d Tue 4/21/26 Thu 4/30/26 -7.5d Wed 4/22/26 Mon 5/4/26 -7.5d
+125 Building Interior Signage 3 days 3 days 0d Tue 5/12/26 Thu 5/21/26 -7.5d Thu 5/14/26 Wed 5/27/26 -8.5d
+126 FIRE SPRINKLERS 50 days 50 days 0d Mon 2/23/26 Mon 2/23/26 0d Fri 5/1/26 Fri 5/1/26 0d
+127 Fire Sprinkler System Rough In 28 days 28 days 0d Mon 2/23/26 Mon 2/23/26 0d Fri 4/10/26 Fri 4/10/26 0d
+128 Fire Sprinkler System Trim Out 15 days 15 days 0d Mon 4/13/26 Mon 4/13/26 0d Fri 5/1/26 Fri 5/1/26 0d
+129 PLUMBING 107 days 114.5 days-7.5d Thu 11/20/25 Thu 11/20/25 0d Thu 4/23/26 Tue 5/5/26 -7.5d
+130 Plumbing Rough-in Underground 4 days 4 days 0d Thu 11/20/25 Thu 11/20/25 0d Tue 11/25/25 Tue 11/25/25 0d
+131 Drains, Water, Sewer Lines 15 days 15 days 0d Tue 3/31/26 Thu 4/9/26 -7.5d Mon 4/20/26 Thu 4/30/26 -7.5d
+132 Bathroom Fixtures 3 days 3 days 0d Tue 4/21/26 Thu 4/30/26 -7.5d Thu 4/23/26 Tue 5/5/26 -7.5d
+133 Other Plumbing Fixtures 3 days 3 days 0d Tue 4/21/26 Thu 4/30/26 -7.5d Thu 4/23/26 Tue 5/5/26 -7.5d
+134 HVAC 30 days 30 days 0d Tue 3/31/26 Thu 4/9/26 -7.5d Mon 5/11/26 Thu 5/21/26 -7.5d
+135 HVAC Installation 25 days 25 days 0d Tue 3/31/26 Thu 4/9/26 -7.5d Mon 5/4/26 Thu 5/14/26 -7.5d
+136 HVAC Commisioning & T&B 5 days 5 days 0d Tue 5/5/26 Thu 5/14/26 -7.5d Mon 5/11/26 Thu 5/21/26 -7.5d
+137 ELECTRICAL 149 days 156.5 days-7.5d Thu 11/20/25 Thu 11/20/25 0d Tue 6/23/26 Mon 7/6/26 -8.5d
+138 Building Rough-in Underground 0 days 0 days 0d Thu 11/20/25 Thu 11/20/25 0d Tue 11/25/25 Tue 11/25/25 0d
+139 Elect Rough-In 25 days 25 days 0d Mon 3/2/26 Mon 3/2/26 0d Tue 4/7/26 Tue 4/7/26 0d
+140 New Service Equipment Install, Wire & Inspect 10 days 10 days 0d Tue 3/31/26 Thu 4/9/26 -7.5d Mon 4/13/26 Thu 4/23/26 -7.5d
+141 Install and Wire Panels 15 days 15 days 0d Tue 4/14/26 Thu 4/23/26 -7.5d Mon 5/4/26 Thu 5/14/26 -7.5d
+142 Permanent Power On 0 days 0 days 0d Mon 5/4/26 Thu 5/14/26 -7.5d Mon 5/4/26 Thu 5/14/26 -7.5d
+143 FRAGNET - RFI 35 - Light Fixture Mounting Height Clarification Submitted/Closed, 3 days 3 days 0d Fri 3/13/26 Fri 3/13/26 0d Tue 3/17/26 Tue 3/17/26 0d
+144 Electric Lights, Devices and Trim 55 days 55 days 0d Tue 3/31/26 Thu 4/9/26 -7.5d Tue 6/16/26 Fri 6/26/26 -7.5d
+145 Fire Alarm System 3 days 3 days 0d Tue 5/5/26 Thu 5/14/26 -7.5d Thu 5/7/26 Tue 5/19/26 -7.5d
+146 Electrical Commissioning 5 days 5 days 0d Wed 6/17/26 Fri 6/26/26 -7.5d Tue 6/23/26 Mon 7/6/26 -8.5d
+147 BUILDING A 145 days 151 days -6d Mon 1/26/26 Mon 1/26/26 0d Tue 8/18/26 Wed 8/26/26 -6d
+148 BLDG A Foundation Excavation 24 days 24 days 0d Mon 1/26/26 Mon 1/26/26 0d Thu 2/26/26 Thu 2/26/26 0d
+149 FRAGNET - BLDG A Footing Seepage Bed Over Ex. 1 day 1 day 0d Mon 2/2/26 Mon 2/2/26 0d Mon 2/2/26 Mon 2/2/26 0d
+150 BLDG A - Interoir Backfill Foundations 2 days 2 days 0d Thu 2/26/26 Thu 2/26/26 0d Tue 3/3/26 Tue 3/3/26 0d
+151 FRAGNET - BLDG A Seepage Bed Pad Over Ex. 11 days 11 days 0d Thu 2/26/26 Thu 2/26/26 0d Thu 3/12/26 Thu 3/12/26 0d
+152 FRAGNET -Proposed direction received from Owner to perform BLDG A Seepage Bed Pad Over Ex. 1 day 1 day 0d Thu 2/26/26 Thu 2/26/26 0d Thu 2/26/26 Thu 2/26/26 0d
+153 FRAGNET - Prepare and Submit Pricing for Approval 8 days 8 days 0d Fri 2/27/26 Fri 2/27/26 0d Tue 3/10/26 Tue 3/10/26 0d
+154 FRAGNET - Owner Issued CCD 06 on Seepage Bed Cost Impact 1 day 1 day 0d Mon 3/9/26 Mon 3/9/26 0d Mon 3/9/26 Mon 3/9/26 0d
+155 FRAGNET - Mobilize Crew for BLDG A Seepage Bed Pad Over Ex. 1 day 1 day 0d Tue 3/10/26 Tue 3/10/26 0d Tue 3/10/26 Tue 3/10/26 0d
+156 FRAGNET - Start BLDG A Seepage Bed Pad Over Ex. 1 day 1 day 0d Wed 3/11/26 Wed 3/11/26 0d Wed 3/11/26 Wed 3/11/26 0d
+157 FRAGNET - Finish BLDG A Seepage Bed Pad Over Ex. 1 day 1 day 0d Thu 3/12/26 Thu 3/12/26 0d Thu 3/12/26 Thu 3/12/26 0d
+158 BLDG A - Exterior Backfill Foundations 2 days 2 days 0d Tue 3/10/26 Tue 3/10/26 0d Wed 3/11/26 Wed 3/11/26 0d
+159 BLDG A SOG Rough Grade Prep 2 days 2 days 0d Wed 3/18/26 Wed 3/18/26 0d Thu 3/19/26 Thu 3/19/26 0d
+160 FRAGNET - BLDG A Soft Spot Over Ex 20 days 30 days -10d Thu 2/26/26 Thu 2/26/26 0d Wed 3/25/26 Wed 4/8/26 -10d
+161 FRAGNET - Proposed direction received from Owner to perform BLDG A Soft Spot Repairs Using Only Pit Run 1 day 1 day 0d Thu 2/26/26 Thu 2/26/26 0d Thu 2/26/26 Thu 2/26/26 0d
+162 FRAGNET - Prepare and Submit Pricing for Approval 13 days 13 days 0d Fri 2/27/26 Fri 2/27/26 0d Tue 3/17/26 Tue 3/17/26 0d
+163 FRAGNET - Owner Issued CCD 07 Directive for Driveisle and Soft Spots 1 day 1 day 0d Mon 3/9/26 Mon 3/9/26 0d Mon 3/9/26 Mon 3/9/26 0d
+164 FRAGNET - Mobilize Crew, SOG Rough Grade Prep, Scarify, Air Dry Pad A 5 days 5 days 0d Fri 3/13/26 Fri 3/13/26 0d Thu 3/19/26 Thu 3/19/26 0d
+165 FRAGNET - Air Dry Pad A, Re-Prep, Proof Roll to Idendify Soft Spots 2 days 7 days -5d Fri 3/20/26 Fri 3/20/26 0d Mon 3/23/26 Mon 3/30/26 -5d
+166 FRAGNET - Start Soft Spot Repairs 0 days 1 day -1d Mon 3/23/26 Tue 3/31/26 -6d Mon 3/23/26 Tue 3/31/26 -6d
+167 FRAGNET - Test and Review Compaction Results for Soft Spot - If Approved, Proceed with Direction Further 1 day 1 day 0d Tue 3/24/26 Wed 4/1/26 -6d Tue 3/24/26 Wed 4/1/26 -6d
+168 FRAGNET - Soft Spot Repairs East Area 1 day 5 days -4d Tue 3/24/26 Thu 4/2/26 -7d Tue 3/24/26 Wed 4/8/26 -11d
+169 FRAGNET - Soft Spot Repairs West Area 1 day 5 days -4d Wed 3/25/26 Thu 4/2/26 -6d Wed 3/25/26 Wed 4/8/26 -10d
+170 CONCRETE WORK 50 days 56 days -6d Wed 2/4/26 Wed 2/4/26 0d Tue 4/14/26 Wed 4/22/26 -6d
+171 BLDG A Foundation 18 days 18 days 0d Wed 2/4/26 Wed 2/4/26 0d Fri 2/27/26 Fri 2/27/26 0d
+Page 3
+Name Duration: Duration: Duration: Start: Current Start: Previous Start: Finish: Current Finish: Previous Finish: Diff 2026 2027
+Current Previous Diff Diff H2 H1 H2 H1
+172 BLDG A Dampproofing 4 days 4 days 0d Mon 2/16/26 Mon 2/16/26 0d Tue 3/3/26 Tue 3/3/26 0d
+173 BLDG A Exterior Footing Insulation 5 days 5 days 0d Mon 2/23/26 Mon 2/23/26 0d Fri 2/27/26 Fri 2/27/26 0d
+174 BLDG A SOG Fine Prep 1 day 1 day 0d Tue 3/31/26 Tue 4/7/26 -5d Tue 3/31/26 Tue 4/7/26 -5d
+175 BLDG A Slab On Grade (East) 3 days 3 days 0d Wed 4/1/26 Wed 4/8/26 -5d Fri 4/3/26 Fri 4/10/26 -5d
+176 BLDG A Slab On Grade (Center) 3 days 3 days 0d Mon 4/6/26 Mon 4/13/26 -5d Wed 4/8/26 Wed 4/15/26 -5d
+177 BLDG A Slab On Grade (West) 4 days 4 days 0d Thu 4/9/26 Fri 4/17/26 -6d Tue 4/14/26 Wed 4/22/26 -6d
+178 BLDG A Slab On Grade Complete 0 days 0 days 0d Tue 4/14/26 Wed 4/22/26 -6d Tue 4/14/26 Wed 4/22/26 -6d
+179 STEEL AND METALS 67 days 67 days 0d Tue 4/21/26 Wed 4/29/26 -6d Fri 7/24/26 Mon 8/3/26 -6d
+180 Frame & Panel Load Bearing & Shear Walls (JANUS) 25 days Wed 4/29/26 Wed 6/3/26
+181 Frame Load Bearing, Shear Walls, Partition & Corridor (JANUS) 25 days Tue 4/21/26 Tue 5/26/26
+182 Panel Shear Wall, Interior Partition, & Corridor Walls (JANUS) 15 days Wed 5/27/26 Tue 6/16/26
+183 Perimeter Panel Interior Walls (JANUS) 15 days 15 days 0d Mon 7/6/26 Tue 7/14/26 -6d Fri 7/24/26 Mon 8/3/26 -6d
+184 Canopy Install 8 days 8 days 0d Wed 5/27/26 Thu 6/4/26 -6d Fri 6/5/26 Mon 6/15/26 -6d
+185 WOOD & FRP 5 days 5 days 0d Wed 6/17/26 Thu 6/25/26 -6d Tue 6/23/26 Wed 7/1/26 -6d
+186 Misc Finish Carpentry 5 days 5 days 0d Wed 6/17/26 Thu 6/25/26 -6d Tue 6/23/26 Wed 7/1/26 -6d
+187 ROOF & SIDING 40 days 35 days 5d Tue 5/12/26 Wed 5/20/26 -6d Wed 7/8/26 Thu 7/9/26 -1d
+188 Exterior Sheathing 10 days 10 days 0d Tue 5/12/26 Wed 5/20/26 -6d Tue 5/26/26 Wed 6/3/26 -6d
+189 Exterior Sheathing, Weather Barrier & Rigid Insulation - Building A 10 days 10 days 0d Tue 5/19/26 Thu 5/28/26 -7d Tue 6/2/26 Wed 6/10/26 -6d
+190 Rigid Insulation Behind Metal Panels 3 days 3 days 0d Wed 6/3/26 Thu 6/11/26 -6d Fri 6/5/26 Mon 6/15/26 -6d
+191 Rigid Insulation Behind CMU 5 days 5 days 0d Wed 6/3/26 Thu 6/11/26 -6d Tue 6/9/26 Wed 6/17/26 -6d
+192 CMU Veneer 15 days 15 days 0d Wed 6/10/26 Thu 6/18/26 -6d Tue 6/30/26 Thu 7/9/26 -7d
+193 Exterior Metal Panels (JANUS) 10 days 10 days 0d Wed 6/24/26 Mon 6/22/26 2d Wed 7/8/26 Mon 7/6/26 2d
+194 Install Roof & Roof Insulation (JANUS) 5 days 5 days 0d Wed 5/27/26 Thu 6/4/26 -6d Tue 6/2/26 Wed 6/10/26 -6d
+195 BLDG A Roofing Complete 0 days 0 days 0d Tue 6/2/26 Wed 6/10/26 -6d Tue 6/2/26 Wed 6/10/26 -6d
+196 DOORS & WINDOWS 5 days 5 days 0d Mon 7/27/26 Tue 8/4/26 -6d Fri 7/31/26 Mon 8/10/26 -6d
+197 F&I Storage Unit Doors (JANUS) 5 days 5 days 0d Mon 7/27/26 Tue 8/4/26 -6d Fri 7/31/26 Mon 8/10/26 -6d
+198 F&I HM Doors and Hardware (JANUS) 5 days 5 days 0d Mon 7/27/26 Tue 8/4/26 -6d Fri 7/31/26 Mon 8/10/26 -6d
+199 FINISHES 30 days 30 days 0d Wed 6/3/26 Thu 6/11/26 -6d Wed 7/15/26 Thu 7/23/26 -6d
+200 Install Gypsum Board 10 days 10 days 0d Wed 6/3/26 Thu 6/11/26 -6d Tue 6/16/26 Wed 6/24/26 -6d
+201 Painting 10 days 10 days 0d Wed 6/17/26 Thu 6/25/26 -6d Tue 6/30/26 Thu 7/9/26 -7d
+202 Flooring Polished Conc. 5 days 5 days 0d Wed 7/1/26 Fri 7/10/26 -7d Wed 7/8/26 Thu 7/16/26 -6d
+203 FRP & Vinyl Base 5 days 5 days 0d Thu 7/9/26 Fri 7/17/26 -6d Wed 7/15/26 Thu 7/23/26 -6d
+204 SPECIALTIES 22 days 22 days 0d Wed 6/17/26 Thu 6/25/26 -6d Fri 7/17/26 Mon 7/27/26 -6d
+205 Install Misc Equipment & Lockers 20 days 20 days 0d Wed 6/17/26 Thu 6/25/26 -6d Wed 7/15/26 Thu 7/23/26 -6d
+206 Bathroom Accessories- Building A 2 days 2 days 0d Thu 7/16/26 Fri 7/24/26 -6d Fri 7/17/26 Mon 7/27/26 -6d
+207 Building Interior Signage 3 days 3 days 0d Wed 7/1/26 Fri 7/10/26 -7d Mon 7/6/26 Tue 7/14/26 -6d
+208 FIRE SPRINKLERS 30 days 30 days 0d Wed 6/3/26 Thu 6/11/26 -6d Wed 7/15/26 Thu 7/23/26 -6d
+209 Fire Sprinkler System Rough In 15 days 15 days 0d Wed 6/3/26 Thu 6/11/26 -6d Tue 6/23/26 Wed 7/1/26 -6d
+210 Fire Sprinkler System Trim Out 15 days 15 days 0d Wed 6/24/26 Thu 7/2/26 -6d Wed 7/15/26 Thu 7/23/26 -6d
+211 PLUMBING 96 days 102 days -6d Mon 3/9/26 Mon 3/9/26 0d Wed 7/22/26 Thu 7/30/26 -6d
+212 Plumbing Rough-in Underground 4 days 4 days 0d Mon 3/9/26 Mon 3/9/26 0d Thu 3/12/26 Thu 3/12/26 0d
+213 Drains, Water, Sewer Lines 15 days 15 days 0d Wed 6/3/26 Thu 6/11/26 -6d Tue 6/23/26 Wed 7/1/26 -6d
+214 Bathroom Fixtures- Building A 10 days 10 days 0d Wed 6/24/26 Thu 7/2/26 -6d Wed 7/8/26 Thu 7/16/26 -6d
+215 Other Plumbing Fixtures 10 days 10 days 0d Thu 7/9/26 Fri 7/17/26 -6d Wed 7/22/26 Thu 7/30/26 -6d
+216 HVAC 30 days 30 days 0d Wed 6/3/26 Thu 6/11/26 -6d Wed 7/15/26 Thu 7/23/26 -6d
+217 HVAC Installation 20 days 20 days 0d Wed 6/3/26 Thu 6/11/26 -6d Tue 6/30/26 Thu 7/9/26 -7d
+218 HVAC Commisioning - Building A 10 days 10 days 0d Wed 7/1/26 Fri 7/10/26 -7d Wed 7/15/26 Thu 7/23/26 -6d
+219 ELECTRICAL 104 days 105 days -1d Tue 3/24/26 Tue 3/31/26 -5d Tue 8/18/26 Wed 8/26/26 -6d
+220 Building Rough-in Underground 5 days 5 days 0d Tue 3/24/26 Tue 3/31/26 -5d Mon 3/30/26 Mon 4/6/26 -5d
+221 Electrical Rough-In 25 days 25 days 0d Fri 5/29/26 Mon 6/8/26 -6d Thu 7/2/26 Mon 7/13/26 -7d
+222 New Service Equipment Install, Wire & Inspect 10 days 10 days 0d Wed 6/3/26 Thu 6/11/26 -6d Tue 6/16/26 Wed 6/24/26 -6d
+223 Install and Wire Panels 15 days 15 days 0d Wed 6/17/26 Thu 6/25/26 -6d Wed 7/8/26 Thu 7/16/26 -6d
+224 Permanent Power On- Building A 0 days 0 days 0d Wed 7/8/26 Thu 7/16/26 -6d Wed 7/8/26 Thu 7/16/26 -6d
+225 Electric Lights, Devices and Trim 42 days 42 days 0d Fri 6/12/26 Mon 6/22/26 -6d Tue 8/11/26 Wed 8/19/26 -6d
+226 Fire Alarm System 5 days 5 days 0d Wed 7/1/26 Fri 7/10/26 -7d Wed 7/8/26 Thu 7/16/26 -6d
+227 Electrical Commissioning 5 days 5 days 0d Wed 8/12/26 Thu 8/20/26 -6d Tue 8/18/26 Wed 8/26/26 -6d
+Page 4

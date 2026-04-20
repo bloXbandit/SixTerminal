@@ -6,55 +6,82 @@
       "standardized_name": "NTP",
       "activity_id": 2,
       "activity_name": "Notice to Proceed",
-      "sort": 1
+      "sort": 1,
+      "baseline_date": "09/08/25",
+      "prior_update_date": "09/08/25",
+      "current_date": "09/08/25"
     },
     {
       "standardized_name": "Foundation Complete",
       "activity_id": 383,
       "activity_name": "BLDG A Slab On Grade Complete",
-      "sort": 2
+      "sort": 2,
+      "baseline_date": null,
+      "prior_update_date": "04/22/26",
+      "current_date": "04/14/26"
     },
     {
       "standardized_name": "Structure Top Out",
       "activity_id": 384,
       "activity_name": "BLDG A Roofing Complete",
-      "sort": 3
+      "sort": 3,
+      "baseline_date": null,
+      "prior_update_date": "06/10/26",
+      "current_date": "06/02/26"
     },
     {
       "standardized_name": "Weather Tight",
       "activity_id": 365,
       "activity_name": "Exterior Sheathing, Weather Barrier & Rigid Insulation - Building A",
-      "sort": 4
+      "sort": 4,
+      "baseline_date": null,
+      "prior_update_date": "06/10/26",
+      "current_date": "06/02/26"
     },
     {
       "standardized_name": "Permanent Power",
       "activity_id": 358,
       "activity_name": "Permanent Power On- Building A",
-      "sort": 5
+      "sort": 5,
+      "baseline_date": null,
+      "prior_update_date": "07/16/26",
+      "current_date": "07/08/26"
     },
     {
       "standardized_name": "Conditioned Air",
       "activity_id": 352,
       "activity_name": "HVAC Commisioning - Building A",
-      "sort": 6
+      "sort": 6,
+      "baseline_date": null,
+      "prior_update_date": "07/23/26",
+      "current_date": "07/15/26"
     },
     {
       "standardized_name": "1st Floor Finishes Complete",
       "activity_id": 340,
       "activity_name": "Bathroom Accessories- Building A",
-      "sort": 7
+      "sort": 7,
+      "baseline_date": null,
+      "prior_update_date": "07/27/26",
+      "current_date": "07/17/26"
     },
     {
       "standardized_name": "Hardscape/Landscape Complete",
       "activity_id": 378,
       "activity_name": "Site Fencing Rod Iron and Gates",
-      "sort": 8
+      "sort": 8,
+      "baseline_date": null,
+      "prior_update_date": "07/17/26",
+      "current_date": "07/02/26"
     },
     {
       "standardized_name": "Contract Completion",
       "activity_id": 176,
       "activity_name": "Substantial Completion",
-      "sort": 9
+      "sort": 9,
+      "baseline_date": null,
+      "prior_update_date": "09/21/26",
+      "current_date": "09/11/26"
     }
   ]
 }
