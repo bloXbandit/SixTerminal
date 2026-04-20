@@ -1003,11 +1003,16 @@ def context_debug(slug):
     proj_ctx = get_project_context(slug, page_view)
     if proj_ctx:
         system += f"\n\n{proj_ctx}"
-
+    # Screenshot-derived structured data (highest priority)
+    try:
+        ss_ctx = build_screenshot_context(slug)
+        if ss_ctx:
+            system += f"\n\n{ss_ctx}"
+    except Exception:
+        pass
     docs_ctx = _get_project_docs_context(slug)
     if docs_ctx:
         system += f"\n\n{docs_ctx}"
-
     # Build a summary of what blocks are present
     blocks_present = []
     block_markers = [
@@ -1021,6 +1026,8 @@ def context_debug(slug):
         ("VARIANCE REPORT PDF", "Variance PDF"),
         ("COMPRESSION REPORT", "Compression PDF"),
         ("USER-PROVIDED DOCUMENTS", "User-uploaded docs"),
+        ("USER DASHBOARD — VERIFIED MILESTONE DATES", "Screenshot milestones"),
+        ("USER-PROVIDED CRITICAL PATH BREAKDOWN", "Screenshot CP breakdown"),
         ("RISK FLAGS", "Risk flags"),
     ]
     for marker, label in block_markers:
