@@ -1,9 +1,10 @@
 """
 Compression cache module — stores user-uploaded compression PDF analysis.
-JSON-based persistent storage in a cache directory.
+Encrypted JSON-based persistent storage in a cache directory.
+Uses crypto.py (Fernet/AES-128-CBC) when ENCRYPTION_KEY env var is set;
+falls back to plain JSON in pass-through mode (local dev without a key).
 """
 import os
-import json
 import logging
 from typing import Optional, Dict, Any
 
@@ -25,6 +26,24 @@ def _get_cache_path(project_slug: str) -> str:
     return os.path.join(CACHE_DIR, f"{project_slug}_compression.json")
 
 
+def _read_cache(cache_path: str) -> dict:
+    """Read cache file, decrypting if ENCRYPTION_KEY is set. Returns {} on any error."""
+    if not os.path.exists(cache_path):
+        return {}
+    try:
+        from crypto import read_encrypted_json
+        return read_encrypted_json(cache_path)
+    except Exception as e:
+        logger.error(f"[compression_cache] Failed to read cache {cache_path}: {e}")
+        return {}
+
+
+def _write_cache(cache_path: str, data: dict) -> None:
+    """Write cache file, encrypting if ENCRYPTION_KEY is set."""
+    from crypto import write_encrypted_json
+    write_encrypted_json(cache_path, data)
+
+
 def save_compression_data(project_slug: str, update_num: int, data: dict) -> bool:
     """
     Save compression data for a specific project update.
@@ -41,10 +60,7 @@ def save_compression_data(project_slug: str, update_num: int, data: dict) -> boo
         cache_path = _get_cache_path(project_slug)
         
         # Load existing cache
-        cache = {}
-        if os.path.exists(cache_path):
-            with open(cache_path, 'r') as f:
-                cache = json.load(f)
+        cache = _read_cache(cache_path)
         
         # Add/update this update's data
         cache[str(update_num)] = {
@@ -59,9 +75,8 @@ def save_compression_data(project_slug: str, update_num: int, data: dict) -> boo
             "uploaded_at": data.get("uploaded_at")
         }
         
-        # Save back
-        with open(cache_path, 'w') as f:
-            json.dump(cache, f, indent=2)
+        # Save back (encrypted)
+        _write_cache(cache_path, cache)
         
         logger.info(f"[compression_cache] Saved update {update_num} for {project_slug}")
         return True
@@ -85,12 +100,7 @@ def get_compression_for_update(project_slug: str, update_num: int) -> Optional[d
     try:
         cache_path = _get_cache_path(project_slug)
         
-        if not os.path.exists(cache_path):
-            return None
-        
-        with open(cache_path, 'r') as f:
-            cache = json.load(f)
-        
+        cache = _read_cache(cache_path)
         return cache.get(str(update_num))
         
     except Exception as e:
@@ -108,12 +118,7 @@ def get_all_compression_for_project(project_slug: str) -> Dict[int, dict]:
     try:
         cache_path = _get_cache_path(project_slug)
         
-        if not os.path.exists(cache_path):
-            return {}
-        
-        with open(cache_path, 'r') as f:
-            cache = json.load(f)
-        
+        cache = _read_cache(cache_path)
         # Convert keys to int
         return {int(k): v for k, v in cache.items()}
         
