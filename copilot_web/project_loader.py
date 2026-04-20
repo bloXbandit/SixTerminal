@@ -299,7 +299,7 @@ def _ocr_pdf_lines(pdf_path: str, max_pages: int = 30) -> list:
         from pdf2image import convert_from_path
         import pytesseract
         lines = []
-        images = convert_from_path(pdf_path, first_page=1, last_page=max_pages, dpi=200)
+        images = convert_from_path(pdf_path, first_page=1, last_page=max_pages, dpi=300)
         for img in images:
             text = pytesseract.image_to_string(img)
             for line in text.splitlines():
@@ -499,9 +499,10 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                     return None
 
             for i, line in enumerate(lines):
-                # Primary match: number on same line as header (handles OCR noise chars before number)
-                # e.g. "Remaining Work Compression {35 %" or "Remaining Work Compression  35 %"
-                m = re.search(r'Remaining Work Compression\s*[{\[(]?\s*([-+]?[\dOoIlSsBbZz]+)\s*%', line, re.IGNORECASE)
+                # Primary match: number on same line as header (handles OCR noise chars before/after number)
+                # e.g. "Remaining Work Compression {35 %" or "Remaining Work Compression { 35 |%"
+                # The |, I, or l between number and % is OCR noise from the box border
+                m = re.search(r'Remaining Work Compression\s*[{\[(]?\s*([-+]?[\dOoIlSsBbZz]+)\s*[|Il]?\s*%', line, re.IGNORECASE)
                 if m:
                     pct = _parse_pct_val(m.group(1))
                     if pct is not None:
@@ -1152,8 +1153,35 @@ def _load_milestone_map(slug: str) -> str:
             prev_task = _resolve_task(act_name, act_id, prev_by_name, prev_by_id)
             base_task = _resolve_task(act_name, act_id, base_by_name, base_by_id)
 
+            # Helper: parse a date string in either YYYY-MM-DD or MM/DD/YY or MM/DD/YYYY
+            def _parse_date_flex(s):
+                from datetime import datetime as _dt2
+                if not s:
+                    return None
+                s = str(s).strip()[:10]
+                for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+                    try:
+                        return _dt2.strptime(s, fmt)
+                    except ValueError:
+                        continue
+                return None
+
+            # Helper: normalise a date to YYYY-MM-DD string
+            def _norm_date(s):
+                d = _parse_date_flex(s)
+                return d.strftime("%Y-%m-%d") if d else ""
+
             if curr_task:
-                curr_finish = _extract_finish(curr_task)
+                # --- Forecast (current) ---
+                # milestone_map current_date is the AUTHORITATIVE override when populated
+                # (set from human-verified variance PDF).  Fall back to parsed schedule only
+                # when current_date is absent.
+                stored_current = m.get("current_date", "")
+                if stored_current:
+                    curr_finish = _norm_date(stored_current)
+                else:
+                    curr_finish = _extract_finish(curr_task)
+
                 pct = curr_task.get("percent_complete", 0)
 
                 # Baseline finish — prefer embedded field, fall back to baseline task
@@ -1161,24 +1189,22 @@ def _load_milestone_map(slug: str) -> str:
                                    curr_task.get("bl_finish") or
                                    _extract_finish(base_task) or "")
                 if baseline_finish:
-                    baseline_finish = str(baseline_finish)[:10]
+                    baseline_finish = _norm_date(baseline_finish) or str(baseline_finish)[:10]
 
                 # Previous forecast — prefer stored prior_update_date in milestone_map.json
                 # (written by update_milestone_prior_dates helper), fall back to parsed prev task
                 stored_prior = m.get("prior_update_date", "")
                 if stored_prior:
-                    prev_finish = str(stored_prior)[:10]
+                    prev_finish = _norm_date(stored_prior) or str(stored_prior)[:10]
                 else:
                     prev_finish = _extract_finish(prev_task)
 
                 # --- 2-source confidence check ---
-                # Source A: current schedule file
-                # Source B: previous update (if finish matches or is close) OR baseline embedded field
                 sources_agree = 0
                 if curr_finish:
                     sources_agree += 1  # current is always source 1
-                if prev_task and prev_finish:
-                    sources_agree += 1  # previous update is source 2
+                if stored_current or (prev_task and prev_finish):
+                    sources_agree += 1  # milestone_map verified date or previous update
                 elif base_task and baseline_finish:
                     sources_agree += 1  # baseline is source 2
 
@@ -1193,12 +1219,12 @@ def _load_milestone_map(slug: str) -> str:
                 var_str = ""
                 if curr_finish and prev_finish:
                     try:
-                        from datetime import datetime as _dt
-                        d1 = _dt.strptime(str(curr_finish)[:10], "%Y-%m-%d")
-                        d2 = _dt.strptime(str(prev_finish)[:10], "%Y-%m-%d")
-                        delta = (d1 - d2).days
-                        sign = "+" if delta >= 0 else ""
-                        var_str = f" | Variance: {sign}{delta}cd"
+                        d1 = _parse_date_flex(curr_finish)
+                        d2 = _parse_date_flex(prev_finish)
+                        if d1 and d2:
+                            delta = (d1 - d2).days
+                            sign = "+" if delta >= 0 else ""
+                            var_str = f" | Variance: {sign}{delta}cd"
                     except Exception:
                         pass
 
@@ -1206,19 +1232,37 @@ def _load_milestone_map(slug: str) -> str:
                 drift_str = ""
                 if curr_finish and baseline_finish:
                     try:
-                        from datetime import datetime as _dt
-                        d1 = _dt.strptime(str(curr_finish)[:10], "%Y-%m-%d")
-                        d2 = _dt.strptime(str(baseline_finish)[:10], "%Y-%m-%d")
-                        drift = (d1 - d2).days
-                        sign = "+" if drift >= 0 else ""
-                        drift_str = f" | Drift: {sign}{drift}cd vs BL"
+                        d1 = _parse_date_flex(curr_finish)
+                        d2 = _parse_date_flex(baseline_finish)
+                        if d1 and d2:
+                            drift = (d1 - d2).days
+                            sign = "+" if drift >= 0 else ""
+                            drift_str = f" | Drift: {sign}{drift}cd vs BL"
                     except Exception:
                         pass
 
                 lines.append(f"  - {std}: {date_str}{bl_str}{prev_str}{var_str}{drift_str}{pct_str}  {confidence}")
             else:
-                # No current task match — still emit the name
-                if act_name and act_name != std:
+                # No current task match — use stored current_date from milestone_map if available
+                stored_current = m.get("current_date", "")
+                stored_prior = m.get("prior_update_date", "")
+                if stored_current:
+                    curr_finish = _norm_date(stored_current)
+                    prev_finish = _norm_date(stored_prior) if stored_prior else ""
+                    var_str = ""
+                    if curr_finish and prev_finish:
+                        try:
+                            d1 = _parse_date_flex(curr_finish)
+                            d2 = _parse_date_flex(prev_finish)
+                            if d1 and d2:
+                                delta = (d1 - d2).days
+                                sign = "+" if delta >= 0 else ""
+                                var_str = f" | Variance: {sign}{delta}cd"
+                        except Exception:
+                            pass
+                    prev_str = f" | Prior Update: {prev_finish}" if prev_finish else ""
+                    lines.append(f"  - {std}: Forecast: {curr_finish}{prev_str}{var_str}  [VERIFIED — milestone map]")
+                elif act_name and act_name != std:
                     lines.append(f"  - {std}  (activity: '{act_name}' — date not resolved)")
                 else:
                     lines.append(f"  - {std}  (date not resolved)")
