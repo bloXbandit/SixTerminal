@@ -739,7 +739,21 @@
       pageSel.style.display = "none";
       document.getElementById("docsPanel").style.display = "none";
     }
+    // Reset history first, then inject the project-switch signal so the agent
+    // always knows which project is active without the user having to state it.
     messages = [];
+    if (selectedProjectSlug) {
+      const proj = projectData.find(p => p.slug === selectedProjectSlug);
+      const projName = proj ? proj.display_name : selectedProjectSlug;
+      messages.push({
+        role: "user",
+        content: `[PROJECT SWITCH] Active project is now: ${projName} (slug: ${selectedProjectSlug}). All subsequent questions are about this project only.`
+      });
+      messages.push({
+        role: "assistant",
+        content: `Switched to **${projName}** — ready.`
+      });
+    }
   }
 
   // ── Project docs panel ──
@@ -971,16 +985,31 @@
     }
   }
 
+  // Returns true if the file is an image/screenshot
+  function _isImageFile(file) {
+    return /\.(png|jpg|jpeg|webp|gif)$/i.test(file.name);
+  }
+
   async function uploadFile(file, projectSlug, label, userNote) {
     const badge = document.getElementById("ctxBadge");
     const clearBtn = document.getElementById("clearCtx");
     const fileLabel = document.getElementById("fileLabel");
+    const isImage = _isImageFile(file);
 
-    badge.textContent = "⏳ Parsing " + file.name + "...";
+    badge.textContent = (isImage ? "📷 " : "⏳ ") + (isImage ? "Processing " : "Parsing ") + file.name + "...";
     badge.style.display = "inline-block";
     clearBtn.style.display = "none";
     fileLabel.style.pointerEvents = "none";
     fileLabel.style.opacity = "0.6";
+
+    // For screenshots: show immediate acknowledgment so UI never feels stuck
+    let processingMsg = null;
+    if (isImage && projectSlug) {
+      processingMsg = appendMsg("assistant",
+        `📷 **${file.name}** received — analyzing for milestones, dates, and critical path data. ` +
+        `I'll use this as a reference source for this project. ` +
+        `To ignore this upload at any time, say "ignore ${file.name}".`);
+    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -991,6 +1020,8 @@
     }
     if (label)     formData.append("label", label);
     if (userNote)  formData.append("user_note", userNote);
+    // Flag image uploads so backend knows to run structured extraction
+    if (isImage) formData.append("is_screenshot", "1");
 
     // Add update number for PDF uploads (from dropdown or auto-detected)
     const updateSel = document.getElementById("updateSelect");
@@ -1004,18 +1035,32 @@
 
       if (data.error) {
         badge.textContent = "❌ " + data.error;
+        if (processingMsg) processingMsg.remove();
         appendMsg("assistant", "⚠️ Could not parse file: " + data.error);
       } else if (data.saved_to_project) {
         // Saved to project memory
         badge.textContent = "📌 " + (label || data.filename);
         clearBtn.style.display = "inline";
-        appendMsg("assistant", `✅ **${label || data.filename}** saved to project — I'll remember this across all sessions.${userNote ? ` Note recorded: “${userNote}”` : ""}`);
+        if (processingMsg) {
+          // Update the processing message with the structured result
+          const detail = data.screenshot_type ? ` Detected as: **${data.screenshot_type}**.` : "";
+          const override = data.has_milestones ? " Milestone dates extracted and saved — these will override parsed schedule dates in reports." : "";
+          const cp_note = data.has_cp ? " Critical path activities extracted and saved." : "";
+          processingMsg.innerHTML = renderMarkdown(
+            `📷 **${label || data.filename}** saved to project — I'll use this as a reference source across all sessions.${detail}${override}${cp_note}` +
+            (userNote ? ` Note: "${userNote}"` : "") +
+            ` To ignore this upload, say "ignore ${data.filename}".`
+          );
+        } else {
+          appendMsg("assistant", `✅ **${label || data.filename}** saved to project — I'll remember this across all sessions.${userNote ? ` Note recorded: "${userNote}"` : ""}`);
+        }
         loadProjectDocs(projectSlug);
       } else {
         // Session-only context
         context = data.context;
         badge.textContent = "📌 " + data.filename;
         clearBtn.style.display = "inline";
+        if (processingMsg) processingMsg.remove();
         
         // Show appropriate message based on file type
         if (file.name.toLowerCase().endsWith(".pdf")) {

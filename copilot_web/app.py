@@ -85,6 +85,15 @@ You are equipped with the following data sources. Use all of them proactively wh
 8. BASELINE DRIFT — cumulative movement from original plan. Use for overall health assessment.
 9. COMPRESSION ANALYSIS — remaining span and activity density change between updates.
 10. SCHEDULE RISK DIAGNOSTICS — pre-computed Schedule Health, Schedule Detail, and Constructability findings. Use when asked about risks, flags, or schedule quality.
+11. USER DASHBOARD — VERIFIED MILESTONE DATES — milestone dates extracted from user-uploaded dashboard screenshots. HIGHEST PRIORITY for milestone current/prior dates. Overrides parsed schedule dates when present.
+12. USER-PROVIDED CRITICAL PATH BREAKDOWN — CP activity list extracted from a user-uploaded CP breakdown screenshot. Use to cross-check your internal CP analysis. Note any discrepancies explicitly.
+
+USER SCREENSHOT UPLOADS — RULES:
+- When you see a "=== USER DASHBOARD — VERIFIED MILESTONE DATES ===" block, use those dates as the controlling source for all milestone current and prior dates. Do NOT use parsed schedule dates if the dashboard block is present.
+- When you see a "=== USER-PROVIDED CRITICAL PATH BREAKDOWN ===" block, cross-check your internal CP analysis against it. If your analysis differs, state: "Note: the uploaded CP breakdown shows [X] — this differs from the parsed schedule which shows [Y]. Field verification recommended."
+- If the user says "ignore [filename]" or "ignore CP upload" or "ignore screenshot", acknowledge it and note that the upload will no longer be used as a reference source for this project.
+- If the user says "use [filename]" or "re-enable [filename]", acknowledge it and note that the upload is now active again.
+- Never ask the user to re-upload a screenshot that was just uploaded — if the upload succeeded, the data is in context.
 
 SCHEDULE COMPRESSION PDF DATA — USER UPLOAD WORKFLOW:
 - Compression reports from the Schedule Validator are NOT automatically loaded at startup (to avoid build delays).
@@ -749,6 +758,13 @@ except ImportError:
         with open(path, "rb") as f: return f.read()
     def _crypto_enabled(): return False
 
+try:
+    from screenshot_cache import save_screenshot, set_ignored, build_screenshot_context
+except ImportError:
+    def save_screenshot(project_slug, filename, label, user_note, raw_text): return {}
+    def set_ignored(project_slug, filename, ignored=True): return False
+    def build_screenshot_context(project_slug): return ""
+
 def _load_project_docs(slug: str) -> list:
     """Load persisted docs from disk for a project slug (decrypts if ENCRYPTION_KEY is set)."""
     path = _docs_path(slug)
@@ -1165,6 +1181,16 @@ def upload_file():
             except Exception as _snap_e:
                 logger.warning(f"[{project_slug}] prior_update_date snapshot failed: {_snap_e}")
 
+        # ── Screenshot structured extraction ──
+        _is_screenshot = request.form.get("is_screenshot", "") == "1" or ext in (".png", ".jpg", ".jpeg", ".webp", ".gif")
+        _screenshot_meta = {}
+        if _is_screenshot and project_slug:
+            try:
+                _screenshot_meta = save_screenshot(project_slug, f.filename, label, user_note, content)
+                logger.info(f"[{project_slug}] Screenshot structured extraction: {_screenshot_meta}")
+            except Exception as _ss_e:
+                logger.warning(f"[{project_slug}] Screenshot extraction failed: {_ss_e}")
+
         if project_slug:
             # Store in project-scoped memory
             import datetime
@@ -1190,7 +1216,11 @@ def upload_file():
                 "filename": f.filename,
                 "label": label,
                 "doc_count": len(_project_docs[project_slug]),
-                "preview": content[:300]
+                "preview": content[:300],
+                # Screenshot extraction metadata for frontend feedback
+                "screenshot_type": _screenshot_meta.get("source_type", ""),
+                "has_milestones": _screenshot_meta.get("has_milestones", False),
+                "has_cp": _screenshot_meta.get("has_cp", False),
             })
         else:
             # Legacy: return context for one-time use
@@ -1387,6 +1417,39 @@ def chat():
     if not client:
         return jsonify({"error": "No API key configured."}), 500
 
+    # ── Screenshot ignore/re-enable commands ──
+    # Detect "ignore [filename]" or "ignore CP upload" / "ignore screenshot" commands
+    if project_slug:
+        import re as _re_ignore
+        last_user_msg_raw = next((m.get("content", "") for m in reversed(messages) if m.get("role") == "user"), "")
+        _ignore_lower = last_user_msg_raw.lower().strip() if isinstance(last_user_msg_raw, str) else ""
+        # Match "ignore <filename>" or "ignore cp upload" or "ignore screenshot"
+        _ignore_match = _re_ignore.search(r'ignore\s+([\w\-\.]+(?:\.[a-z]{2,5})?)', _ignore_lower)
+        _ignore_all = any(kw in _ignore_lower for kw in ("ignore cp upload", "ignore screenshot", "ignore all uploads"))
+        if _ignore_all:
+            try:
+                from screenshot_cache import get_active_screenshots
+                for _ss in get_active_screenshots(project_slug):
+                    set_ignored(project_slug, _ss["filename"], True)
+                logger.info(f"[{project_slug}] All screenshots marked ignored via chat command")
+            except Exception: pass
+        elif _ignore_match:
+            _ignore_fname = _ignore_match.group(1)
+            try:
+                changed = set_ignored(project_slug, _ignore_fname, True)
+                if changed:
+                    logger.info(f"[{project_slug}] Screenshot '{_ignore_fname}' marked ignored via chat command")
+            except Exception: pass
+        # Re-enable: "use [filename]" or "re-enable [filename]"
+        _enable_match = _re_ignore.search(r'(?:use|re-enable)\s+([\w\-\.]+(?:\.[a-z]{2,5})?)', _ignore_lower)
+        if _enable_match:
+            _enable_fname = _enable_match.group(1)
+            try:
+                changed = set_ignored(project_slug, _enable_fname, False)
+                if changed:
+                    logger.info(f"[{project_slug}] Screenshot '{_enable_fname}' re-enabled via chat command")
+            except Exception: pass
+
     dashboard_context = load_context()
 
     system = SYSTEM_BASE
@@ -1414,6 +1477,14 @@ def chat():
         logger.info(f"[{project_slug}] Context assembled — schedule data: {'yes' if has_data else 'no'}")
         if proj_ctx:
             system += f"\n\n{proj_ctx}"
+
+        # Inject screenshot-derived structured data (highest priority — overrides parsed schedule)
+        try:
+            ss_ctx = build_screenshot_context(project_slug)
+            if ss_ctx:
+                system += f"\n\n{ss_ctx}"
+        except Exception as _ss_ctx_e:
+            logger.warning(f"[{project_slug}] screenshot context build failed: {_ss_ctx_e}")
 
         # Inject project-scoped user-uploaded documents
         docs_ctx = _get_project_docs_context(project_slug)
