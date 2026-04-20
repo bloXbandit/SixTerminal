@@ -941,15 +941,17 @@
       // Try to auto-detect update number from filename
       const match = file.name.match(/update[_\-]?(\d+)/i);
       if (match) {
+        // Auto-detected — upload immediately without waiting for user
         updateSel.value = match[1];
+        input.value = "";
+        uploadFile(file, selectedProjectSlug, "", "");
       } else {
-        updateSel.value = ""; // Let user select
+        // Can't detect — store as pending and ask user to pick update #
+        updateSel.value = "";
+        pendingFile = file;
+        input.value = "";
+        appendMsg("assistant", `📄 **${file.name}** ready. Select the **Update #** from the dropdown above to upload.`);
       }
-      pendingFile = file;
-      // Show a message prompting user to confirm update number
-      appendMsg("assistant", `📄 **${file.name}** selected. This looks like a compression PDF. Please select the **Update #** from the dropdown, then click **Attach file** again to upload.`);
-      // Clear the input so user can re-trigger after selecting update
-      input.value = "";
     } else {
       updateSel.style.display = "none";
       updateSel.value = "";
@@ -1026,22 +1028,23 @@
       badge.textContent = "❌ Upload failed";
       appendMsg("assistant", "❌ File upload failed. Check your connection.");
     } finally {
-      label.style.pointerEvents = "";
-      label.style.opacity = "";
-      input.value = "";
-      pendingFile = null; // Clear pending file
+      const _fl = document.getElementById("fileLabel");
+      const _fi = document.getElementById("fileInput");
+      if (_fl) { _fl.style.pointerEvents = ""; _fl.style.opacity = ""; }
+      if (_fi) _fi.value = "";
+      pendingFile = null;
       document.getElementById("updateSelect").style.display = "none";
       document.getElementById("updateSelect").value = "";
     }
   }
 
   // Handle update number selection for pending PDFs
+  // When user picks an update number from the dropdown, upload immediately — no note modal for compression PDFs
   document.getElementById("updateSelect").addEventListener("change", function() {
     if (pendingFile && this.value) {
-      // User selected update number, proceed with upload
       const file = pendingFile;
       pendingFile = null;
-      handleFile(file);
+      uploadFile(file, selectedProjectSlug, "", "");
     }
   });
 

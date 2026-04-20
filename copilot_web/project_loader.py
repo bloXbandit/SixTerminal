@@ -488,20 +488,42 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
             lines = _extract_text_or_ocr(pdf_path, max_pages=5)
             result["raw_lines"] = lines
 
-            for line in lines:
-                m = re.search(r'Remaining Work Compression\s+([-+]?[\dOoIlSsBbZz]+)\s*%', line, re.IGNORECASE)
+            def _parse_pct_val(raw_val):
+                """Parse a raw OCR string into an integer %, returning None on failure."""
+                cleaned = raw_val.strip().lstrip('{[(').rstrip('}])')
+                cleaned = cleaned.translate(str.maketrans('OoIlSsBbZz', '0011558822'))
+                try:
+                    pct = int(cleaned)
+                    return pct if -100 <= pct <= 100 else None
+                except ValueError:
+                    return None
+
+            for i, line in enumerate(lines):
+                # Primary match: number on same line as header (handles OCR noise chars before number)
+                # e.g. "Remaining Work Compression {35 %" or "Remaining Work Compression  35 %"
+                m = re.search(r'Remaining Work Compression\s*[{\[(]?\s*([-+]?[\dOoIlSsBbZz]+)\s*%', line, re.IGNORECASE)
                 if m:
-                    raw_val = m.group(1)
-                    # Clean common OCR misreads: O->0, o->0, I/l->1, S/s->5, B/b->8, Z/z->2
-                    cleaned = raw_val.translate(str.maketrans('OoIlSsBbZz', '0011558822'))
-                    try:
-                        pct = int(cleaned)
-                        if -100 <= pct <= 100:
-                            result["compression_pct"] = pct
-                        else:
-                            logger.warning(f"Compression % out of range ({pct}), ignoring — raw: '{raw_val}'")
-                    except ValueError:
-                        logger.warning(f"Compression % could not parse after OCR cleanup — raw: '{raw_val}', cleaned: '{cleaned}'")
+                    pct = _parse_pct_val(m.group(1))
+                    if pct is not None:
+                        result["compression_pct"] = pct
+                        logger.info(f"  Compression % found on same line: {pct}%")
+                    else:
+                        logger.warning(f"Compression % out of range or unparseable — raw: '{m.group(1)}'")
+                elif re.search(r'Remaining Work Compression', line, re.IGNORECASE):
+                    # Fallback: number is on the next line (PDF layout splits them)
+                    # e.g. line N: "Remaining Work Compression"
+                    #      line N+1: "35 %" or "{35 %" or "35%"
+                    for j in range(i + 1, min(i + 4, len(lines))):
+                        next_line = lines[j].strip()
+                        nm = re.match(r'^[{\[(]?\s*([-+]?[\dOoIlSsBbZz]+)\s*%', next_line)
+                        if nm:
+                            pct = _parse_pct_val(nm.group(1))
+                            if pct is not None:
+                                result["compression_pct"] = pct
+                                logger.info(f"  Compression % found on next line ({j}): {pct}%")
+                            break
+                        if next_line:  # non-empty line that didn't match — stop looking
+                            break
                 # Handle both dates on same line: "Data Date: 01/09/2026 Data Date: 03/24/2026"
                 m = re.findall(r'Data Date[:\s]+(\d{1,2}/\d{1,2}/\d{4})', line)
                 if m:
