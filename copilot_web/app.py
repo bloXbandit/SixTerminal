@@ -200,6 +200,7 @@ CALENDAR DAYS — ALWAYS:
 - NEVER say "working days" or "work days" to the user. Always convert and say "calendar days."
 - Float values in the data may be in work hours (P6 XER) — the system converts these. Always present to user as calendar days.
 - When referencing milestone movement, say "moved X calendar days earlier/later" not "moved X days."
+- MILESTONE MOVEMENT MUST BE COMPUTED FROM ACTUAL DATES ONLY. Subtract the prior date from the current date to get calendar days. NEVER read the "Diff", "Var", or any delta column from the variance PDF or any source — those values are in working days, not calendar days, and will produce incorrect results if used directly. Example: prior=09/21/26, current=09/11/26 → (09/21 − 09/11) = 10 calendar days improved. The variance PDF may show "−6d" for this same movement — that is 6 working days. Ignore that column entirely when computing movement for milestone reporting.
 
 USING THE VARIANCE DATA:
 - VARIANCE ANALYSIS block has pre-computed phase-grouped deltas. SLIP = moved later. PULL = moved earlier.
