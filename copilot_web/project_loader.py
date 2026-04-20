@@ -488,6 +488,27 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
             lines = _extract_text_or_ocr(pdf_path, max_pages=5)
             result["raw_lines"] = lines
 
+            # Second-pass: crop the bottom 40% of page 1 to capture the monthly table
+            # (the bar chart graphic obscures the table in full-page OCR)
+            try:
+                from pdf2image import convert_from_path as _cfp
+                import pytesseract as _tess
+                _pages = _cfp(pdf_path, first_page=1, last_page=1, dpi=300)
+                if _pages:
+                    _pg = _pages[0]
+                    _w, _h = _pg.size
+                    _crop = _pg.crop((0, int(_h * 0.60), _w, _h))
+                    _crop_text = _tess.image_to_string(_crop)
+                    _crop_lines = [l.strip() for l in _crop_text.splitlines() if l.strip()]
+                    # Append only lines not already in the main scan
+                    existing_set = set(lines)
+                    for _cl in _crop_lines:
+                        if _cl not in existing_set:
+                            lines.append(_cl)
+                    logger.info(f"  Compression PDF crop-OCR added {len(_crop_lines)} lines from bottom 40%")
+            except Exception as _ce:
+                logger.warning(f"  Compression PDF crop-OCR failed: {_ce}")
+
             def _parse_pct_val(raw_val):
                 """Parse a raw OCR string into an integer %, returning None on failure."""
                 cleaned = raw_val.strip().lstrip('{[(').rstrip('}])')
@@ -543,6 +564,7 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                         result["later_finish"] = m[1]
                     elif len(m) == 1 and result["later_finish"] is None and m[0] != result["earlier_finish"]:
                         result["later_finish"] = m[0]
+                # Format A: "Mar 26  39  56" — single line (200 DPI OCR)
                 m = re.match(r'^([A-Za-z]{3}\s+\d{2})\s+(\d+)\s+(\d+)$', line)
                 if m:
                     result["monthly"].append({
@@ -550,6 +572,46 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                         "earlier_days": int(m.group(2)),
                         "later_days": int(m.group(3)),
                     })
+
+            # Format B (300 DPI column-split): month names in one column, then two number columns
+            # Pattern: months appear as "Mar 26", "Apr 26" etc. followed later by two numeric columns
+            # Detect this layout when monthly is still empty after the line scan
+            if not result["monthly"]:
+                month_pat = re.compile(r'^([A-Za-z]{3}\s+\d{2})$')
+                num_pat   = re.compile(r'^(\d+)$')
+                month_names = []
+                earlier_nums = []
+                later_nums   = []
+                # Collect all month-name lines and all standalone number lines
+                for line in lines:
+                    if month_pat.match(line.strip()):
+                        month_names.append(line.strip())
+                    elif num_pat.match(line.strip()):
+                        earlier_nums.append(int(line.strip()))  # accumulate all numbers first
+                # Deduplicate month names (OCR sometimes repeats them from chart axis + table)
+                seen = []
+                for mn in month_names:
+                    if mn not in seen:
+                        seen.append(mn)
+                month_names = seen
+                # The numbers appear as two consecutive groups of len(month_names) each
+                n = len(month_names)
+                if n > 0 and len(earlier_nums) >= 2 * n:
+                    # Take the last 2*n numbers (table is at the bottom; chart axis numbers may precede)
+                    tail = earlier_nums[-2 * n:]
+                    e_col = tail[:n]
+                    l_col = tail[n:]
+                    for mn, ed, ld in zip(month_names, e_col, l_col):
+                        result["monthly"].append({
+                            "month": mn,
+                            "earlier_days": ed,
+                            "later_days": ld,
+                        })
+                    logger.info(f"  Monthly table parsed via column-split layout: {n} rows")
+                elif n > 0 and len(earlier_nums) == n:
+                    # Only one column of numbers found — can't split, skip
+                    logger.warning(f"  Monthly table: found {n} months but only {len(earlier_nums)} numbers — skipping")
+
             # If no explicit % found in text, compute from monthly table
             if result["compression_pct"] is None and result["monthly"]:
                 earlier_total = sum(m["earlier_days"] for m in result["monthly"])
@@ -560,6 +622,46 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
                         result["compression_pct"] = computed_pct
                         logger.info(f"  Compression % computed from monthly table: {computed_pct}% "
                                     f"(earlier={earlier_total} days, later={later_total} days)")
+
+            # --- Compute all derived metrics ---
+            from datetime import datetime as _cdt
+            def _parse_date(s):
+                if not s: return None
+                for fmt in ("%m/%d/%Y", "%Y-%m-%d", "%m/%d/%y"):
+                    try: return _cdt.strptime(str(s).strip()[:10], fmt)
+                    except ValueError: pass
+                return None
+
+            monthly = result["monthly"]
+            if monthly:
+                earlier_total = sum(r["earlier_days"] for r in monthly)
+                later_total   = sum(r["later_days"]   for r in monthly)
+                delta_total   = later_total - earlier_total
+                result["total_earlier_activity_days"] = earlier_total
+                result["total_later_activity_days"]   = later_total
+                result["total_activity_day_delta"]    = delta_total
+                # Peak compression month (largest positive delta = most added work)
+                peak = max(monthly, key=lambda r: r["later_days"] - r["earlier_days"])
+                result["peak_compression_month"] = peak["month"]
+                result["peak_compression_delta"] = peak["later_days"] - peak["earlier_days"]
+
+            # Finish date slip (calendar days): later_finish - earlier_finish
+            d_ef = _parse_date(result.get("earlier_finish"))
+            d_lf = _parse_date(result.get("later_finish"))
+            if d_ef and d_lf:
+                result["finish_slip_days"] = (d_lf - d_ef).days
+
+            # Remaining work span (calendar days): finish - data_date for each schedule
+            d_edd = _parse_date(result.get("earlier_data_date"))
+            d_ldd = _parse_date(result.get("later_data_date"))
+            if d_ef and d_edd:
+                result["earlier_remaining_span_days"] = (d_ef - d_edd).days
+            if d_lf and d_ldd:
+                result["later_remaining_span_days"] = (d_lf - d_ldd).days
+
+            # Comparison window (calendar days between the two data dates)
+            if d_edd and d_ldd:
+                result["comparison_window_days"] = (d_ldd - d_edd).days
 
             # Return result if we have monthly data OR an explicit pct — not just when pct is set
             has_data = (result["compression_pct"] is not None or
@@ -591,11 +693,48 @@ def _format_compression_pdf_context(data: dict, label: str = "") -> str:
     if pct is not None:
         direction = "compressed" if pct < 0 else "expanded" if pct > 0 else "unchanged"
         lines.append(f"Remaining Work Compression: {pct:+.1f}% ({direction})")
+
+    # --- Comparison window ---
     if data.get("earlier_data_date") and data.get("later_data_date"):
-        lines.append(f"Compared: {data['earlier_data_date']} (earlier) → {data['later_data_date']} (later)")
+        win = data.get("comparison_window_days")
+        win_str = f" ({win} calendar days apart)" if win is not None else ""
+        lines.append(f"Compared: {data['earlier_data_date']} (earlier) → {data['later_data_date']} (later){win_str}")
+
+    # --- Finish date slip ---
     if data.get("earlier_finish") and data.get("later_finish"):
-        finish_note = " [finish unchanged]" if data["earlier_finish"] == data["later_finish"] else " [finish changed]"
-        lines.append(f"Finish Date: {data['earlier_finish']} → {data['later_finish']}{finish_note}")
+        slip = data.get("finish_slip_days")
+        if slip is not None:
+            slip_sign = "+" if slip >= 0 else ""
+            slip_desc = f"slipped {slip} calendar days" if slip > 0 else (f"improved {abs(slip)} calendar days" if slip < 0 else "unchanged")
+            lines.append(f"Finish Date: {data['earlier_finish']} → {data['later_finish']} ({slip_desc})")
+        else:
+            finish_note = " [finish unchanged]" if data["earlier_finish"] == data["later_finish"] else " [finish changed]"
+            lines.append(f"Finish Date: {data['earlier_finish']} → {data['later_finish']}{finish_note}")
+
+    # --- Remaining work span ---
+    e_span = data.get("earlier_remaining_span_days")
+    l_span = data.get("later_remaining_span_days")
+    if e_span is not None and l_span is not None:
+        span_delta = l_span - e_span
+        span_sign = "+" if span_delta >= 0 else ""
+        lines.append(f"Remaining Work Span: {e_span}cd (earlier) → {l_span}cd (later)  Δ {span_sign}{span_delta}cd")
+
+    # --- Total activity days ---
+    e_tot = data.get("total_earlier_activity_days")
+    l_tot = data.get("total_later_activity_days")
+    d_tot = data.get("total_activity_day_delta")
+    if e_tot is not None and l_tot is not None:
+        sign = "+" if d_tot >= 0 else ""
+        lines.append(f"Total Activity Days: {e_tot} (earlier) → {l_tot} (later)  Δ {sign}{d_tot}")
+
+    # --- Peak compression month ---
+    peak_month = data.get("peak_compression_month")
+    peak_delta = data.get("peak_compression_delta")
+    if peak_month and peak_delta is not None:
+        sign = "+" if peak_delta >= 0 else ""
+        lines.append(f"Peak Compression Month: {peak_month} ({sign}{peak_delta} activity days added)")
+
+    # --- Monthly table ---
     monthly = data.get("monthly", [])
     if monthly:
         lines.append("Monthly Activity Days (Earlier vs Later):")
@@ -603,6 +742,7 @@ def _format_compression_pdf_context(data: dict, label: str = "") -> str:
             delta = row["later_days"] - row["earlier_days"]
             sign = "+" if delta >= 0 else ""
             lines.append(f"  {row['month']:8s}  Earlier: {row['earlier_days']:>4}  Later: {row['later_days']:>4}  Δ {sign}{delta}")
+
     lines.append("NOTE: Use this as ground truth for compression statements. Prefer these values over computed estimates.")
     return "\n".join(lines)
 
