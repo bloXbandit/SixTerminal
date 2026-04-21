@@ -73,6 +73,15 @@ class P6Parser:
                         'complete_pct': getattr(task, 'phys_complete_pct', 0),
                         'task_type': getattr(task, 'task_type', '').name if hasattr(getattr(task, 'task_type', ''), 'name') else str(getattr(task, 'task_type', '')),
                         'wbs_id': getattr(task, 'wbs_id', None),
+                        # Constraint fields
+                        'cstr_type': getattr(task, 'cstr_type', None),
+                        'cstr_date': getattr(task, 'cstr_date', None),
+                        'cstr_type2': getattr(task, 'cstr_type2', None),
+                        'cstr_date2': getattr(task, 'cstr_date2', None),
+                        # Float path fields (P6 native path grouping)
+                        'float_path': getattr(task, 'float_path', None),
+                        'float_path_order': getattr(task, 'float_path_order', None),
+                        'is_longest_path': getattr(task, 'is_longest_path', None),
                     }
                     tasks.append(task_dict)
                 
@@ -205,6 +214,38 @@ class P6Parser:
             float_hrs = float(raw_float) if raw_float is not None else 8.0  # default 1 day if truly missing
         except (ValueError, TypeError):
             float_hrs = 8.0
+        # Constraint type: normalize enum/string to readable label
+        def _cstr_label(raw):
+            if raw is None: return None
+            s = str(raw).strip()
+            if not s or s.lower() in ('none', 'cs_alap', 'tt_alap'): return None
+            _map = {
+                'CS_MANDFIN': 'Mandatory Finish', 'CS_MANDSTART': 'Mandatory Start',
+                'CS_MEOFIN': 'Finish On', 'CS_MEOSTART': 'Start On',
+                'CS_MSOEFIN': 'Finish On or Before', 'CS_MSOESTART': 'Start On or Before',
+                'CS_MSOIFIN': 'Finish On or After', 'CS_MSOISTART': 'Start On or After',
+                'CS_ASAP': None, 'CS_ALAP': None,
+            }
+            upper = s.upper()
+            return _map.get(upper, s)  # return raw string if not in map
+
+        def _cstr_date_str(raw):
+            if raw is None: return None
+            try: return str(raw)[:10]
+            except Exception: return None
+
+        cstr_label  = _cstr_label(row.get('cstr_type'))
+        cstr_date   = _cstr_date_str(row.get('cstr_date'))
+        cstr_label2 = _cstr_label(row.get('cstr_type2'))
+        cstr_date2  = _cstr_date_str(row.get('cstr_date2'))
+
+        # Float path fields
+        try: float_path = int(row.get('float_path') or 0)
+        except (TypeError, ValueError): float_path = 0
+        try: float_path_order = int(row.get('float_path_order') or 0)
+        except (TypeError, ValueError): float_path_order = 0
+        is_longest = bool(row.get('is_longest_path'))
+
         return {
             "id": str(row.get("task_id", "")),
             "task_code": str(row.get("task_code", "") or ""),  # P6 activity code (e.g. PS-CMIL-1170)
@@ -217,6 +258,15 @@ class P6Parser:
             "total_float_hrs": float_hrs,
             "finish": str(row.get("early_end_date") or row.get("target_end_date") or "")[:10],
             "start": str(row.get("early_start_date") or row.get("target_start_date") or "")[:10],
+            # Constraint fields
+            "cstr_type": cstr_label,
+            "cstr_date": cstr_date,
+            "cstr_type2": cstr_label2,
+            "cstr_date2": cstr_date2,
+            # Float path fields
+            "float_path": float_path,
+            "float_path_order": float_path_order,
+            "is_longest_path": is_longest,
         }
 
     def get_critical_chain(self, target_name: Optional[str] = None) -> Dict:

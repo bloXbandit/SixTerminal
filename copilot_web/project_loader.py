@@ -1190,6 +1190,64 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                 except Exception as _de:
                     logger.warning(f"[{slug}] Baseline drift computation failed: {_de}")
 
+                # --- SPI computation (status view only) ---
+                try:
+                    import re as _spi_re
+                    _spi_dd_str = None
+                    # Extract data date from current schedule context string
+                    _spi_dd_m = _spi_re.search(
+                        r'(?:Data Date|Status Date)[:\s]+([\d]{4}-[\d]{2}-[\d]{2}|[\d]{1,2}/[\d]{1,2}/[\d]{4})',
+                        current_data["raw_context"]
+                    )
+                    if _spi_dd_m:
+                        _spi_dd_str = _spi_dd_m.group(1)
+                    # Also try project metadata from current tasks (MPP has status_date)
+                    if not _spi_dd_str:
+                        for _t in current_data.get("tasks", [])[:1]:
+                            _spi_dd_str = _t.get("status_date") or _t.get("data_date") or ""
+                    if _spi_dd_str:
+                        _spi_result = _compute_spi(
+                            current_tasks=current_data.get("tasks", []),
+                            baseline_tasks=baseline_data.get("tasks", []),
+                            data_date_str=_spi_dd_str,
+                        )
+                        if _spi_result:
+                            _spi_val = _spi_result["spi"]
+                            _spi_planned = _spi_result["planned_count"]
+                            _spi_actual = _spi_result["actual_count"]
+                            _spi_interp = _spi_result["interpretation"]
+                            _spi_loaded = _spi_result["is_resource_loaded"]
+                            _spi_note = (
+                                "Cost-based SPI/CPI available (resource-loaded schedule)."
+                                if _spi_loaded else
+                                "Cost-based SPI/CPI not available \u2014 schedule is not resource-loaded."
+                            )
+                            _spi_block = [
+                                "=== SCHEDULE PERFORMANCE INDEX (SPI) ===  [STATUS VIEW ONLY — do not include in narrative unless user asks]",
+                                f"Schedule Performance Index (SPI): {_spi_val:.3f} (activity-count proxy)",
+                                f"  {_spi_actual} of {_spi_planned} activities planned complete by data date are actually complete",
+                                f"  Interpretation: {_spi_interp}",
+                                f"  Note: {_spi_note}",
+                            ]
+                            if _spi_result.get("behind_list"):
+                                _spi_block.append("  Top behind-schedule activities (baseline due, not done):")
+                                for _ba in _spi_result["behind_list"][:5]:
+                                    _spi_block.append(
+                                        f"    {_ba['code']} {_ba['name']} | {_ba['pct']:.0f}% | BL finish: {_ba['bl_finish']}"
+                                    )
+                            # Store SPI in project health for status endpoint
+                            if slug in _project_health:
+                                _project_health[slug]["spi"] = _spi_val
+                                _project_health[slug]["spi_planned"] = _spi_planned
+                                _project_health[slug]["spi_actual"] = _spi_actual
+                                _project_health[slug]["spi_interpretation"] = _spi_interp
+                                _project_health[slug]["spi_resource_loaded"] = _spi_loaded
+                            parts.append("")
+                            parts.append("\n".join(_spi_block))
+                            logger.info(f"[{slug}] SPI computed: {_spi_val:.3f} ({_spi_actual}/{_spi_planned})")
+                except Exception as _spi_e:
+                    logger.debug(f"[{slug}] SPI computation failed: {_spi_e}")
+
     # --- Schedule risk diagnostics ---
     try:
         from risk_engine import run_risk_diagnostics, format_risk_for_context
@@ -1221,6 +1279,135 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             parts.append(risk_ctx)
     except Exception as _re:
         logger.warning(f"[{slug}] Risk diagnostics failed: {_re}")
+
+    # --- Constraint list (XER only — conversation mode, not narrative unless asked) ---
+    try:
+        curr_tasks = current_data.get("tasks", [])
+        constrained = [
+            t for t in curr_tasks
+            if t.get("cstr_type") and not t.get("summary", False)
+            and float(t.get("percent_complete") or 0) < 100
+        ]
+        if constrained:
+            incomplete_total = len([t for t in curr_tasks
+                                    if not t.get("summary", False)
+                                    and float(t.get("percent_complete") or 0) < 100])
+            hard_types = {"Mandatory Finish", "Mandatory Start"}
+            hard_constrained = [t for t in constrained if t.get("cstr_type") in hard_types]
+            hard_pct = (len(hard_constrained) / incomplete_total * 100) if incomplete_total > 0 else 0
+            cstr_lines = [
+                "=== CONSTRAINT DETAILS (conversation mode only — do not include in narrative unless user asks) ===",
+                f"Constrained incomplete activities: {len(constrained)} of {incomplete_total} ({len(constrained)/incomplete_total*100:.1f}%)",
+            ]
+            for t in constrained[:40]:
+                code = t.get("task_code") or t.get("id") or ""
+                cdate = t.get("cstr_date") or ""
+                cdate_str = f" on {cdate}" if cdate else ""
+                ctype2 = t.get("cstr_type2")
+                c2_str = f" | Secondary: {ctype2}" if ctype2 else ""
+                cstr_lines.append(
+                    f"  {code} {t['name']} | {t['cstr_type']}{cdate_str}{c2_str} | Finish: {t['finish']}"
+                )
+            if len(constrained) > 40:
+                cstr_lines.append(f"  ... +{len(constrained) - 40} more constrained activities")
+            if hard_pct > 5:
+                cstr_lines.append(
+                    f"SCHEDULE QUALITY RISK: {len(hard_constrained)} of {incomplete_total} incomplete activities "
+                    f"({hard_pct:.1f}%) have hard constraints (Mandatory Finish/Start). "
+                    f"Hard constraints override schedule logic and can mask float. "
+                    f"Surface this only if user asks about constraints or risks."
+                )
+            parts.append("")
+            parts.append("\n".join(cstr_lines))
+    except Exception as _cstr_e:
+        logger.debug(f"[{slug}] Constraint list injection failed: {_cstr_e}")
+
+    # --- Float path chains (XER only — conversation mode, not narrative unless asked) ---
+    try:
+        curr_tasks = current_data.get("tasks", [])
+        # Group by float_path number (0 = not assigned, skip)
+        from collections import defaultdict
+        fp_groups = defaultdict(list)
+        for t in curr_tasks:
+            fp = t.get("float_path", 0)
+            if fp and int(fp) > 0 and not t.get("summary", False):
+                fp_groups[int(fp)].append(t)
+        if fp_groups:
+            fp_lines = [
+                "=== FLOAT PATH CHAINS (conversation mode only — do not include in narrative unless user asks) ===",
+                "Path 1 = critical chain (P6 native). Path 2+ = near-critical chains in ascending float order.",
+            ]
+            for path_num in sorted(fp_groups.keys())[:4]:  # show Path 1-4 max
+                chain = sorted(fp_groups[path_num], key=lambda t: t.get("float_path_order", 0))
+                # Controlling finish = last activity in path by float_path_order
+                ctrl = chain[-1] if chain else None
+                ctrl_finish = ctrl["finish"] if ctrl else "N/A"
+                ctrl_float_days = round(float(ctrl.get("total_float_hrs") or 0) / 8.0, 1) if ctrl else 0
+                path_label = "Critical Chain" if path_num == 1 else f"Near-Critical Path {path_num}"
+                fp_lines.append(
+                    f"  Path {path_num} ({path_label}): {len(chain)} activities | "
+                    f"Controlling finish: {ctrl_finish} | Float: {ctrl_float_days} days"
+                )
+                # Show first 5 activities in chain
+                for act in chain[:5]:
+                    code = act.get("task_code") or act.get("id") or ""
+                    float_d = round(float(act.get("total_float_hrs") or 0) / 8.0, 1)
+                    fp_lines.append(
+                        f"    {code} {act['name']} | Finish: {act['finish']} | Float: {float_d}d"
+                    )
+                if len(chain) > 5:
+                    fp_lines.append(f"    ... +{len(chain) - 5} more in path {path_num}")
+            parts.append("")
+            parts.append("\n".join(fp_lines))
+    except Exception as _fp_e:
+        logger.debug(f"[{slug}] Float path chains injection failed: {_fp_e}")
+
+    # --- Cross-update activity diff (conversation mode only — not narrative unless asked) ---
+    try:
+        curr_tasks = current_data.get("tasks", [])
+        prev_tasks = previous_data.get("tasks", []) if previous_data else []
+        if curr_tasks and prev_tasks:
+            # Build task_code sets (fall back to id if no code)
+            def _code(t):
+                c = str(t.get("task_code") or "").strip()
+                return c if c else str(t.get("id") or "").strip()
+            curr_codes = {_code(t): t for t in curr_tasks if _code(t)}
+            prev_codes = {_code(t): t for t in prev_tasks if _code(t)}
+            added   = [c for c in curr_codes if c not in prev_codes]
+            removed = [c for c in prev_codes if c not in curr_codes]
+            renamed = [
+                (c, prev_codes[c]["name"], curr_codes[c]["name"])
+                for c in curr_codes
+                if c in prev_codes
+                and curr_codes[c]["name"].strip() != prev_codes[c]["name"].strip()
+            ]
+            if added or removed or renamed:
+                diff_lines = [
+                    f"=== SCHEDULE CHANGES ({current_label.replace('_',' ').title()} vs Previous) "
+                    f"(conversation mode only — include in narrative only if user asks) ===",
+                ]
+                if added:
+                    diff_lines.append(f"  ADDED ({len(added)} activities):")
+                    for c in added[:20]:
+                        diff_lines.append(f"    + {c} {curr_codes[c]['name']}")
+                    if len(added) > 20:
+                        diff_lines.append(f"    ... +{len(added)-20} more added")
+                if removed:
+                    diff_lines.append(f"  REMOVED ({len(removed)} activities):")
+                    for c in removed[:20]:
+                        diff_lines.append(f"    - {c} {prev_codes[c]['name']}")
+                    if len(removed) > 20:
+                        diff_lines.append(f"    ... +{len(removed)-20} more removed")
+                if renamed:
+                    diff_lines.append(f"  RENAMED ({len(renamed)} activities):")
+                    for c, old_n, new_n in renamed[:15]:
+                        diff_lines.append(f"    ~ {c}: '{old_n}' → '{new_n}'")
+                    if len(renamed) > 15:
+                        diff_lines.append(f"    ... +{len(renamed)-15} more renamed")
+                parts.append("")
+                parts.append("\n".join(diff_lines))
+    except Exception as _diff_e:
+        logger.debug(f"[{slug}] Cross-update diff injection failed: {_diff_e}")
 
     # --- Relationships for activity critical path tracing ---
     try:
@@ -1379,6 +1566,136 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
             logger.warning(f"[{slug}] Prior verify PDF inject failed: {_pv}")
 
     return "\n".join(parts)
+
+
+def _compute_spi(current_tasks: list, baseline_tasks: list, data_date_str: str) -> Optional[dict]:
+    """
+    Compute activity-count SPI proxy.
+    For XER: uses task_code to match current vs baseline; baseline_finish <= data_date = planned done.
+    For MPP: uses activity name/id match; baseline_finish field.
+    Returns dict with planned_count, actual_count, spi, interpretation, is_resource_loaded.
+    Returns None if insufficient data.
+    """
+    if not current_tasks or not baseline_tasks or not data_date_str:
+        return None
+    try:
+        from datetime import datetime as _dt
+        # Parse data date
+        _data_date = None
+        for _fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+            try:
+                _data_date = _dt.strptime(str(data_date_str).strip()[:10], _fmt).date()
+                break
+            except ValueError:
+                pass
+        if _data_date is None:
+            return None
+
+        # Build baseline finish lookup by task_code (XER) or name (MPP)
+        bl_finish: dict = {}  # code/name -> date
+        for t in baseline_tasks:
+            if t.get("summary", False):
+                continue
+            task_type = str(t.get("task_type") or "").lower()
+            if "loe" in task_type or "wbs" in task_type:
+                continue
+            # Prefer task_code (XER), fall back to name
+            key = str(t.get("task_code") or "").strip()
+            if not key:
+                key = str(t.get("name") or t.get("task_name") or "").strip().lower()
+            if not key:
+                continue
+            bl_fin_raw = (t.get("baseline_finish") or t.get("finish") or "")[:10]
+            if not bl_fin_raw:
+                continue
+            for _fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+                try:
+                    bl_finish[key] = _dt.strptime(bl_fin_raw, _fmt).date()
+                    break
+                except ValueError:
+                    pass
+
+        if not bl_finish:
+            return None
+
+        # Auto-detect percent scale: XER uses 0.0-1.0, MPP uses 0-100
+        # If max pct across non-summary tasks is <= 1.0, treat as fraction scale
+        _all_pcts = [
+            float(t.get("percent_complete") or 0)
+            for t in current_tasks
+            if not t.get("summary", False)
+        ]
+        _pct_scale = 1.0 if (max(_all_pcts) <= 1.0 if _all_pcts else True) else 100.0
+        _done_threshold = _pct_scale  # 1.0 for XER, 100.0 for MPP
+
+        # Count planned-complete and actually-complete
+        planned_count = 0
+        actual_count = 0
+        behind_list = []
+
+        for t in current_tasks:
+            if t.get("summary", False):
+                continue
+            task_type = str(t.get("task_type") or "").lower()
+            if "loe" in task_type or "wbs" in task_type:
+                continue
+            key = str(t.get("task_code") or "").strip()
+            if not key:
+                key = str(t.get("name") or t.get("task_name") or "").strip().lower()
+            if not key:
+                continue
+            bl_fin = bl_finish.get(key)
+            if bl_fin is None:
+                continue
+            if bl_fin <= _data_date:
+                planned_count += 1
+                pct = float(t.get("percent_complete") or 0)
+                if pct >= _done_threshold:
+                    actual_count += 1
+                else:
+                    # Normalize pct to 0-100 for display
+                    pct_display = pct * 100 if _pct_scale == 1.0 else pct
+                    behind_list.append({
+                        "code": str(t.get("task_code") or t.get("id") or ""),
+                        "name": str(t.get("name") or ""),
+                        "pct": round(pct_display, 1),
+                        "bl_finish": str(bl_fin),
+                    })
+
+        if planned_count == 0:
+            return None
+
+        spi = round(actual_count / planned_count, 3)
+        # Note: actual_count was computed with pct_done threshold above — already correct
+
+        if spi >= 1.0:
+            interpretation = "On or ahead of schedule"
+        elif spi >= 0.90:
+            interpretation = "Slightly behind schedule"
+        elif spi >= 0.75:
+            interpretation = "Moderately behind schedule"
+        else:
+            interpretation = "Significantly behind schedule"
+
+        # Check if schedule is resource-loaded (any task has cost data)
+        is_resource_loaded = any(
+            t.get("bcwp") or t.get("bcws") or t.get("acwp") or t.get("baseline_cost")
+            for t in current_tasks
+        )
+
+        return {
+            "spi": spi,
+            "planned_count": planned_count,
+            "actual_count": actual_count,
+            "behind_count": planned_count - actual_count,
+            "data_date": str(_data_date),
+            "interpretation": interpretation,
+            "is_resource_loaded": is_resource_loaded,
+            "behind_list": behind_list[:10],  # top 10 for context
+        }
+    except Exception as _spi_e:
+        logger.debug(f"SPI computation failed: {_spi_e}")
+        return None
 
 
 def _health_tag(max_slip: int, max_accel: int, total_slipped: int, total_accelerated: int) -> str:

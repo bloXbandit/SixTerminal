@@ -355,6 +355,37 @@ class MPPParser:
                 lines.append(f"  - {m['name']} | Baseline: {m['baseline_finish']} | Forecast: {m['finish']}")
             lines.append("")
 
+        # --- Constraint context block (conversation mode only — not for narrative) ---
+        constrained = [
+            t for t in self.tasks
+            if t.get("constraint_type") and t["constraint_type"] not in ("", "AS_SOON_AS_POSSIBLE", "ASAP")
+            and not t["summary"]
+            and t["percent_complete"] < 100
+        ]
+        if constrained:
+            # Threshold flag: >5% of incomplete activities have hard constraints
+            incomplete_total = len([t for t in self.tasks if not t["summary"] and t["percent_complete"] < 100])
+            hard_constrained = [
+                t for t in constrained
+                if t["constraint_type"] in ("MUST_FINISH_ON", "MUST_START_ON",
+                                             "MANDATORY_FINISH", "MANDATORY_START")
+            ]
+            hard_pct = (len(hard_constrained) / incomplete_total * 100) if incomplete_total > 0 else 0
+            lines.append("CONSTRAINT DETAILS (conversation mode only — not for narrative unless asked):")
+            for t in constrained[:30]:
+                cdate = t.get("constraint_date") or ""
+                cdate_str = f" on {cdate}" if cdate else ""
+                lines.append(f"  - {t['name']} | {t['constraint_type']}{cdate_str} | Finish: {t['finish']}")
+            if len(constrained) > 30:
+                lines.append(f"  ... +{len(constrained) - 30} more constrained activities")
+            if hard_pct > 5:
+                lines.append(
+                    f"SCHEDULE QUALITY FLAG: {len(hard_constrained)} of {incomplete_total} incomplete activities "
+                    f"({hard_pct:.1f}%) have hard constraints (Mandatory Finish/Start). "
+                    f"Hard constraints override schedule logic and can mask float — this is a schedule quality risk."
+                )
+            lines.append("")
+
         self._llm_context_cache = "\n".join(lines)
         return self._llm_context_cache
 

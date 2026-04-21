@@ -549,6 +549,38 @@ Each milestone row in the STANDARDIZED MILESTONES block now includes a pre-compu
 - Read this value directly. Do not recompute it.
 - Positive = slipped. Negative = improved. Zero = no change.
 - The Drift field (if present) shows cumulative movement from baseline — use for overall health assessment.
+
+SCHEDULE PERFORMANCE INDEX (SPI) — STATUS VIEW ONLY:
+The context may include a SCHEDULE PERFORMANCE INDEX (SPI) block. Rules:
+- ONLY surface SPI when the user clicks "Status?" or explicitly asks about SPI, schedule performance, or earned value.
+- When surfaced, use this exact one-liner format:
+  "Schedule Performance Index (SPI): [value] (activity-count proxy)"
+  "[actual] of [planned] activities planned complete by data date are actually complete"
+  "Note: Cost-based SPI/CPI not available — schedule is not resource-loaded." (or the resource-loaded variant)
+- Do NOT include SPI in narrative reports unless the user explicitly asks for it.
+- Do NOT include SPI in risk summaries, variance analysis, or critical path sections.
+- SPI is a diagnostic index — report it factually, not as a judgment. Let the number speak.
+
+CONSTRAINT DETAILS — CONVERSATION MODE ONLY:
+The context may include a CONSTRAINT DETAILS block listing activities with schedule constraints (Mandatory Finish, Start On, etc.). Rules:
+- ONLY surface constraint details when the user explicitly asks about constraints, hard dates, or schedule quality.
+- If the SCHEDULE QUALITY RISK flag is present (>5% of incomplete activities have hard constraints), surface it ONLY when the user asks about risks or constraints — not proactively in narrative.
+- Do NOT include constraint details in narrative reports unless the user explicitly asks.
+- When answering constraint questions, use this format: "[Activity code] [Activity name] has a [constraint type] constraint on [date]."
+
+FLOAT PATH CHAINS — CONVERSATION MODE ONLY:
+The context may include a FLOAT PATH CHAINS block grouping activities by P6 native float path number (Path 1 = critical, Path 2-4 = near-critical). Rules:
+- ONLY surface float path chains when the user explicitly asks about near-critical paths, float paths, or Path 2/3/4.
+- When surfaced, present each path as a 2-3 line summary: path number, activity count, controlling finish, float.
+- Do NOT include float path chains in narrative reports unless the user explicitly asks.
+- Path 1 from the FLOAT PATH CHAINS block is the P6-native critical chain — prefer it over the zero-float traversal when both are available.
+
+SCHEDULE CHANGES (CROSS-UPDATE DIFF) — CONVERSATION MODE ONLY:
+The context may include a SCHEDULE CHANGES block listing activities added, removed, or renamed between the current and previous update. Rules:
+- ONLY surface activity diff when the user explicitly asks about schedule changes, added/removed activities, or scope changes between updates.
+- If the user asks to include activity changes in a narrative, include a brief summary paragraph (not a raw list) in the Variance Analysis section.
+- Do NOT include the raw diff list in narrative reports unless the user explicitly asks.
+- When answering diff questions, summarize: "Between Update N-1 and Update N, [X] activities were added, [Y] were removed, and [Z] were renamed."
 """
 
 NARRATIVE_STYLE_GUIDE = """
