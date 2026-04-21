@@ -35,7 +35,9 @@ def require_auth(f):
             # API endpoints return 401; browser routes redirect to login
             if request.path.startswith(("/chat", "/upload", "/docs", "/projects",
                                         "/context", "/scrape", "/screenshot",
-                                        "/health")):
+                                        "/health", "/project_updates",
+                                        "/project/")):
+
                 return jsonify({"error": "Unauthorized"}), 401
             return redirect(url_for("login"))
         return f(*args, **kwargs)
