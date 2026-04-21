@@ -2225,6 +2225,260 @@ def update_milestone_prior_dates(slug: str) -> int:
         return 0
 
 
+def get_project_update_pairs(slug: str) -> list:
+    """
+    Returns a list of available update pair dicts for the historical comparison dropdown.
+    Each dict: {label, current_num, prior_num, current_file, prior_file}
+    First entry is always {"label": "Current", "current_num": None, "prior_num": None}
+    then pairs in descending order: Update N vs Update N-1, ...
+    """
+    project_path = os.path.join(PROJECTS_DIR, slug)
+    if not os.path.isdir(project_path):
+        return [{"label": "Current", "current_num": None, "prior_num": None}]
+
+    files = _find_versioned_files(project_path)
+    updates = files["updates"]  # list of (label, filepath) sorted ascending
+    baseline_path = files["baseline"]
+
+    pairs = [{"label": "Current", "current_num": None, "prior_num": None}]
+
+    if not updates:
+        return pairs
+
+    # Build sorted list of update numbers
+    import re as _re_pairs
+    update_nums = []
+    for label, fpath in updates:
+        m = _re_pairs.search(r'update[_\s]*(\d+)', label, _re_pairs.IGNORECASE)
+        if m:
+            update_nums.append(int(m.group(1)))
+
+    update_nums.sort()
+
+    # Generate pairs in descending order: (N, N-1), (N-1, N-2), ...
+    for i in range(len(update_nums) - 1, 0, -1):
+        cur_n = update_nums[i]
+        pri_n = update_nums[i - 1]
+        pairs.append({
+            "label": f"Update {cur_n} vs Update {pri_n}",
+            "current_num": cur_n,
+            "prior_num": pri_n,
+        })
+
+    # If there's a baseline and at least one update, add Update 1 vs Baseline
+    if baseline_path and update_nums:
+        pairs.append({
+            "label": f"Update {update_nums[0]} vs Baseline",
+            "current_num": update_nums[0],
+            "prior_num": 0,  # 0 = baseline sentinel
+        })
+
+    return pairs
+
+
+def build_comparison_context(slug: str, current_num: int, prior_num: int) -> str:
+    """
+    Build LLM context for an explicit historical comparison pair.
+    current_num: the update number to treat as 'current' (e.g. 6)
+    prior_num:   the update number to treat as 'prior' (e.g. 5), or 0 for baseline
+    Returns a context string prefixed with [HISTORICAL COMPARISON MODE: Update N vs Update M]
+    Returns an error string if either file is missing.
+    """
+    import re as _re_comp
+    project_path = os.path.join(PROJECTS_DIR, slug)
+    if not os.path.isdir(project_path):
+        return f"[HISTORICAL COMPARISON ERROR: Project '{slug}' not found]"
+
+    files = _find_versioned_files(project_path)
+    updates = files["updates"]
+    baseline_path = files["baseline"]
+
+    # Build lookup: update_num -> filepath
+    update_map = {}
+    for label, fpath in updates:
+        m = _re_comp.search(r'update[_\s]*(\d+)', label, _re_comp.IGNORECASE)
+        if m:
+            update_map[int(m.group(1))] = fpath
+
+    # Resolve current file
+    if current_num not in update_map:
+        return f"[HISTORICAL COMPARISON ERROR: Update {current_num} file not found for {slug}]"
+    current_path = update_map[current_num]
+    current_label = f"update_{current_num}"
+
+    # Resolve prior file
+    if prior_num == 0:
+        if not baseline_path:
+            return f"[HISTORICAL COMPARISON ERROR: Baseline file not found for {slug}]"
+        previous_path = baseline_path
+        prior_label = "Baseline"
+    else:
+        if prior_num not in update_map:
+            return f"[HISTORICAL COMPARISON ERROR: Update {prior_num} file not found for {slug}]"
+        previous_path = update_map[prior_num]
+        prior_label = f"Update {prior_num}"
+
+    parts = []
+    parts.append(f"[HISTORICAL COMPARISON MODE: Update {current_num} vs {prior_label}]")
+    parts.append(f"SCHEDULE VERSIONS: comparing Update {current_num} (current) vs {prior_label} (prior)")
+    parts.append(f"CURRENT SUBMISSION: {current_label} ({os.path.basename(current_path)})")
+
+    # --- Locate compression file for current update ---
+    _compression_file_path = None
+    _compression_is_image = False
+    try:
+        _comp_imgs = {}
+        _comp_pdfs = {}
+        for _fn in os.listdir(project_path):
+            _lower_fn = _fn.lower()
+            _cm = _re_comp.match(r'^compression[_\-](?:update[_\-]?)?(\d+)\.(jpg|jpeg|png|pdf)$', _lower_fn)
+            if _cm:
+                _num = int(_cm.group(1))
+                _ext = _cm.group(2)
+                if _ext in ("jpg", "jpeg", "png"):
+                    _comp_imgs[_num] = os.path.join(project_path, _fn)
+                elif _ext == "pdf":
+                    _comp_pdfs[_num] = os.path.join(project_path, _fn)
+
+        def _best_match_hist(source_dict, cur):
+            if not source_dict:
+                return None
+            if cur in source_dict:
+                return source_dict[cur]
+            cands = [n for n in source_dict if n <= cur]
+            return source_dict[max(cands)] if cands else None
+
+        _img_path = _best_match_hist(_comp_imgs, current_num)
+        _pdf_path = _best_match_hist(_comp_pdfs, current_num)
+        if _img_path:
+            _compression_file_path = _img_path
+            _compression_is_image = True
+        elif _pdf_path:
+            _compression_file_path = _pdf_path
+            _compression_is_image = False
+    except Exception as _ce:
+        logger.warning(f"[{slug}] Historical compression file scan failed: {_ce}")
+
+    # --- Extract compression data ---
+    if _compression_file_path:
+        try:
+            if _compression_is_image:
+                comp_data = _extract_compression_image(_compression_file_path)
+            else:
+                comp_data = _extract_compression_pdf(_compression_file_path)
+            if comp_data:
+                comp_ctx = _format_compression_pdf_context(comp_data, label=os.path.basename(_compression_file_path))
+                if comp_ctx:
+                    parts.append("")
+                    parts.append(comp_ctx)
+        except Exception as _ce:
+            logger.warning(f"[{slug}] Historical compression extraction failed: {_ce}")
+
+    # --- Parse current schedule ---
+    logger.info(f"[{slug}] Historical: parsing current update_{current_num}: {os.path.basename(current_path)}")
+    import threading as _thr_hist
+    _parse_result = [None]
+    def _do_parse_current():
+        with _mpp_semaphore:
+            _parse_result[0] = _parse_schedule(current_path)
+    _pt = _thr_hist.Thread(target=_do_parse_current, daemon=True)
+    _pt.start()
+    _pt.join(timeout=60)
+    if _pt.is_alive():
+        return f"[HISTORICAL COMPARISON ERROR: Update {current_num} parse timed out for {slug}]"
+    current_data = _parse_result[0]
+    if not current_data:
+        return f"[HISTORICAL COMPARISON ERROR: Update {current_num} could not be parsed for {slug}]"
+
+    parts.append("")
+    parts.append(f"=== CURRENT SCHEDULE (Update {current_num}) ===")
+    parts.append(current_data["raw_context"])
+
+    # --- Parse prior schedule ---
+    logger.info(f"[{slug}] Historical: parsing prior {prior_label}: {os.path.basename(previous_path)}")
+    _prev_result = [None]
+    def _do_parse_previous():
+        with _mpp_semaphore:
+            _prev_result[0] = _parse_schedule(previous_path)
+    _pp = _thr_hist.Thread(target=_do_parse_previous, daemon=True)
+    _pp.start()
+    _pp.join(timeout=45)
+    previous_data = _prev_result[0] if not _pp.is_alive() else None
+
+    if previous_data:
+        parts.append("")
+        parts.append(f"=== PRIOR SCHEDULE ({prior_label}: {os.path.basename(previous_path)}) ===")
+        parts.append(previous_data["raw_context"])
+
+        # --- Variance between current and prior ---
+        if current_data.get("tasks") and previous_data.get("tasks"):
+            try:
+                here = os.path.dirname(os.path.abspath(__file__))
+                if here not in sys.path:
+                    sys.path.insert(0, here)
+                from variance_engine import compute_variance, format_variance_for_context, compute_compression
+                variance = compute_variance(
+                    current_tasks=current_data["tasks"],
+                    previous_tasks=previous_data["tasks"],
+                    label_current=f"Update {current_num}",
+                    label_previous=prior_label,
+                )
+                variance_ctx = format_variance_for_context(variance, max_items_per_phase=12)
+                if variance_ctx:
+                    parts.append("")
+                    parts.append(variance_ctx)
+
+                # Compression analysis
+                try:
+                    compression = compute_compression(
+                        current_tasks=current_data["tasks"],
+                        previous_tasks=previous_data["tasks"],
+                    )
+                    if compression.get("compression_signal") != "UNKNOWN":
+                        sig = compression["compression_signal"]
+                        pct = compression.get("compression_pct", 0)
+                        span_delta = compression.get("span_delta_days", 0)
+                        density_delta = compression.get("density_delta_pct", 0)
+                        hint = compression.get("narrative_hint", "")
+                        parts.append("")
+                        parts.append(
+                            f"=== SCHEDULE COMPRESSION ANALYSIS (Update {current_num} vs {prior_label}) ===\n"
+                            f"Signal: {sig} | Remaining span change: {span_delta:+d} calendar days ({pct:+.1f}%) | "
+                            f"Activity density change: {density_delta:+.1f}%\n"
+                            f"Incomplete activities: {compression.get('current_incomplete_count','N/A')} now vs "
+                            f"{compression.get('previous_incomplete_count','N/A')} prior\n"
+                            f"NARRATIVE HINT: {hint}"
+                        )
+                except Exception as _ce:
+                    logger.warning(f"[{slug}] Historical compression computation failed: {_ce}")
+
+                # Cached compression report for this update
+                try:
+                    from compression_cache import get_compression_for_update
+                    cached_comp = get_compression_for_update(slug, current_num)
+                    if cached_comp:
+                        parts.append("")
+                        parts.append(f"=== USER-UPLOADED COMPRESSION REPORT (Update {current_num}) ===")
+                        parts.append(f"Compression %: {cached_comp.get('compression_pct', 'N/A')}%")
+                        parts.append(f"Earlier finish: {cached_comp.get('earlier_finish', 'N/A')} | Later finish: {cached_comp.get('later_finish', 'N/A')}")
+                        parts.append(f"Earlier data date: {cached_comp.get('earlier_data_date', 'N/A')} | Later data date: {cached_comp.get('later_data_date', 'N/A')}")
+                        if cached_comp.get('monthly'):
+                            parts.append("Monthly activity days: " + str(cached_comp['monthly']))
+                except Exception:
+                    pass
+
+            except Exception as _ve:
+                logger.warning(f"[{slug}] Historical variance computation failed: {_ve}")
+
+    # --- Milestone map ---
+    milestone_ctx = _load_milestone_map(slug)
+    if milestone_ctx:
+        parts.append("")
+        parts.append(milestone_ctx)
+
+    return "\n".join(parts)
+
+
 if __name__ == "__main__":
     """
     Run this script directly to parse Milestone Map.xlsx and write

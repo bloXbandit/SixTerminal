@@ -153,6 +153,54 @@
     border-color: #0056a3;
     font-weight: 600;
   }
+  /* Historical comparison row — shown below project selector when a project is active */
+  .comparison-bar {
+    padding: 3px 8px 4px 8px;
+    display: none;
+    gap: 5px;
+    border-bottom: 1px solid #e0eaf4;
+    flex-shrink: 0;
+    align-items: center;
+    background: #f0f6ff;
+  }
+  .comparison-bar.visible { display: flex; }
+  .comparison-bar label {
+    font-size: 10px;
+    color: #1a3a5c;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .comparison-bar select {
+    flex: 1;
+    border: 1.5px solid #0078D4;
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-family: inherit;
+    font-size: 10px;
+    background: #fff;
+    color: #1a3a5c;
+    outline: none;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .comparison-bar select.hist-active {
+    background: #fff3cd;
+    border-color: #d4a017;
+    color: #7a5000;
+    font-weight: 600;
+  }
+  .hist-badge {
+    font-size: 9px;
+    background: #d4a017;
+    color: #fff;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-weight: 700;
+    white-space: nowrap;
+    display: none;
+  }
+  .hist-badge.visible { display: inline-block; }
   .quick-bar {
     padding: 5px 8px;
     display: flex;
@@ -469,6 +517,14 @@
         <option value="">— Page View —</option>
       </select>
     </div>
+    <!-- Historical comparison bar — shown when a project is selected -->
+    <div class="comparison-bar" id="comparisonBar">
+      <label>&#128336; Compare:</label>
+      <select id="comparisonSelect" onchange="onComparisonChange()">
+        <option value="current">Current (latest)</option>
+      </select>
+      <span class="hist-badge" id="histBadge">HISTORICAL</span>
+    </div>
 
     <div class="quick-bar">
       <button class="quick-btn" onclick="sendQuick('Project status? Include SPI if available.')">Status?</button>
@@ -561,6 +617,9 @@
   let projectData = [];
   let _pendingFile = null;  // file waiting for note modal confirmation
   let _docsPanelOpen = true;
+  // Historical comparison state
+  let comparisonCurrentNum = null;  // null = Current (default), int = historical
+  let comparisonPriorNum = null;    // null = Current (default), int = historical
 
   function getProjectStatusIndicator(p) {
     if (p.loading) return " ⏳";  // Loading in progress
@@ -751,11 +810,15 @@
         }
       });
       loadProjectDocs(selectedProjectSlug);
+      // Populate and show the historical comparison dropdown
+      loadComparisonPairs(selectedProjectSlug);
     } else {
       // Portfolio mode
       sel.className = "portfolio-mode";
       pageSel.style.display = "none";
       document.getElementById("docsPanel").style.display = "none";
+      // Hide comparison bar in portfolio mode
+      hideComparisonBar();
     }
     // Reset history first, then inject the project-switch signal so the agent
     // always knows which project is active without the user having to state it.
@@ -781,6 +844,95 @@
         role: "assistant",
         content: "Portfolio view active — ready for portfolio-level questions."
       });
+    }
+  }
+
+  // ── Historical comparison dropdown ──
+  async function loadComparisonPairs(slug) {
+    // Reset state to Current first
+    comparisonCurrentNum = null;
+    comparisonPriorNum = null;
+    const bar = document.getElementById("comparisonBar");
+    const sel = document.getElementById("comparisonSelect");
+    const badge = document.getElementById("histBadge");
+    sel.className = "";
+    badge.className = "hist-badge";
+    sel.innerHTML = '<option value="current">Current (latest)</option>';
+    if (!slug) { bar.className = "comparison-bar"; return; }
+    try {
+      const res = await fetch(`/project_updates/${slug}`, { credentials: "same-origin" });
+      if (!res.ok) { bar.className = "comparison-bar"; return; }
+      const data = await res.json();
+      const pairs = data.pairs || [];
+      // pairs[0] is always "Current" — already in the select
+      // Add the rest
+      for (let i = 1; i < pairs.length; i++) {
+        const opt = document.createElement("option");
+        opt.value = JSON.stringify({ c: pairs[i].current_num, p: pairs[i].prior_num });
+        opt.textContent = pairs[i].label;
+        sel.appendChild(opt);
+      }
+      // Show bar only if there are historical pairs available
+      if (pairs.length > 1) {
+        bar.className = "comparison-bar visible";
+      } else {
+        bar.className = "comparison-bar";
+      }
+    } catch(e) {
+      console.warn("Could not load comparison pairs:", e);
+      bar.className = "comparison-bar";
+    }
+  }
+
+  function hideComparisonBar() {
+    comparisonCurrentNum = null;
+    comparisonPriorNum = null;
+    const bar = document.getElementById("comparisonBar");
+    const sel = document.getElementById("comparisonSelect");
+    const badge = document.getElementById("histBadge");
+    bar.className = "comparison-bar";
+    sel.className = "";
+    badge.className = "hist-badge";
+    sel.innerHTML = '<option value="current">Current (latest)</option>';
+  }
+
+  function onComparisonChange() {
+    const sel = document.getElementById("comparisonSelect");
+    const badge = document.getElementById("histBadge");
+    const val = sel.value;
+    if (val === "current" || !val) {
+      // Revert to default mode
+      comparisonCurrentNum = null;
+      comparisonPriorNum = null;
+      sel.className = "";
+      badge.className = "hist-badge";
+      // Inject a signal so the agent knows we're back to current
+      if (selectedProjectSlug) {
+        const proj = projectData.find(p => p.slug === selectedProjectSlug);
+        const projName = proj ? proj.display_name : selectedProjectSlug;
+        messages = [];
+        messages.push({ role: "user", content: `[PROJECT SWITCH] Active project is now: ${projName} (slug: ${selectedProjectSlug}). All subsequent questions are about this project only.` });
+        messages.push({ role: "assistant", content: `Switched to **${projName}** — ready.` });
+      }
+    } else {
+      try {
+        const parsed = JSON.parse(val);
+        comparisonCurrentNum = parsed.c;
+        comparisonPriorNum = parsed.p;
+        sel.className = "hist-active";
+        badge.className = "hist-badge visible";
+        // Inject a signal so the agent knows historical mode is active
+        if (selectedProjectSlug) {
+          const proj = projectData.find(p => p.slug === selectedProjectSlug);
+          const projName = proj ? proj.display_name : selectedProjectSlug;
+          const priorLabel = comparisonPriorNum === 0 ? "Baseline" : `Update ${comparisonPriorNum}`;
+          messages = [];
+          messages.push({ role: "user", content: `[HISTORICAL COMPARISON MODE] Viewing Update ${comparisonCurrentNum} vs ${priorLabel} for ${projName}. All questions should reference this specific comparison pair, not the latest update.` });
+          messages.push({ role: "assistant", content: `Historical mode active — comparing **Update ${comparisonCurrentNum} vs ${priorLabel}** for **${projName}**. Ask me anything about this period.` });
+        }
+      } catch(e) {
+        console.warn("Could not parse comparison value:", e);
+      }
     }
   }
 
@@ -1198,7 +1350,10 @@
         context: context,
         image: pastedImageBase64 || null,
         project_slug: selectedProjectSlug || null,
-        page_view: selectedPageView || null
+        page_view: selectedPageView || null,
+        // Historical comparison — null means use default auto-loaded context
+        comparison_current_num: comparisonCurrentNum,
+        comparison_prior_num: comparisonPriorNum
       };
       const data = await doChat(payload, false);
       typing.remove();

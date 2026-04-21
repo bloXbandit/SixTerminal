@@ -635,6 +635,16 @@ The context may include a SCHEDULE CHANGES block listing activities added, remov
 - If the user asks to include activity changes in a narrative, include a brief summary paragraph (not a raw list) in the Variance Analysis section.
 - Do NOT include the raw diff list in narrative reports unless the user explicitly asks.
 - When answering diff questions, summarize: "Between Update N-1 and Update N, [X] activities were added, [Y] were removed, and [Z] were renamed."
+
+HISTORICAL COMPARISON MODE — TRIGGERED BY UI DROPDOWN:
+When the project context begins with [HISTORICAL COMPARISON MODE: Update N vs Update M] or [HISTORICAL COMPARISON MODE: Update N vs Baseline], this means the user has selected a specific historical comparison pair from the UI dropdown. Rules:
+- Treat the data in this context block as the authoritative current/prior pair for ALL questions in this session.
+- The "current" schedule is Update N. The "prior" schedule is Update M (or Baseline).
+- Do NOT reference the auto-loaded latest update as current. The historical pair is the active comparison.
+- All variance, compression, milestone, and critical path analysis must reference this specific pair.
+- When generating a narrative report in historical mode, label it clearly: "Update N vs Update M" in the Summary section.
+- If the context contains a [HISTORICAL COMPARISON ERROR: ...] message, report the error to the user and ask them to select a different comparison pair.
+- When the user switches back to "Current (latest)" in the dropdown, the historical mode context is replaced by the default auto-loaded context — respond normally.
 """
 
 NARRATIVE_STYLE_GUIDE = """
@@ -1178,6 +1188,19 @@ def get_project_status(slug):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/project_updates/<slug>", methods=["GET"])
+@require_auth
+def get_project_update_pairs_endpoint(slug):
+    """Return available historical comparison pairs for a project."""
+    try:
+        from project_loader import get_project_update_pairs
+        pairs = get_project_update_pairs(slug)
+        return jsonify({"slug": slug, "pairs": pairs})
+    except Exception as e:
+        logger.error(f"Error getting update pairs for {slug}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/screenshot/<int:page_num>", methods=["GET"])
 @require_auth
 def view_screenshot(page_num):
@@ -1592,6 +1615,9 @@ def chat():
     image_b64 = data.get("image", None)
     project_slug = data.get("project_slug", None)
     page_view = data.get("page_view", None)
+    # Historical comparison pair — sent by UI dropdown (None = use default auto-loaded context)
+    comparison_current_num = data.get("comparison_current_num", None)  # int or None
+    comparison_prior_num = data.get("comparison_prior_num", None)      # int or None
 
     client = get_client()
     if not client:
@@ -1651,12 +1677,28 @@ def chat():
         system += f"\n\n{dashboard_context}"
 
     if project_slug:
-        logger.info(f"Chat request — project: {project_slug}, page: {page_view}")
-        proj_ctx = get_project_context(project_slug, page_view)
-        has_data = has_schedule(project_slug)
-        logger.info(f"[{project_slug}] Context assembled — schedule data: {'yes' if has_data else 'no'}")
-        if proj_ctx:
-            system += f"\n\n{proj_ctx}"
+        logger.info(f"Chat request — project: {project_slug}, page: {page_view}, comparison: {comparison_current_num} vs {comparison_prior_num}")
+        # Historical comparison mode — use explicit pair instead of auto-loaded context
+        if comparison_current_num is not None and comparison_prior_num is not None:
+            try:
+                from project_loader import build_comparison_context
+                hist_ctx = build_comparison_context(project_slug, int(comparison_current_num), int(comparison_prior_num))
+                if hist_ctx:
+                    system += f"\n\n{hist_ctx}"
+                    logger.info(f"[{project_slug}] Historical comparison context injected: Update {comparison_current_num} vs {comparison_prior_num}")
+            except Exception as _hist_e:
+                logger.error(f"[{project_slug}] Historical comparison context failed: {_hist_e}")
+                # Fall back to normal context on error
+                proj_ctx = get_project_context(project_slug, page_view)
+                if proj_ctx:
+                    system += f"\n\n{proj_ctx}"
+        else:
+            # Default: use auto-loaded context (existing behavior)
+            proj_ctx = get_project_context(project_slug, page_view)
+            has_data = has_schedule(project_slug)
+            logger.info(f"[{project_slug}] Context assembled — schedule data: {'yes' if has_data else 'no'}")
+            if proj_ctx:
+                system += f"\n\n{proj_ctx}"
 
         # Inject screenshot-derived structured data (highest priority — overrides parsed schedule)
         try:
