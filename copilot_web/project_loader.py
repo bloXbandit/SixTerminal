@@ -684,6 +684,133 @@ def _extract_compression_pdf(pdf_path: str) -> Optional[dict]:
     return result_holder[0]
 
 
+def _extract_compression_image(img_path: str) -> Optional[dict]:
+    """
+    Extract compression data from a screenshot image (JPG/PNG) using GPT-4o vision.
+    Returns the same dict shape as _extract_compression_pdf so _format_compression_pdf_context
+    can render it identically.
+    Naming convention: compression_updateN.jpg / compression_updateN.png
+    """
+    import base64
+    import re as _re
+    from datetime import datetime as _dt
+
+    ext = os.path.splitext(img_path)[1].lower().lstrip(".")
+    mime = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png"}.get(ext, "image/png")
+
+    try:
+        with open(img_path, "rb") as fh:
+            b64 = base64.b64encode(fh.read()).decode("utf-8")
+    except Exception as e:
+        logger.warning(f"Compression image read failed ({img_path}): {e}")
+        return None
+
+    VISION_PROMPT = (
+        "This is a Schedule Validator Remaining Work Compression report screenshot. "
+        "Extract EXACTLY the following fields and return them as a JSON object with these keys:\n"
+        "  compression_pct: the integer shown next to 'Remaining Work Compression' "
+        "(positive if expanded/arrow right, negative if compressed/arrow left). Example: 35 or -12.\n"
+        "  earlier_data_date: Data Date in the Earlier/A schedule box (MM/DD/YYYY).\n"
+        "  later_data_date: Data Date in the Later/B schedule box (MM/DD/YYYY).\n"
+        "  earlier_finish_date: Finish Date in the Earlier/A schedule box (MM/DD/YYYY).\n"
+        "  later_finish_date: Finish Date in the Later/B schedule box (MM/DD/YYYY).\n"
+        "  monthly: array of objects, one per row in the bottom table, each with: "
+        "month (string e.g. 'Mar 26'), earlier_days (integer), later_days (integer).\n"
+        "Return ONLY valid JSON. No markdown fences, no explanation."
+    )
+
+    try:
+        import openai as _oai
+        _api_key = os.environ.get("OPENAI_API_KEY", "")
+        if not _api_key:
+            logger.warning("Compression image extraction: OPENAI_API_KEY not set")
+            return None
+        _client = _oai.OpenAI(api_key=_api_key)
+        resp = _client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": VISION_PROMPT},
+                    {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}", "detail": "high"}}
+                ]
+            }],
+            max_tokens=800,
+            timeout=30
+        )
+        raw_json = resp.choices[0].message.content.strip()
+        # Strip markdown fences if model adds them despite instructions
+        raw_json = _re.sub(r'^```(?:json)?\s*', '', raw_json, flags=_re.IGNORECASE)
+        raw_json = _re.sub(r'\s*```$', '', raw_json)
+        import json as _json
+        parsed = _json.loads(raw_json)
+    except Exception as e:
+        logger.warning(f"Compression image vision extraction failed ({img_path}): {e}")
+        return None
+
+    # Normalise dates
+    def _parse_date(s):
+        if not s: return None
+        for fmt in ("%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d"):
+            try: return _dt.strptime(str(s).strip(), fmt)
+            except ValueError: pass
+        return None
+
+    earlier_data = _parse_date(parsed.get("earlier_data_date"))
+    later_data   = _parse_date(parsed.get("later_data_date"))
+    earlier_fin  = _parse_date(parsed.get("earlier_finish_date"))
+    later_fin    = _parse_date(parsed.get("later_finish_date"))
+
+    monthly = []
+    for row in parsed.get("monthly", []):
+        try:
+            monthly.append({
+                "month": str(row.get("month", "")).strip(),
+                "earlier_days": int(row.get("earlier_days", 0)),
+                "later_days": int(row.get("later_days", 0)),
+            })
+        except (TypeError, ValueError):
+            continue
+
+    try:
+        compression_pct = float(parsed["compression_pct"]) if parsed.get("compression_pct") is not None else None
+    except (TypeError, ValueError):
+        compression_pct = None
+
+    # Derived metrics — same logic as PDF extractor
+    earlier_span   = int((earlier_fin  - earlier_data).days) if earlier_fin  and earlier_data else None
+    later_span     = int((later_fin    - later_data).days)   if later_fin    and later_data   else None
+    finish_slip    = int((later_fin    - earlier_fin).days)  if later_fin    and earlier_fin  else None
+    compare_window = int((later_data   - earlier_data).days) if later_data   and earlier_data else None
+    earlier_total  = sum(r["earlier_days"] for r in monthly) if monthly else None
+    later_total    = sum(r["later_days"]   for r in monthly) if monthly else None
+    activity_delta = (later_total - earlier_total) if (earlier_total is not None and later_total is not None) else None
+    peak = max(monthly, key=lambda r: abs(r["later_days"] - r["earlier_days"])) if monthly else None
+
+    result = {
+        "compression_pct":               compression_pct,
+        "earlier_data_date":             earlier_data.strftime("%m/%d/%Y") if earlier_data else parsed.get("earlier_data_date"),
+        "later_data_date":               later_data.strftime("%m/%d/%Y")   if later_data   else parsed.get("later_data_date"),
+        "earlier_finish":                earlier_fin.strftime("%m/%d/%Y")  if earlier_fin  else parsed.get("earlier_finish_date"),
+        "later_finish":                  later_fin.strftime("%m/%d/%Y")    if later_fin    else parsed.get("later_finish_date"),
+        "monthly":                       monthly,
+        "earlier_remaining_span_days":   earlier_span,
+        "later_remaining_span_days":     later_span,
+        "finish_slip_days":              finish_slip,
+        "comparison_window_days":        compare_window,
+        "total_earlier_activity_days":   earlier_total,
+        "total_later_activity_days":     later_total,
+        "total_activity_day_delta":      activity_delta,
+        "peak_compression_month":        peak["month"] if peak else None,
+        "peak_compression_delta":        (peak["later_days"] - peak["earlier_days"]) if peak else None,
+        "source":                        "image_vision",
+    }
+    logger.info(f"[compression_image] {os.path.basename(img_path)}: "
+                f"pct={compression_pct}, earlier={result['earlier_data_date']}, "
+                f"later={result['later_data_date']}, monthly_rows={len(monthly)}")
+    return result
+
+
 def _format_compression_pdf_context(data: dict, label: str = "") -> str:
     """Format extracted compression PDF data as an LLM context block."""
     if not data:
@@ -783,44 +910,80 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     parts.append(f"SCHEDULE VERSIONS: {'baseline' if baseline_path else 'no baseline'} + {total_updates} update(s)")
     parts.append(f"CURRENT SUBMISSION: {current_label} ({os.path.basename(current_path)})")
 
-    # --- Locate compression PDF for current update (versioned: compression_updateN.pdf) ---
-    _compression_pdf_path = None
+    # --- Locate compression file for current update ---
+    # Priority: compression_updateN.jpg / .png (vision, most reliable) > compression_updateN.pdf (OCR)
+    # Naming: compression_update1.jpg, compression_update2.png, compression_update1.pdf, etc.
+    # Always uses the file matching the CURRENT update number.
+    # Falls back to the highest available prior update if no exact match exists.
+    _compression_file_path = None
+    _compression_is_image  = False
     try:
         import re as _re
-        # Scan folder for all compression_updateN.pdf files
-        _comp_pdfs = {}
+        _comp_imgs = {}   # {update_num: filepath} for .jpg/.jpeg/.png
+        _comp_pdfs = {}   # {update_num: filepath} for .pdf
         for _fn in os.listdir(project_path):
-            _cm = _re.match(r'^compression[_\-]update[_\-]?(\d+)\.pdf$', _fn.lower())
+            _lower_fn = _fn.lower()
+            # Match compression_updateN.ext or compression_N.ext
+            _cm = _re.match(r'^compression[_\-](?:update[_\-]?)?(\d+)\.(jpg|jpeg|png|pdf)$', _lower_fn)
             if _cm:
-                _comp_pdfs[int(_cm.group(1))] = os.path.join(project_path, _fn)
-        if _comp_pdfs:
-            m = _re.search(r'update[_\s]*(\d+)', current_label, _re.IGNORECASE)
-            if m:
-                cur_num = int(m.group(1))
-                if cur_num in _comp_pdfs:
-                    _compression_pdf_path = _comp_pdfs[cur_num]
-                else:
-                    _cands = [n for n in _comp_pdfs if n <= cur_num]
-                    if _cands:
-                        _compression_pdf_path = _comp_pdfs[max(_cands)]
-    except Exception:
-        pass
+                _num = int(_cm.group(1))
+                _ext = _cm.group(2)
+                if _ext in ("jpg", "jpeg", "png"):
+                    _comp_imgs[_num] = os.path.join(project_path, _fn)
+                elif _ext == "pdf":
+                    _comp_pdfs[_num] = os.path.join(project_path, _fn)
 
-    # --- Extract compression PDF if found ---
-    if _compression_pdf_path:
+        # Determine current update number from label (e.g. "update_4" -> 4)
+        _cur_num = None
+        _m = _re.search(r'update[_\s]*(\d+)', current_label, _re.IGNORECASE)
+        if _m:
+            _cur_num = int(_m.group(1))
+
+        def _best_match(source_dict, cur):
+            """Return filepath for exact cur match, or highest available <= cur."""
+            if not source_dict:
+                return None
+            if cur is not None and cur in source_dict:
+                return source_dict[cur]
+            if cur is not None:
+                _cands = [n for n in source_dict if n <= cur]
+                if _cands:
+                    return source_dict[max(_cands)]
+            # No update number in label — return highest available
+            return source_dict[max(source_dict)]
+
+        # Image preferred over PDF for same update
+        _img_path = _best_match(_comp_imgs, _cur_num)
+        _pdf_path = _best_match(_comp_pdfs, _cur_num)
+        if _img_path:
+            _compression_file_path = _img_path
+            _compression_is_image  = True
+            logger.info(f"[{slug}] Compression image found (preferred over PDF): {os.path.basename(_img_path)}")
+        elif _pdf_path:
+            _compression_file_path = _pdf_path
+            _compression_is_image  = False
+            logger.info(f"[{slug}] Compression PDF found: {os.path.basename(_pdf_path)}")
+    except Exception as _comp_scan_e:
+        logger.warning(f"[{slug}] Compression file scan failed: {_comp_scan_e}")
+
+    # --- Extract compression data ---
+    if _compression_file_path:
         try:
-            logger.info(f"[{slug}] Extracting compression PDF: {os.path.basename(_compression_pdf_path)}")
-            comp_data = _extract_compression_pdf(_compression_pdf_path)
+            if _compression_is_image:
+                logger.info(f"[{slug}] Extracting compression via vision: {os.path.basename(_compression_file_path)}")
+                comp_data = _extract_compression_image(_compression_file_path)
+            else:
+                logger.info(f"[{slug}] Extracting compression via OCR/PDF: {os.path.basename(_compression_file_path)}")
+                comp_data = _extract_compression_pdf(_compression_file_path)
             if comp_data:
-                comp_ctx = _format_compression_pdf_context(comp_data, label=os.path.basename(_compression_pdf_path))
+                comp_ctx = _format_compression_pdf_context(comp_data, label=os.path.basename(_compression_file_path))
                 if comp_ctx:
                     parts.append("")
                     parts.append(comp_ctx)
-                    # Also store in health for portfolio overview
                     if comp_data.get("compression_pct") is not None:
                         _compression_pct = comp_data["compression_pct"]
         except Exception as _ce:
-            logger.warning(f"[{slug}] Compression PDF extraction failed: {_ce}")
+            logger.warning(f"[{slug}] Compression extraction failed: {_ce}")
 
     # --- Parse current (with 90s timeout to avoid JVM hangs) ---
     logger.info(f"[{slug}] Parsing current: {os.path.basename(current_path)}")
@@ -1231,22 +1394,47 @@ def _health_tag(max_slip: int, max_accel: int, total_slipped: int, total_acceler
 
 
 def _build_task_lookup(tasks: list) -> tuple:
-    """Return (name_lookup, id_lookup) dicts from a task list."""
+    """Return (name_lookup, id_lookup, code_lookup) dicts from a task list.
+    code_lookup indexes P6 activity codes (task_code field, e.g. PS-CMIL-1170).
+    """
     by_name: dict = {}
     by_id: dict = {}
+    by_code: dict = {}  # P6 activity code -> task
     for t in tasks:
         name = (t.get("name") or t.get("task_name") or "").strip().lower()
         tid = str(t.get("id") or t.get("task_id") or t.get("activity_id") or "").strip()
+        code = str(t.get("task_code") or "").strip()
         if name:
             by_name[name] = t
         if tid:
             by_id[tid] = t
-    return by_name, by_id
+        if code:
+            by_code[code] = t
+    return by_name, by_id, by_code
 
 
-def _resolve_task(act_name: str, act_id: str, by_name: dict, by_id: dict):
-    """Find a task by activity name or ID."""
-    return by_name.get(act_name.lower()) or by_id.get(act_id) or None
+def _is_p6_activity_code(s: str) -> bool:
+    """Return True if s looks like a P6 activity code (letters-numbers-letters pattern).
+    Examples: PS-CMIL-1170, EL-INST-1000, IB-L1IN-1100
+    """
+    import re
+    return bool(re.match(r'^[A-Z]{1,4}-[A-Z0-9]{2,8}-\d{3,6}$', s.strip()))
+
+
+def _resolve_task(act_name: str, act_id: str, by_name: dict, by_id: dict, by_code: dict = None):
+    """Find a task by P6 activity code, numeric ID, or name (in that priority order)."""
+    # 1. P6 activity code match (highest priority for XER files)
+    if by_code and act_id and _is_p6_activity_code(act_id):
+        t = by_code.get(act_id)
+        if t:
+            return t
+    # 2. Numeric ID match
+    if act_id:
+        t = by_id.get(act_id)
+        if t:
+            return t
+    # 3. Name match (fallback)
+    return by_name.get(act_name.lower()) or None
 
 
 def _extract_finish(task) -> str:
@@ -1276,22 +1464,24 @@ def _load_milestone_map(slug: str) -> str:
         if not milestones:
             return ""
 
-        # Build lookups for all three schedule versions
-        curr_by_name, curr_by_id = _build_task_lookup(_project_tasks.get(slug, []))
-        prev_by_name, prev_by_id = _build_task_lookup(_project_tasks_previous.get(slug, []))
-        base_by_name, base_by_id = _build_task_lookup(_project_tasks_baseline.get(slug, []))
+        # Build lookups for all three schedule versions (name, numeric id, P6 activity code)
+        curr_by_name, curr_by_id, curr_by_code = _build_task_lookup(_project_tasks.get(slug, []))
+        prev_by_name, prev_by_id, prev_by_code = _build_task_lookup(_project_tasks_previous.get(slug, []))
+        base_by_name, base_by_id, base_by_code = _build_task_lookup(_project_tasks_baseline.get(slug, []))
 
         lines = [
             "STANDARDIZED MILESTONES (dates cross-referenced across schedule versions — VERIFIED = 2+ sources agree):"
         ]
+        # Collect entries as (sort_date, is_contract_completion, line_text) for date-based ordering
+        _milestone_entries = []  # list of (datetime_or_None, is_contract_completion: bool, line: str)
         for m in sorted(milestones, key=lambda x: x.get("sort", 99)):
             std = m["standardized_name"]
             act_name = (m.get("activity_name") or "").strip()
             act_id = str(m.get("activity_id") or "")
 
-            curr_task = _resolve_task(act_name, act_id, curr_by_name, curr_by_id)
-            prev_task = _resolve_task(act_name, act_id, prev_by_name, prev_by_id)
-            base_task = _resolve_task(act_name, act_id, base_by_name, base_by_id)
+            curr_task = _resolve_task(act_name, act_id, curr_by_name, curr_by_id, curr_by_code)
+            prev_task = _resolve_task(act_name, act_id, prev_by_name, prev_by_id, prev_by_code)
+            base_task = _resolve_task(act_name, act_id, base_by_name, base_by_id, base_by_code)
 
             # Helper: parse a date string in either YYYY-MM-DD or MM/DD/YY or MM/DD/YYYY
             def _parse_date_flex(s):
@@ -1381,7 +1571,9 @@ def _load_milestone_map(slug: str) -> str:
                     except Exception:
                         pass
 
-                lines.append(f"  - {std}: {date_str}{bl_str}{prev_str}{var_str}{drift_str}{pct_str}  {confidence}")
+                _is_cc = "contract completion" in std.lower() or "substantial completion" in std.lower()
+                _sort_dt = _parse_date_flex(curr_finish) if curr_finish else None
+                _milestone_entries.append((_sort_dt, _is_cc, f"  - {std}: {date_str}{bl_str}{prev_str}{var_str}{drift_str}{pct_str}  {confidence}"))
             else:
                 # No current task match — use stored current_date from milestone_map if available
                 stored_current = m.get("current_date", "")
@@ -1401,11 +1593,27 @@ def _load_milestone_map(slug: str) -> str:
                         except Exception:
                             pass
                     prev_str = f" | Prior Update: {prev_finish}" if prev_finish else ""
-                    lines.append(f"  - {std}: Forecast: {curr_finish}{prev_str}{var_str}  [VERIFIED — milestone map]")
+                    _is_cc = "contract completion" in std.lower() or "substantial completion" in std.lower()
+                    _sort_dt = _parse_date_flex(curr_finish) if curr_finish else None
+                    _milestone_entries.append((_sort_dt, _is_cc, f"  - {std}: Forecast: {curr_finish}{prev_str}{var_str}  [VERIFIED — milestone map]"))
                 elif act_name and act_name != std:
-                    lines.append(f"  - {std}  (activity: '{act_name}' — date not resolved)")
+                    _is_cc = "contract completion" in std.lower() or "substantial completion" in std.lower()
+                    _milestone_entries.append((None, _is_cc, f"  - {std}  (activity: '{act_name}' — date not resolved)"))
                 else:
-                    lines.append(f"  - {std}  (date not resolved)")
+                    _is_cc = "contract completion" in std.lower() or "substantial completion" in std.lower()
+                    _milestone_entries.append((None, _is_cc, f"  - {std}  (date not resolved)"))
+
+        # Sort: non-CC milestones by finish date ascending (None dates go last within non-CC),
+        # Contract Completion always pinned as the final entry.
+        from datetime import datetime as _dt_sort
+        _non_cc = [(dt, line) for dt, is_cc, line in _milestone_entries if not is_cc]
+        _cc     = [(dt, line) for dt, is_cc, line in _milestone_entries if is_cc]
+        _non_cc_sorted = sorted(_non_cc, key=lambda x: x[0] if x[0] else _dt_sort(9999, 1, 1))
+        _cc_sorted     = sorted(_cc,     key=lambda x: x[0] if x[0] else _dt_sort(9999, 1, 1))
+        for _, line in _non_cc_sorted:
+            lines.append(line)
+        for _, line in _cc_sorted:
+            lines.append(line)
 
         return "\n".join(lines)
     except Exception as e:

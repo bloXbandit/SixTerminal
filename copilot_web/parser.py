@@ -207,6 +207,7 @@ class P6Parser:
             float_hrs = 8.0
         return {
             "id": str(row.get("task_id", "")),
+            "task_code": str(row.get("task_code", "") or ""),  # P6 activity code (e.g. PS-CMIL-1170)
             "name": str(row.get("task_name", "") or ""),
             "milestone": is_milestone,
             "summary": is_summary,

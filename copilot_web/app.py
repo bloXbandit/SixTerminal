@@ -565,6 +565,7 @@ You are an expert, executive-level project controls engineer. Analyze schedule u
 
 **Milestones**
 • List 4-5 key milestones using standard names
+• Order milestones by current forecast finish date, earliest first. Contract Completion must always be the last bullet regardless of its date.
 • Use MILESTONE FORMATTING RULES exactly: FORMAT A for improved, FORMAT B for delayed, FORMAT C for unchanged. Never use "Slipped", "Maintained", or "acceleration".
 
 **Critical Path Analysis**
@@ -582,7 +583,7 @@ You are an expert, executive-level project controls engineer. Analyze schedule u
 
 **Variance Analysis**
 • Explain the primary source of the critical path shift or completion date variance. Trace it to the specific task level.
-• Detail significant anomalies, major slips, or logic quality flags (open-ended activities, float consumption, FRAGNET impacts)
+• Detail significant anomalies, major slips, or logic quality flags — but ONLY for active, incomplete activities. Completed activities (100% complete) with missing logic ties are documentation artifacts and must NOT be mentioned in the report.
 • Summarize why the project maintained, improved, or slipped its final completion date based on delays vs. available float
 
 **Recommendations**

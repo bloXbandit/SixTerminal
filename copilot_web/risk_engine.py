@@ -191,18 +191,24 @@ def run_risk_diagnostics(
             continue
         no_pred = tid not in has_predecessor
         no_succ = tid not in has_successor
+        pct_h3 = _pct(t)
         if no_pred and no_succ:
-            findings["schedule_health"].append({
-                "priority": "HIGH",
-                "description": (
-                    f"Activity '{display}' (ID: {tid}) has no predecessor and no successor. "
-                    f"This activity is completely disconnected from the schedule network — "
-                    f"it cannot drive or be driven by any other work, and its dates are unreliable."
-                ),
-                "activity_name": display,
-                "activity_id": tid,
-            })
-        elif no_pred and _pct(t) < 100:
+            if pct_h3 >= 100:
+                # Completed activity with no logic ties — documentation artifact only.
+                # Do NOT surface as a risk in report or chat mode.
+                pass
+            else:
+                findings["schedule_health"].append({
+                    "priority": "HIGH",
+                    "description": (
+                        f"Activity '{display}' (ID: {tid}) is {pct_h3:.0f}% complete with no predecessor "
+                        f"and no successor. This activity is completely disconnected from the schedule "
+                        f"network — its dates are unreliable and it cannot drive or be driven by adjacent work."
+                    ),
+                    "activity_name": display,
+                    "activity_id": tid,
+                })
+        elif no_pred and pct_h3 < 100:
             findings["schedule_health"].append({
                 "priority": "MEDIUM",
                 "description": (
@@ -213,7 +219,7 @@ def run_risk_diagnostics(
                 "activity_name": display,
                 "activity_id": tid,
             })
-        elif no_succ and _pct(t) < 100:
+        elif no_succ and pct_h3 < 100:
             findings["schedule_health"].append({
                 "priority": "MEDIUM",
                 "description": (
