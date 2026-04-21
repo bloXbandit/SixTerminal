@@ -1248,6 +1248,39 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                 except Exception as _spi_e:
                     logger.debug(f"[{slug}] SPI computation failed: {_spi_e}")
 
+                # --- Contract completion date for portfolio view ---
+                try:
+                    _mm_path = os.path.join(PROJECTS_DIR, slug, "milestone_map.json")
+                    if os.path.exists(_mm_path):
+                        _mm_data = read_encrypted_json(_mm_path)
+                        _cc_date = ""
+                        _cc_act_id = ""
+                        _cc_act_name = ""
+                        for _mm in _mm_data.get("milestones", []):
+                            _std = (_mm.get("standardized_name") or "").lower()
+                            if "contract completion" in _std or "substantial completion" in _std:
+                                _cc_date = _mm.get("current_date") or ""
+                                _cc_act_id = str(_mm.get("activity_id") or "")
+                                _cc_act_name = (_mm.get("activity_name") or "").strip()
+                                break
+                        # If no stored current_date, resolve from current tasks
+                        if not _cc_date and (_cc_act_id or _cc_act_name):
+                            _cc_by_name, _cc_by_id, _cc_by_code = _build_task_lookup(
+                                _project_tasks.get(slug, [])
+                            )
+                            _cc_task = _resolve_task(
+                                _cc_act_name, _cc_act_id,
+                                _cc_by_name, _cc_by_id, _cc_by_code
+                            )
+                            _cc_date = _extract_finish(_cc_task)
+                        if _cc_date:
+                            _cc_date = str(_cc_date)[:10]
+                            if slug in _project_health:
+                                _project_health[slug]["contract_completion_date"] = _cc_date
+                            logger.debug(f"[{slug}] Contract completion date: {_cc_date}")
+                except Exception as _cc_e:
+                    logger.debug(f"[{slug}] Contract completion date lookup failed: {_cc_e}")
+
     # --- Schedule risk diagnostics ---
     try:
         from risk_engine import run_risk_diagnostics, format_risk_for_context

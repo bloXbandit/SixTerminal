@@ -258,9 +258,11 @@ def get_portfolio_summary(schedule_flags: Optional[Dict[str, bool]] = None) -> s
             comp = "N/A"
             slip = "N/A"
             accel = "N/A"
+        cc_date = h.get("contract_completion_date", "") if h else ""
+        cc_str = f" | CC: {cc_date}" if cc_date else ""
         return (f"  {name:<22} | {data.get('type','N/A'):<14} | {total} update(s) | "
                 f"Data: {data_date} | {status:<14} | {comp:>6} complete | "
-                f"Slip: {slip} | Accel: {accel}")
+                f"Slip: {slip} | Accel: {accel}{cc_str}")
 
     if construction:
         lines.append("CONSTRUCTION PROJECTS:")
@@ -326,10 +328,35 @@ def get_portfolio_summary(schedule_flags: Optional[Dict[str, bool]] = None) -> s
             )
         lines.append("")
 
+    # Contract completion dates block — for proximity/timing questions only
+    _cc_projects = [
+        (slug, h) for slug, h in _health_map.items()
+        if h.get("contract_completion_date")
+    ]
+    if _cc_projects:
+        # Sort by contract completion date ascending (soonest first)
+        from datetime import datetime as _dt_cc
+        def _cc_sort_key(item):
+            try:
+                s = item[1]["contract_completion_date"]
+                for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y"):
+                    try: return _dt_cc.strptime(s[:10], fmt)
+                    except ValueError: pass
+            except Exception: pass
+            return _dt_cc(9999, 1, 1)
+        _cc_projects.sort(key=_cc_sort_key)
+        lines.append("CONTRACT COMPLETION DATES BY PROJECT — use only when user asks about completion timing or proximity:")
+        for _cc_slug, _cc_h in _cc_projects:
+            _cc_name = _tracker_cache.get(_cc_slug, {}).get("project_name", _cc_slug)
+            _cc_d = _cc_h["contract_completion_date"]
+            lines.append(f"  {_cc_name:<22} Contract Completion: {_cc_d}")
+        lines.append("")
+
     lines.append(
         "NOTE: Health status is computed from baseline drift variance. "
         "Compression % = average % complete across all non-summary activities. "
         "SPI is an activity-count proxy (not cost-based unless schedule is resource-loaded). "
+        "Contract completion dates are resolved from the standardized milestone map. "
         "For full schedule detail, user must select a project from the dropdown."
     )
 
