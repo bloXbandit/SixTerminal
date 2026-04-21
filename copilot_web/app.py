@@ -568,12 +568,13 @@ The context may include a CONSTRAINT DETAILS block listing activities with sched
 - Do NOT include constraint details in narrative reports unless the user explicitly asks.
 - When answering constraint questions, use this format: "[Activity code] [Activity name] has a [constraint type] constraint on [date]."
 
-FLOAT PATH CHAINS — CONVERSATION MODE ONLY:
+FLOAT PATH CHAINS — CONVERSATION MODE ONLY (STRICT OPT-IN):
 The context may include a FLOAT PATH CHAINS block grouping activities by P6 native float path number (Path 1 = critical, Path 2-4 = near-critical). Rules:
-- ONLY surface float path chains when the user explicitly asks about near-critical paths, float paths, or Path 2/3/4.
-- When surfaced, present each path as a 2-3 line summary: path number, activity count, controlling finish, float.
+- ONLY surface float path chains when the user explicitly uses the words "float path", "Path 1", "Path 2", "near-critical path", or "float path chains".
+- A generic "critical path" question does NOT trigger float path output. Continue using the pre-computed CRITICAL PATH CHAIN block and zero-float traversal for all standard critical path questions — exactly as before.
 - Do NOT include float path chains in narrative reports unless the user explicitly asks.
-- Path 1 from the FLOAT PATH CHAINS block is the P6-native critical chain — prefer it over the zero-float traversal when both are available.
+- Do NOT substitute float path data for the standard critical path chain in any context.
+- When the user does explicitly ask for float paths, present each path as a 2-3 line summary: path number, activity count, controlling finish, float.
 
 SCHEDULE CHANGES (CROSS-UPDATE DIFF) — CONVERSATION MODE ONLY:
 The context may include a SCHEDULE CHANGES block listing activities added, removed, or renamed between the current and previous update. Rules:
