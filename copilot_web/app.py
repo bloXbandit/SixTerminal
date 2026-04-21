@@ -351,6 +351,15 @@ Answer only that category. Example: "2 projects are experiencing delays — Anah
 MODE 3 — SPECIFIC PROJECT ("how is Anaheim doing?", "what's the status of Frisco?"):
 Pull that project's health tag, compression %, and max slip/accel from the table. Give a tight 2-3 sentence answer covering status, how far through the build they are, and the worst movement vs baseline. Then offer to drill in further if they select the project.
 
+MODE 4 — PRIORITIZATION / FOCUS QUESTIONS ("which projects need attention?", "where should we focus?", "what are the priorities?", "which are struggling?"):
+Use the SCHEDULE PERFORMANCE INDEX (SPI) BY PROJECT block in the PORTFOLIO OVERVIEW. This ranks projects by SPI ascending (lowest = furthest behind planned pace). Respond with a concise prioritized list:
+- Lead with the lowest-SPI projects as the ones needing the most attention.
+- Use natural language: "Mt. Juliet has the lowest SPI at 0.57 — only 28 of 49 planned activities are complete by the data date, which puts it significantly behind its planned pace and warrants immediate focus."
+- Flag the severity tier: SPI < 0.70 = critical concern, 0.70–0.84 = moderate concern, 0.85–0.94 = watch, ≥ 0.95 = on pace.
+- If SPI data is only available for some projects, note that others lack a parsed baseline for comparison.
+- Do NOT include SPI in a full portfolio rundown (Mode 1) unless the user specifically asks — keep the overview clean. SPI is for priority/focus questions only.
+- SPI is an activity-count proxy, not cost-based. Mention this once if relevant: "Note: SPI here is based on activity count, not cost — resource-loaded schedules would give a cost-weighted figure."
+
 RULES FOR ALL MODES:
 - Never say "working days". Always say "calendar days".
 - Never invent data. If a project has NO SCHEDULE DATA, say so rather than guessing.
@@ -1156,7 +1165,7 @@ def upload_file():
 
     ext = os.path.splitext(f.filename)[1].lower()
     allowed = {".mpp", ".xml", ".xer", ".csv", ".txt", ".md",
-               ".docx", ".pdf", ".png", ".jpg", ".jpeg", ".webp", ".gif"}
+               ".docx", ".pdf", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".xlsx"}
     if ext not in allowed:
         return jsonify({"error": f"Unsupported file type: {ext}. Supported: {', '.join(sorted(allowed))}"}), 400
 
@@ -1221,6 +1230,92 @@ def upload_file():
                     logger.info(f"[{project_slug}] Auto-snapped prior_update_date for {snapped} milestones before loading {f.filename}")
             except Exception as _snap_e:
                 logger.warning(f"[{project_slug}] prior_update_date snapshot failed: {_snap_e}")
+
+        # ── Milestone Map XLSX auto-rebuild ──
+        # If the uploaded file is named "Milestone Map.xlsx" (any case/spacing),
+        # parse it inline and write updated milestone_map.json to every matching
+        # project folder. Projects are reloaded immediately after.
+        _is_milestone_xlsx = (
+            ext == ".xlsx" and
+            f.filename.lower().replace(" ", "_") in ("milestone_map.xlsx", "milestone map.xlsx")
+        )
+        if _is_milestone_xlsx:
+            try:
+                import openpyxl as _opxl
+                import json as _json
+                from project_loader import PROJECTS_DIR as _PD
+                try:
+                    from build_milestone_map import SLUG_MAP as _SLUG_MAP
+                except ImportError:
+                    _SLUG_MAP = {}
+                    logger.warning("build_milestone_map.SLUG_MAP not importable — milestone rebuild may skip projects")
+
+                def _is_na(v):
+                    return v is None or str(v).strip().upper() == "N/A"
+
+                _wb = _opxl.load_workbook(tmp_path, read_only=True)
+                _ws = _wb.active
+                _by_project = {}
+                for _ri, _row in enumerate(_ws.iter_rows(values_only=True)):
+                    if _ri == 0:
+                        continue  # skip header
+                    _ptype = str(_row[0]).strip() if _row[0] else ""
+                    _pname = str(_row[1]).strip() if _row[1] else ""
+                    _sname = str(_row[2]).strip() if _row[2] else ""
+                    _aid   = _row[3]
+                    _sort  = _row[4]
+                    _aname = str(_row[5]).strip() if _row[5] else ""
+                    if not _pname or not _sname:
+                        continue
+                    if _is_na(_aid) and _is_na(_aname):
+                        continue
+                    if _pname not in _by_project:
+                        _by_project[_pname] = {"type": _ptype, "milestones": []}
+                    _by_project[_pname]["milestones"].append({
+                        "standardized_name": _sname,
+                        "activity_id": None if _is_na(_aid) else _aid,
+                        "activity_name": None if _is_na(_aname) else _aname,
+                        "sort": _sort,
+                    })
+
+                _written = []
+                _skipped = []
+                for _pname, _pdata in _by_project.items():
+                    _slug = _SLUG_MAP.get(_pname)
+                    if not _slug:
+                        _skipped.append(_pname)
+                        continue
+                    _pdir = os.path.join(_PD, _slug)
+                    if not os.path.isdir(_pdir):
+                        _skipped.append(_pname)
+                        continue
+                    _mm_path = os.path.join(_pdir, "milestone_map.json")
+                    _payload = {
+                        "project": _pname,
+                        "type": _pdata["type"],
+                        "milestones": sorted(_pdata["milestones"],
+                                             key=lambda x: x["sort"] or 99),
+                    }
+                    with open(_mm_path, "w", encoding="utf-8") as _mf:
+                        _json.dump(_payload, _mf, indent=2)
+                    _written.append(_slug)
+
+                # Reload all projects so new milestone maps take effect immediately
+                try:
+                    load_all_projects()
+                except Exception as _rl_e:
+                    logger.warning(f"Reload after milestone map rebuild failed: {_rl_e}")
+
+                _rebuild_summary = (
+                    f"Milestone Map rebuilt: {len(_written)} project(s) updated "
+                    f"({', '.join(_written[:10])}{'...' if len(_written) > 10 else ''}). "
+                    + (f"{len(_skipped)} skipped (no matching project folder)." if _skipped else "")
+                )
+                logger.info(f"Milestone Map XLSX rebuild: {_rebuild_summary}")
+                content = f"[Milestone Map XLSX]\n{_rebuild_summary}"
+            except Exception as _mm_e:
+                logger.warning(f"Milestone Map XLSX rebuild failed: {_mm_e}")
+                content = f"[Milestone Map XLSX — rebuild failed: {_mm_e}]"
 
         # ── Screenshot structured extraction ──
         _is_screenshot = request.form.get("is_screenshot", "") == "1" or ext in (".png", ".jpg", ".jpeg", ".webp", ".gif")

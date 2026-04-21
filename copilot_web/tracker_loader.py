@@ -299,9 +299,37 @@ def get_portfolio_summary(schedule_flags: Optional[Dict[str, bool]] = None) -> s
         lines.append(f"  NO SCHEDULE DATA    ({len(no_data)}): {_names(no_data) or 'none'}")
         lines.append("")
 
+    # SPI priority block — list projects with SPI data sorted ascending (lowest = most behind)
+    _spi_projects = [
+        (slug, h) for slug, h in _health_map.items()
+        if h.get("spi") is not None
+    ]
+    if _spi_projects:
+        _spi_projects.sort(key=lambda x: x[1]["spi"])
+        lines.append("SCHEDULE PERFORMANCE INDEX (SPI) BY PROJECT — for prioritization:")
+        lines.append("  (Lower SPI = further behind planned pace. Use for focus/priority questions.)")
+        for _sp_slug, _sp_h in _spi_projects:
+            _sp_name = _tracker_cache.get(_sp_slug, {}).get("project_name", _sp_slug)
+            _sp_val  = _sp_h["spi"]
+            _sp_act  = _sp_h.get("spi_actual", "?")
+            _sp_plan = _sp_h.get("spi_planned", "?")
+            _flag = ""
+            if _sp_val < 0.70:
+                _flag = "  [CRITICAL — significantly behind planned pace]"
+            elif _sp_val < 0.85:
+                _flag = "  [CONCERN — moderately behind planned pace]"
+            elif _sp_val < 0.95:
+                _flag = "  [WATCH — slightly behind planned pace]"
+            lines.append(
+                f"  {_sp_name:<22} SPI: {_sp_val:.2f}  "
+                f"({_sp_act}/{_sp_plan} activities complete){_flag}"
+            )
+        lines.append("")
+
     lines.append(
         "NOTE: Health status is computed from baseline drift variance. "
         "Compression % = average % complete across all non-summary activities. "
+        "SPI is an activity-count proxy (not cost-based unless schedule is resource-loaded). "
         "For full schedule detail, user must select a project from the dropdown."
     )
 

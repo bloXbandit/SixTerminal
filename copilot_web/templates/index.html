@@ -141,6 +141,18 @@
   }
   .project-bar select:focus { border-color: #1a3a5c; }
   .project-bar .has-data { border-color: #28a745; }
+  /* Portfolio option highlight */
+  .project-bar select option.portfolio-opt {
+    background: #0078D4;
+    color: #fff;
+    font-weight: 600;
+  }
+  .project-bar select.portfolio-mode {
+    background: #0078D4;
+    color: #fff;
+    border-color: #0056a3;
+    font-weight: 600;
+  }
   .quick-bar {
     padding: 5px 8px;
     display: flex;
@@ -450,6 +462,7 @@
 
     <div class="project-bar">
       <select id="projectSelect" onchange="onProjectChange()">
+        <option value="__portfolio__" class="portfolio-opt">&#127968; Portfolio View</option>
         <option value="">— Select Project —</option>
       </select>
       <select id="pageSelect" style="display:none" onchange="onPageChange()">
@@ -673,13 +686,16 @@
   function onProjectChange() {
     clearLoadCheck();
     const sel = document.getElementById("projectSelect");
-    selectedProjectSlug = sel.value;
+    const rawVal = sel.value;
+    // Treat __portfolio__ sentinel as no-project (portfolio mode)
+    const isPortfolio = (rawVal === "__portfolio__" || rawVal === "");
+    selectedProjectSlug = isPortfolio ? "" : rawVal;
     selectedPageView = "";
 
     const pageSel = document.getElementById("pageSelect");
     pageSel.innerHTML = "<option value=\"\">— Page View —</option>";
 
-    if (selectedProjectSlug) {
+    if (!isPortfolio && selectedProjectSlug) {
       const proj = projectData.find(p => p.slug === selectedProjectSlug);
       if (proj && proj.pages) {
         proj.pages.forEach(pg => {
@@ -736,13 +752,15 @@
       });
       loadProjectDocs(selectedProjectSlug);
     } else {
+      // Portfolio mode
+      sel.className = "portfolio-mode";
       pageSel.style.display = "none";
       document.getElementById("docsPanel").style.display = "none";
     }
     // Reset history first, then inject the project-switch signal so the agent
     // always knows which project is active without the user having to state it.
     messages = [];
-    if (selectedProjectSlug) {
+    if (selectedProjectSlug && selectedProjectSlug !== "__portfolio__") {
       const proj = projectData.find(p => p.slug === selectedProjectSlug);
       const projName = proj ? proj.display_name : selectedProjectSlug;
       messages.push({
@@ -752,6 +770,16 @@
       messages.push({
         role: "assistant",
         content: `Switched to **${projName}** — ready.`
+      });
+    } else if (isPortfolio) {
+      // Portfolio mode — inject signal so agent knows to operate at portfolio level
+      messages.push({
+        role: "user",
+        content: "[PORTFOLIO VIEW] No project selected. Respond at portfolio level — overview, health summary, and cross-project analysis only."
+      });
+      messages.push({
+        role: "assistant",
+        content: "Portfolio view active — ready for portfolio-level questions."
       });
     }
   }
