@@ -1772,19 +1772,32 @@ def _is_p6_activity_code(s: str) -> bool:
 
 
 def _resolve_task(act_name: str, act_id: str, by_name: dict, by_id: dict, by_code: dict = None):
-    """Find a task by P6 activity code, numeric ID, or name (in that priority order)."""
+    """Find a task by P6 activity code, name, or numeric ID (in that priority order).
+
+    Priority:
+      1. P6 activity code  - XER files only (e.g. PS-CMIL-1170); stable across updates.
+      2. Name match        - tried BEFORE numeric ID so that MPP projects (whose MPXJ
+                             integer IDs shift whenever tasks are added/removed) resolve
+                             correctly by activity name rather than a stale ID.
+      3. Numeric ID        - last-resort fallback; reliable for XER task_id but not for
+                             MPP integer IDs which are not stable across file versions.
+    """
     # 1. P6 activity code match (highest priority for XER files)
     if by_code and act_id and _is_p6_activity_code(act_id):
         t = by_code.get(act_id)
         if t:
             return t
-    # 2. Numeric ID match
+    # 2. Name match - wins over numeric ID for MPP projects
+    if act_name:
+        t = by_name.get(act_name.strip().lower())
+        if t:
+            return t
+    # 3. Numeric ID fallback (last resort)
     if act_id:
         t = by_id.get(act_id)
         if t:
             return t
-    # 3. Name match (fallback)
-    return by_name.get(act_name.lower()) or None
+    return None
 
 
 def _extract_finish(task) -> str:
