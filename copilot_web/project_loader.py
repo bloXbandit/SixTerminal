@@ -261,14 +261,35 @@ def _parse_schedule(filepath: str) -> Optional[dict]:
             if p.df_activities is not None and not p.df_activities.empty:
                 for _, row in p.df_activities.iterrows():
                     xer_tasks.append(p._normalize_task_row(row))
-            # Normalize XER relationships to standard format
+            # Normalize XER relationships — use raw TASKPRED table for correct pred_task_id resolution
+            # df_relationships has pred_task_id=None due to unresolved join; raw table has correct values
             xer_rels = []
-            if p.df_relationships is not None and not p.df_relationships.empty:
-                for _, row in p.df_relationships.iterrows():
-                    xer_rels.append({
-                        "successor_id": str(row.get("task_id", "")),
-                        "predecessor_id": str(row.get("pred_task_id", "")),
-                    })
+            try:
+                raw_taskpred = getattr(p, 'reader', None)
+                if raw_taskpred and hasattr(raw_taskpred, 'tables') and 'TASKPRED' in raw_taskpred.tables:
+                    for _rel in raw_taskpred.tables['TASKPRED']:
+                        _succ = str(_rel.get('task_id', '')).strip()
+                        _pred = str(_rel.get('pred_task_id', '')).strip()
+                        _rtype = str(_rel.get('pred_type', 'PR_FS')).strip()
+                        _lag = str(_rel.get('lag_hr_cnt', '0')).strip()
+                        if _succ and _pred:
+                            xer_rels.append({
+                                "successor_id": _succ,
+                                "predecessor_id": _pred,
+                                "type": _rtype,
+                                "lag": _lag,
+                            })
+                elif p.df_relationships is not None and not p.df_relationships.empty:
+                    # Fallback to df_relationships if raw table unavailable
+                    for _, row in p.df_relationships.iterrows():
+                        xer_rels.append({
+                            "successor_id": str(row.get("task_id", "")),
+                            "predecessor_id": str(row.get("pred_task_id", "")),
+                            "type": str(row.get("pred_type", "PR_FS")),
+                            "lag": str(row.get("lag_hr_cnt", "0")),
+                        })
+            except Exception as _rel_e:
+                logger.warning(f"XER relationship extraction failed: {_rel_e}")
             return {
                 "raw_context": "\n".join(lines),
                 "source": os.path.basename(filepath),
@@ -1514,42 +1535,137 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
     elif verify_pdf:
         active_verify_pdf = verify_pdf  # fall back to unversioned verify.pdf
 
-    # --- RELATIONSHIPS block — raw predecessor table for agent manual CP tracing and delay sourcing ---
-    # Injected as text so the agent can walk any activity's upstream chain when the pre-computed
-    # chain is shallow or the user asks about a specific activity not in the chain.
+    # --- RELATIONSHIPS block — fully resolved predecessor/successor network with logic audit ---
+    # Uses resolved task IDs so the agent can trace activity-level logic, verify open ends,
+    # and identify disconnected float. Replaces the old truncated/unresolved format.
     try:
         curr_rels = current_data.get("relationships", [])
         curr_tasks = current_data.get("tasks", [])
         if curr_rels:
-            # Build ID → name lookup for readable output
+            # Build ID → (code, name, finish, float, is_cp, status) lookup
+            id_to_code: dict = {}
             id_to_name: dict = {}
+            id_to_finish: dict = {}
+            id_to_float: dict = {}
+            id_to_cp: dict = {}
+            id_to_status: dict = {}
             for _t in curr_tasks:
                 _tid = str(_t.get("id") or _t.get("task_id") or _t.get("activity_id") or "").strip()
-                _tname = (_t.get("name") or _t.get("task_name") or "").strip()
-                if _tid and _tname:
+                _tcode = str(_t.get("code") or _t.get("task_code") or _t.get("activity_id") or "").strip()
+                _tname = str(_t.get("name") or _t.get("task_name") or "").strip()
+                _tfinish = str(_t.get("finish") or _t.get("early_end_date") or _t.get("end") or "")[:10]
+                _tfloat_raw = _t.get("total_float") or _t.get("total_float_hr_cnt") or 0
+                try:
+                    _tfloat = round(float(_tfloat_raw) / 8.0, 1)
+                except Exception:
+                    _tfloat = None
+                _tcp = bool(_t.get("is_longest_path") or _t.get("critical") or False)
+                _tstatus = str(_t.get("status") or _t.get("status_code") or "")
+                if _tid:
+                    id_to_code[_tid] = _tcode
                     id_to_name[_tid] = _tname
+                    id_to_finish[_tid] = _tfinish
+                    id_to_float[_tid] = _tfloat
+                    id_to_cp[_tid] = _tcp
+                    id_to_status[_tid] = _tstatus
+
+            # Build successor and predecessor maps
+            succ_to_preds: dict = {}  # succ_id -> [(pred_id, type, lag)]
+            pred_to_succs: dict = {}  # pred_id -> [(succ_id, type, lag)]
+            for _r in curr_rels:
+                _succ = str(_r.get("successor_id") or _r.get("task_id") or "").strip()
+                _pred = str(_r.get("predecessor_id") or _r.get("pred_task_id") or "").strip()
+                _rtype = str(_r.get("type") or _r.get("pred_type") or "PR_FS").strip()
+                _lag = str(_r.get("lag") or _r.get("lag_hr_cnt") or "0").strip()
+                if _succ and _pred:
+                    succ_to_preds.setdefault(_succ, []).append((_pred, _rtype, _lag))
+                    pred_to_succs.setdefault(_pred, []).append((_succ, _rtype, _lag))
+
+            # --- Section 1: Full relationship table (all resolved links) ---
             rel_lines = []
-            for _r in curr_rels[:600]:  # cap at 600 to stay token-efficient
-                succ_id = str(_r.get("task_id") or _r.get("succ_task_id") or "").strip()
-                pred_id = str(_r.get("predecessor_task_id") or _r.get("pred_task_id") or "").strip()
-                rel_type = str(_r.get("type") or _r.get("pred_type") or "FS").strip()
-                if succ_id and pred_id:
-                    succ_name = id_to_name.get(succ_id, "")
-                    pred_name = id_to_name.get(pred_id, "")
-                    succ_str = f"{succ_id} \"{succ_name}\"" if succ_name else succ_id
-                    pred_str = f"{pred_id} \"{pred_name}\"" if pred_name else pred_id
-                    rel_lines.append(f"  {succ_str} → {pred_str} ({rel_type})")
-            if rel_lines:
+            for _r in curr_rels:
+                _succ = str(_r.get("successor_id") or _r.get("task_id") or "").strip()
+                _pred = str(_r.get("predecessor_id") or _r.get("pred_task_id") or "").strip()
+                _rtype = str(_r.get("type") or _r.get("pred_type") or "PR_FS").strip()
+                _lag = str(_r.get("lag") or _r.get("lag_hr_cnt") or "0").strip()
+                if _succ and _pred:
+                    _succ_code = id_to_code.get(_succ, _succ)
+                    _succ_name = id_to_name.get(_succ, "")
+                    _pred_code = id_to_code.get(_pred, _pred)
+                    _pred_name = id_to_name.get(_pred, "")
+                    _succ_str = f"{_succ_code} \"{_succ_name}\"" if _succ_name else _succ_code
+                    _pred_str = f"{_pred_code} \"{_pred_name}\"" if _pred_name else _pred_code
+                    _lag_str = f" lag={_lag}h" if _lag and _lag != "0" else ""
+                    rel_lines.append(f"  {_succ_str} ← {_pred_str} [{_rtype}{_lag_str}]")
+
+            # --- Section 2: Logic audit — open ends and disconnected float ---
+            open_end_lines = []   # incomplete activities with no predecessors
+            no_succ_lines = []    # incomplete activities with no successors (dangling ends)
+            disconnected_float_lines = []  # activities with >15d float not tied to completion chain
+
+            # Identify completion chain activities (CP or near-CP)
+            cp_ids = {_tid for _tid, _cp in id_to_cp.items() if _cp}
+
+            for _tid, _tname in id_to_name.items():
+                _status = id_to_status.get(_tid, "")
+                _is_incomplete = "complete" not in _status.lower() if _status else True
+                _float = id_to_float.get(_tid)
+                _code = id_to_code.get(_tid, _tid)
+                _finish = id_to_finish.get(_tid, "")
+
+                if not _is_incomplete:
+                    continue  # skip completed activities
+
+                _preds = succ_to_preds.get(_tid, [])
+                _succs = pred_to_succs.get(_tid, [])
+
+                # Open start: incomplete activity with no predecessors
+                if not _preds and _tname:
+                    open_end_lines.append(f"  OPEN START: {_code} \"{_tname}\" (Finish:{_finish}, TF={_float}d) — no predecessors")
+
+                # Open end: incomplete activity with no successors
+                if not _succs and _tname:
+                    no_succ_lines.append(f"  OPEN END: {_code} \"{_tname}\" (Finish:{_finish}, TF={_float}d) — no successors")
+
+                # Disconnected float: >15d float, not on CP, has successors but none are on CP
+                if _float is not None and _float > 15 and _tid not in cp_ids:
+                    succ_ids = [s[0] for s in _succs]
+                    succ_on_cp = any(s in cp_ids for s in succ_ids)
+                    if not succ_on_cp and _tname:
+                        disconnected_float_lines.append(
+                            f"  FLOAT WARNING: {_code} \"{_tname}\" (Finish:{_finish}, TF={_float}d) — "
+                            f"{len(succ_ids)} successor(s) but none on critical path"
+                        )
+
+            # Assemble the block
+            if rel_lines or open_end_lines or no_succ_lines or disconnected_float_lines:
                 parts.append("")
                 parts.append(
-                    f"=== RELATIONSHIPS ({len(rel_lines)} links) ===\n"
-                    f"Format: Activity ID \"Name\" → Predecessor ID \"Name\" (type)\n"
-                    f"Use this table to trace any activity's upstream chain manually.\n"
-                    f"To source a delay: find the slipped activity, look up its predecessor IDs here,\n"
-                    f"then look those IDs up in SCHEDULE DATA for their finish dates and float.\n"
-                    f"Walk back until you reach the root driver (earliest activity with no predecessors or earliest start)."
+                    f"=== RELATIONSHIP NETWORK ({len(rel_lines)} links) ===\n"
+                    f"Format: Successor \"Name\" ← Predecessor \"Name\" [type lag]\n"
+                    f"Use this to trace any activity's full predecessor/successor chain.\n"
+                    f"To source a delay: find the slipped activity, look up its predecessors here,\n"
+                    f"walk back until you reach the root driver (earliest activity with no predecessors).\n"
+                    f"To verify logic: check that all incomplete activities have both predecessors and successors."
                 )
-                parts.extend(rel_lines)
+                if rel_lines:
+                    parts.extend(rel_lines[:700])  # cap at 700 lines
+                    if len(rel_lines) > 700:
+                        parts.append(f"  ... +{len(rel_lines) - 700} more relationships (use activity codes to query specific chains)")
+
+                if open_end_lines or no_succ_lines or disconnected_float_lines:
+                    parts.append("")
+                    parts.append("=== LOGIC AUDIT ===")
+                    parts.append("Activities flagged below have logic issues that may affect schedule reliability.")
+                    if open_end_lines:
+                        parts.append(f"\nOPEN STARTS ({len(open_end_lines)}) — incomplete activities with no predecessors (schedule-driven, not logic-driven):")
+                        parts.extend(open_end_lines[:30])
+                    if no_succ_lines:
+                        parts.append(f"\nOPEN ENDS ({len(no_succ_lines)}) — incomplete activities with no successors (dangling, not tied to completion):")
+                        parts.extend(no_succ_lines[:30])
+                    if disconnected_float_lines:
+                        parts.append(f"\nDISCONNECTED FLOAT ({len(disconnected_float_lines)}) — activities with >15d float whose successors are not on the critical path:")
+                        parts.extend(disconnected_float_lines[:30])
     except Exception as _rele:
         logger.warning(f"[{slug}] Relationships injection failed: {_rele}")
 
