@@ -6,87 +6,100 @@
       "standardized_name": "NTP",
       "activity_id": "PS-CMIL-1040",
       "activity_name": "Notice to Proceed",
-      "sort": 1
+      "sort": 1,
+      "baseline_date": "09/11/25",
+      "prior_update_date": "09/11/25",
+      "current_date": "09/11/25"
     },
     {
       "standardized_name": "Foundation Complete",
       "activity_id": "FS-LVL1-1020",
-      "activity_name": "Erect Stairs & Elevator Shafts (CMU Cores)",
+      "activity_name": "Footings & Foundation Cip Walls (Includes Elevator Pit)",
       "sort": 2,
-      "prior_update_date": "2026-02-27",
-      "current_date": "2026-03-30"
+      "baseline_date": "02/16/26",
+      "prior_update_date": "03/06/26",
+      "current_date": "03/23/26"
     },
     {
       "standardized_name": "Structure Top Out",
       "activity_id": "PS-CMIL-1120",
       "activity_name": "Structure Complete",
       "sort": 3,
-      "prior_update_date": "2026-06-03",
-      "current_date": "2026-07-08"
+      "baseline_date": "06/05/26",
+      "prior_update_date": "07/01/26",
+      "current_date": "07/08/26"
     },
     {
       "standardized_name": "Weather Tight",
       "activity_id": "PS-CMIL-1130",
       "activity_name": "Building Dry In",
       "sort": 4,
-      "prior_update_date": "2026-07-13",
-      "current_date": "2026-08-14"
+      "baseline_date": "07/14/26",
+      "prior_update_date": "08/10/26",
+      "current_date": "08/14/26"
     },
     {
       "standardized_name": "1st Floor Finishes Complete",
       "activity_id": "IB-L1IN-1100",
       "activity_name": "Install Storage Doors & Hardware",
       "sort": 7,
-      "prior_update_date": "2026-09-21",
-      "current_date": "2026-10-02"
+      "baseline_date": "08/31/26",
+      "prior_update_date": "09/28/26",
+      "current_date": "10/02/26"
     },
     {
       "standardized_name": "2nd Floor Finishes Complete",
       "activity_id": "IB-L2IN-1100",
       "activity_name": "Install Storage Doors & Hardware",
       "sort": 8,
-      "prior_update_date": "2026-08-28",
-      "current_date": "2026-09-18"
+      "baseline_date": "08/31/26",
+      "prior_update_date": "09/14/26",
+      "current_date": "09/18/26"
     },
     {
       "standardized_name": "3rd Floor Finishes Complete",
       "activity_id": "IB-L3IN-1100",
       "activity_name": "Install Storage Doors & Hardware",
       "sort": 9,
-      "prior_update_date": "2026-09-04",
-      "current_date": "2026-09-18"
+      "baseline_date": "09/08/26",
+      "prior_update_date": "09/14/26",
+      "current_date": "09/18/26"
     },
     {
       "standardized_name": "4th Floor Finishes Complete",
       "activity_id": "IB-L4IN-1100",
       "activity_name": "Install Storage Doors & Hardware",
       "sort": 10,
-      "prior_update_date": "2026-09-14",
-      "current_date": "2026-09-18"
+      "baseline_date": "08/17/26",
+      "prior_update_date": "09/14/26",
+      "current_date": "09/18/26"
     },
     {
       "standardized_name": "Elevator Complete",
       "activity_id": "EL-INST-1000",
-      "activity_name": "Evelvator Installation (incl. Equipment Room Buildout)",
+      "activity_name": "Evelvator Installation (Incl. Equipment Room Buildout)",
       "sort": 11,
-      "prior_update_date": "2026-10-07",
-      "current_date": "2026-10-20"
+      "baseline_date": "09/17/26",
+      "prior_update_date": "10/14/26",
+      "current_date": "10/20/26"
     },
     {
       "standardized_name": "Hardscape/Landscape Complete",
       "activity_id": "SW-RTLN-1180",
       "activity_name": "Rutland Drive Punchlist Completion And Signoff",
       "sort": 12,
-      "prior_update_date": "2026-11-23",
-      "current_date": "2026-11-09"
+      "baseline_date": "10/26/26",
+      "prior_update_date": "11/03/26",
+      "current_date": "11/09/26"
     },
     {
       "standardized_name": "Contract Completion",
       "activity_id": "PS-CMIL-1170",
       "activity_name": "Project Substantial Completion With Weather Projection",
       "sort": 13,
-      "prior_update_date": "2026-12-02",
-      "current_date": "2026-12-07"
+      "baseline_date": "11/30/26",
+      "prior_update_date": "12/01/26",
+      "current_date": "12/07/26"
     }
   ]
 }
