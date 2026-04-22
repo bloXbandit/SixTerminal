@@ -26,8 +26,8 @@
       "activity_name": "BLDG A Roofing Complete",
       "sort": 3,
       "baseline_date": null,
-      "prior_update_date": "06/02/26",
-      "current_date": "05/27/26"
+      "prior_update_date": "05/27/26",
+      "current_date": "05/15/26"
     },
     {
       "standardized_name": "Weather Tight",
@@ -35,8 +35,8 @@
       "activity_name": "Exterior Sheathing, Weather Barrier & Rigid Insulation - Building A",
       "sort": 4,
       "baseline_date": null,
-      "prior_update_date": "06/02/26",
-      "current_date": "05/27/26"
+      "prior_update_date": "05/27/26",
+      "current_date": "05/08/26"
     },
     {
       "standardized_name": "Permanent Power",
@@ -44,8 +44,8 @@
       "activity_name": "Permanent Power On- Building A",
       "sort": 5,
       "baseline_date": null,
-      "prior_update_date": "07/08/26",
-      "current_date": "06/22/26"
+      "prior_update_date": "06/22/26",
+      "current_date": "06/04/26"
     },
     {
       "standardized_name": "Conditioned Air",
@@ -53,8 +53,8 @@
       "activity_name": "HVAC Commisioning - Building A",
       "sort": 6,
       "baseline_date": null,
-      "prior_update_date": "07/15/26",
-      "current_date": "07/16/26"
+      "prior_update_date": "07/16/26",
+      "current_date": "06/29/26"
     },
     {
       "standardized_name": "1st Floor Finishes Complete",
@@ -62,7 +62,7 @@
       "activity_name": "Bathroom Accessories- Building A",
       "sort": 7,
       "baseline_date": null,
-      "prior_update_date": "07/17/26",
+      "prior_update_date": "07/13/26",
       "current_date": "07/13/26"
     },
     {
@@ -80,8 +80,8 @@
       "activity_name": "Substantial Completion",
       "sort": 9,
       "baseline_date": null,
-      "prior_update_date": "09/11/26",
-      "current_date": "09/07/26"
+      "prior_update_date": "09/07/26",
+      "current_date": "08/04/26"
     }
   ]
 }
