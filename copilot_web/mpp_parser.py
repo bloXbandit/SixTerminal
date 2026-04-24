@@ -158,27 +158,43 @@ class MPPParser:
             })
 
     def _extract_relationships(self):
-        """Extract task predecessor relationships for CP chain building."""
+        """Extract task predecessor relationships using project.getRelations().
+        
+        Uses the RelationContainer API instead of task.getPredecessors() because
+        getPredecessors() returns an empty list on many MPP files even when
+        relationships exist. project.getRelations() reliably returns all links.
+        """
         self.relationships = []
         try:
+            relations = self.project.getRelations()
+            if not relations:
+                return
+            # Build a task ID lookup for name resolution
+            task_id_to_name = {}
             for task in self.project.getTasks():
-                if task is None or task.getID() is None:
-                    continue
-                preds = task.getPredecessors()
-                if not preds:
-                    continue
-                for pred in preds:
-                    try:
-                        pred_task = pred.getTargetTask()
-                        if pred_task and pred_task.getID() is not None:
-                            self.relationships.append({
-                                "successor_id": str(task.getID()),
-                                "predecessor_id": str(pred_task.getID()),
-                                "type": str(pred.getType()) if pred.getType() else "FS",
-                                "lag": str(pred.getLag()) if pred.getLag() else "0",
-                            })
-                    except Exception:
+                if task is not None and task.getID() is not None:
+                    task_id_to_name[str(task.getID())] = str(task.getName() or "")
+            for rel in relations:
+                try:
+                    pred_task = rel.getPredecessorTask()
+                    succ_task = rel.getSuccessorTask()
+                    if pred_task is None or succ_task is None:
                         continue
+                    pred_id = pred_task.getID()
+                    succ_id = succ_task.getID()
+                    if pred_id is None or succ_id is None:
+                        continue
+                    lag = rel.getLag()
+                    self.relationships.append({
+                        "successor_id": str(succ_id),
+                        "predecessor_id": str(pred_id),
+                        "successor_name": str(succ_task.getName() or ""),
+                        "predecessor_name": str(pred_task.getName() or ""),
+                        "type": str(rel.getType()) if rel.getType() else "FS",
+                        "lag": str(lag) if lag else "0",
+                    })
+                except Exception:
+                    continue
         except Exception as e:
             logger.warning(f"Could not extract relationships: {e}")
 
