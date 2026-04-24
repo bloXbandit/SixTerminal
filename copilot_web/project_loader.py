@@ -1666,6 +1666,118 @@ def _build_versioned_context(slug: str, project_path: str) -> str:
                     if disconnected_float_lines:
                         parts.append(f"\nDISCONNECTED FLOAT ({len(disconnected_float_lines)}) — activities with >15d float whose successors are not on the critical path:")
                         parts.extend(disconnected_float_lines[:30])
+                # --- Section 3: Per-activity backward traces for CP and near-critical activities ---
+                try:
+                    # Build task lookup by ID for trace walking
+                    _trace_task_lookup: dict = {}
+                    for _t in curr_tasks:
+                        _tid2 = str(_t.get("id") or _t.get("task_id") or _t.get("activity_id") or "").strip()
+                        if _tid2:
+                            _trace_task_lookup[_tid2] = _t
+
+                    # Identify activities to pre-trace:
+                    # 1. All CP activities (is_longest_path / critical)
+                    # 2. Near-critical (TF <= 10d) non-summary incomplete activities
+                    _trace_candidates: list = []
+                    for _t in curr_tasks:
+                        if _t.get("summary", False):
+                            continue
+                        _tid2 = str(_t.get("id") or _t.get("task_id") or _t.get("activity_id") or "").strip()
+                        _tname2 = str(_t.get("name") or _t.get("task_name") or "").strip()
+                        if not _tid2 or not _tname2:
+                            continue
+                        _is_cp2 = bool(_t.get("is_longest_path") or _t.get("critical") or False)
+                        _tfloat_raw2 = _t.get("total_float") or _t.get("total_float_hr_cnt") or _t.get("total_slack") or 0
+                        try:
+                            _tfloat2 = round(float(str(_tfloat_raw2).replace('d','').replace('h','').strip()) / (8.0 if 'h' in str(_tfloat_raw2) else 1.0), 1)
+                            # If value looks like days already (small number), keep as-is
+                            if _tfloat2 > 500:  # likely hours
+                                _tfloat2 = round(_tfloat2 / 8.0, 1)
+                        except Exception:
+                            _tfloat2 = None
+                        _pct2 = float(_t.get("percent_complete", 0) or 0)
+                        if _pct2 >= 100:
+                            continue
+                        if _is_cp2 or (_tfloat2 is not None and _tfloat2 <= 10):
+                            _trace_candidates.append((_tid2, _tname2, _tfloat2, _is_cp2))
+
+                    # Walk backward from each candidate (max 30 steps per trace)
+                    def _walk_back(start_id, s_to_p, t_lookup, max_steps=30):
+                        """Walk predecessor chain from start_id, picking lowest-float predecessor at each step."""
+                        visited2 = set()
+                        chain2 = []
+                        cur = start_id
+                        for _ in range(max_steps):
+                            if cur in visited2:
+                                break
+                            visited2.add(cur)
+                            t2 = t_lookup.get(cur)
+                            if t2:
+                                chain2.append((cur, t2))
+                            preds2 = s_to_p.get(cur, [])
+                            candidates2 = [(p, rtype, lag) for p, rtype, lag in preds2 if p not in visited2]
+                            if not candidates2:
+                                break
+                            # Pick predecessor with lowest float (most driving)
+                            def _sort_pred(item):
+                                p_id = item[0]
+                                p_t = t_lookup.get(p_id, {})
+                                p_float_raw = p_t.get("total_float") or p_t.get("total_float_hr_cnt") or p_t.get("total_slack") or 0
+                                try:
+                                    p_float = float(str(p_float_raw).replace('d','').replace('h','').strip())
+                                    if p_float > 500: p_float = p_float / 8.0
+                                except Exception:
+                                    p_float = 9999.0
+                                p_finish = p_t.get("finish") or p_t.get("early_end_date") or p_t.get("end") or ""
+                                return (p_float, p_finish)
+                            best2 = min(candidates2, key=_sort_pred)
+                            cur = best2[0]
+                        return chain2
+
+                    if _trace_candidates:
+                        trace_lines = []
+                        trace_lines.append("")
+                        trace_lines.append(
+                            f"=== ACTIVITY TRACES ({len(_trace_candidates)} CP/near-critical activities) ===\n"
+                            f"Pre-computed backward traces for every critical and near-critical activity.\n"
+                            f"Format: Activity (Code | Finish | TF) ← Step 1 ← Step 2 ... ← ROOT DRIVER\n"
+                            f"Use these to instantly answer 'what is driving X?' or 'trace the delay source for X'.\n"
+                            f"For any activity not listed here, use the RELATIONSHIP NETWORK above to trace manually."
+                        )
+                        # Sort: CP first, then by finish date
+                        _trace_candidates.sort(key=lambda x: (not x[3], str((_trace_task_lookup.get(x[0]) or {}).get("finish") or "")))
+                        for _tid2, _tname2, _tfloat2, _is_cp2 in _trace_candidates[:60]:  # cap at 60 traces
+                            _t2 = _trace_task_lookup.get(_tid2, {})
+                            _code2 = str(_t2.get("code") or _t2.get("task_code") or _tid2)
+                            _finish2 = str(_t2.get("finish") or _t2.get("early_end_date") or "")[:10]
+                            _tf_str2 = f"{_tfloat2}d" if _tfloat2 is not None else "?d"
+                            _cp_tag = " [CP]" if _is_cp2 else f" [TF:{_tf_str2}]"
+                            trace_lines.append(f"")
+                            trace_lines.append(f"  TRACE: {_tname2} ({_code2} | {_finish2}{_cp_tag})")
+                            # Walk back
+                            _chain2 = _walk_back(_tid2, succ_to_preds, _trace_task_lookup)
+                            if len(_chain2) <= 1:
+                                trace_lines.append(f"    ROOT DRIVER: {_tname2} (no predecessors — open start)")
+                            else:
+                                for _step_i, (_step_id, _step_t) in enumerate(_chain2[1:], 1):
+                                    _step_code = str(_step_t.get("code") or _step_t.get("task_code") or _step_id)
+                                    _step_name = str(_step_t.get("name") or _step_t.get("task_name") or "")
+                                    _step_finish = str(_step_t.get("finish") or _step_t.get("early_end_date") or "")[:10]
+                                    _step_float_raw = _step_t.get("total_float") or _step_t.get("total_float_hr_cnt") or _step_t.get("total_slack") or 0
+                                    try:
+                                        _step_float = round(float(str(_step_float_raw).replace('d','').replace('h','').strip()) / (8.0 if float(str(_step_float_raw).replace('d','').replace('h','').strip()) > 500 else 1.0), 1)
+                                    except Exception:
+                                        _step_float = None
+                                    _step_tf_str = f"TF:{_step_float}d" if _step_float is not None else ""
+                                    _is_root = (_step_i == len(_chain2) - 1)
+                                    _prefix = "    ROOT DRIVER" if _is_root else f"    Step {_step_i:>2}"
+                                    trace_lines.append(f"{_prefix} ← {_step_name} ({_step_code} | {_step_finish} | {_step_tf_str})")
+                        if len(_trace_candidates) > 60:
+                            trace_lines.append(f"  ... +{len(_trace_candidates) - 60} more traces omitted (use RELATIONSHIP NETWORK to trace manually)")
+                        parts.extend(trace_lines)
+                except Exception as _trace_e:
+                    logger.debug(f"[{slug}] Activity traces failed: {_trace_e}")
+
     except Exception as _rele:
         logger.warning(f"[{slug}] Relationships injection failed: {_rele}")
 
